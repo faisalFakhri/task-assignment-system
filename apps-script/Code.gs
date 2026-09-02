@@ -781,8 +781,10 @@ function handleViewAttachment(e) {
     return buildErrorResponse("NOT_FOUND", "Attachment image is unavailable");
   }
 
-  return ContentService.createTextOutput(blob.getBytes())
-    .setMimeType(mimeType);
+  const output = ContentService.createBinaryTokenOutput(blob.getBytes());
+  output.setHeader('Content-Type', mimeType);
+  output.setHeader('X-Content-Type-Options', 'nosniff');
+  return output;
 }
 
 // ============================================================
