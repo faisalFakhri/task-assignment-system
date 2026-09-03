@@ -1,5 +1,5 @@
 /* eslint-disable react/set-state-in-effect */
-import { useMemo, useEffect, useState } from 'react'
+import { useMemo, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useTasks } from '../context/TaskContext'
 import type { TaskHistory, TaskStatus } from '../types/task.types'
@@ -38,33 +38,10 @@ export default function DashboardPage() {
   const [recentActivity, setRecentActivity] = useState<TaskHistory[]>([])
   const [loadingActivity, setLoadingActivity] = useState(true)
   const [activityError, setActivityError] = useState<string | null>(null)
-  const [fromDate, setFromDate] = useState('')
-  const [toDate, setToDate] = useState('')
-  const [filterMode, setFilterMode] = useState<FilterMode>('created')
-
-  useEffect(() => {
-    let active = true
-    setLoadingActivity(true)
-    setActivityError(null)
-    fetchRecentHistory(20)
-      .then(list => { if (active) { setRecentActivity(list); setLoadingActivity(false) } })
-      .catch(err => { if (active) { setActivityError(err.message || 'Failed to load activity.'); setLoadingActivity(false) } })
-    return () => { active = false }
-  }, [fetchRecentHistory])
-
   const masters = useMemo(() => ({ consultants, clients, programmers }), [consultants, clients, programmers])
   const activeTasksList = useMemo(() => tasks.filter(t => !t.archived), [tasks])
-  const filteredByDate = useMemo(() => {
-    if (!fromDate && !toDate) return activeTasksList
-    return activeTasksList.filter(t => {
-      if (filterMode === 'target') {
-        if (!t.targetDate) return false
-        return isInDateRange(t.targetDate, fromDate, toDate)
-      }
-      return isInDateRange(t.createdAt, fromDate, toDate)
-    })
-  }, [activeTasksList, fromDate, toDate, filterMode])
-  const hasDateFilter = !!(fromDate || toDate)
+  // Tanpa filter tanggal, gunakan semua tugas aktif
+  const filteredByDate = activeTasksList
   const stats = useMemo(() => {
     const byStatus: Record<string, number> = {}
     ALL_STATUSES.forEach(s => { byStatus[s] = filteredByDate.filter(t => t.status === s).length })
@@ -77,12 +54,6 @@ export default function DashboardPage() {
   const overdueTasks = useMemo(() => filteredByDate.filter(t => { if (t.status === 'Done' || !t.targetDate) return false; const r = getRemainingDays(t.targetDate); return r !== null && r < 0 }).slice(0, 5), [filteredByDate])
   const upcomingDeadlines = useMemo(() => filteredByDate.filter(t => { if (t.status === 'Done' || !t.targetDate) return false; const r = getRemainingDays(t.targetDate); return r !== null && r >= 0 && r <= 3 }).sort((a,b) => (getRemainingDays(a.targetDate) ?? 999) - (getRemainingDays(b.targetDate) ?? 999)).slice(0, 5), [filteredByDate])
   const currentTasks = useMemo(() => filteredByDate.filter(t => t.status !== 'Done').slice(0, 5), [filteredByDate])
-  const applyPreset = (preset: 'today' | '7d' | 'month' | 'reset') => {
-    if (preset === 'today') { setFromDate(TODAY_STR); setToDate(TODAY_STR) }
-    else if (preset === '7d') { setFromDate(addDays(TODAY_STR, -6)); setToDate(TODAY_STR) }
-    else if (preset === 'month') { setFromDate(firstDayOfMonth(TODAY_STR)); setToDate(TODAY_STR) }
-    else { setFromDate(''); setToDate('') }
-  }
 
   return (
     <div className="space-y-4">
@@ -101,34 +72,12 @@ export default function DashboardPage() {
               <h2 className="text-base font-semibold tracking-tight text-slate-800">Dashboard</h2>
               <p className="text-xs text-slate-400 font-mono mt-0.5">
                 Overview relative to {TODAY_STR} · Supabase · {activeTasksList.length} active tasks
-                {hasDateFilter ? <span className="text-violet-600"> · filtered {filteredByDate.length} in range</span> : null}
+                
               </p>
             </div>
             <span className="hidden sm:inline-flex items-center gap-2 glass-subtle rounded-full px-3 py-1 text-[11px] font-mono text-slate-500">soft pastel · light</span>
           </div>
 
-          {/* Date range filter bar */}
-          <div className="glass rounded-2xl p-3 flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-2">
-              <span className="text-[11px] font-bold tracking-widest text-slate-400 uppercase font-mono">Filter Tanggal</span>
-              <div className="flex rounded-full glass-subtle p-0.5 border border-slate-200">
-                <button onClick={() => setFilterMode('created')} className={`px-2.5 py-1 rounded-full text-[11px] font-mono font-semibold transition-colors ${filterMode === 'created' ? 'bg-slate-900 text-white' : 'text-slate-400 hover:text-slate-700'}`}>Created</button>
-                <button onClick={() => setFilterMode('target')} className={`px-2.5 py-1 rounded-full text-[11px] font-mono font-semibold transition-colors ${filterMode === 'target' ? 'bg-slate-900 text-white' : 'text-slate-400 hover:text-slate-700'}`}>Target</button>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <input type="date" value={fromDate} onChange={e => setFromDate(e.target.value)} className="rounded-xl glass-subtle border border-slate-200 px-2.5 py-1.5 text-xs font-mono text-slate-700 bg-white focus:outline-none focus:border-violet-300" />
-              <span className="text-slate-300 font-mono text-xs">—</span>
-              <input type="date" value={toDate} onChange={e => setToDate(e.target.value)} className="rounded-xl glass-subtle border border-slate-200 px-2.5 py-1.5 text-xs font-mono text-slate-700 bg-white focus:outline-none focus:border-violet-300" />
-            </div>
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <button onClick={() => applyPreset('today')} className={`px-2.5 py-1 rounded-full text-[11px] font-mono border transition-colors ${fromDate === TODAY_STR && toDate === TODAY_STR ? 'bg-violet-100 border-violet-300 text-violet-700' : 'glass-subtle border-slate-200 text-slate-500 hover:text-slate-700'}`}>Hari ini</button>
-              <button onClick={() => applyPreset('7d')} className="px-2.5 py-1 rounded-full text-[11px] font-mono glass-subtle border border-slate-200 text-slate-500 hover:text-slate-700">7 Hari</button>
-              <button onClick={() => applyPreset('month')} className="px-2.5 py-1 rounded-full text-[11px] font-mono glass-subtle border border-slate-200 text-slate-500 hover:text-slate-700">Bulan Ini</button>
-              {hasDateFilter && <button onClick={() => applyPreset('reset')} className="px-2.5 py-1 rounded-full text-[11px] font-mono bg-slate-900 text-white font-semibold">Reset</button>}
-            </div>
-            {hasDateFilter && <span className="text-[11px] font-mono text-slate-400">{fromDate || '…'} → {toDate || '…'}</span>}
-          </div>
 
           {/* Per-status cards: Total + 8 statuses */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-9">
@@ -139,7 +88,7 @@ export default function DashboardPage() {
                 <span className="text-[10px] font-bold tracking-widest text-slate-500 uppercase font-mono">Total</span>
               </div>
               <div className="mt-1 text-xl font-semibold font-mono tabular-nums text-slate-800">{stats.total}</div>
-              <div className="text-[11px] font-mono text-slate-400 truncate">{hasDateFilter ? 'in range' : 'active'}</div>
+              <div className="text-[11px] font-mono text-slate-400 truncate">active</div>
               <div className="mt-3 h-1.5 rounded-full bg-slate-100 overflow-hidden"><div className="h-full rounded-full bg-gradient-to-r from-violet-400 to-cyan-400" style={{ width: `${Math.min(100, Math.max(12, stats.total * 4))}%` }} /></div>
             </Link>
             {ALL_STATUSES.map(s => {
@@ -191,7 +140,7 @@ export default function DashboardPage() {
                 <span className="text-xs font-bold text-red-500 uppercase tracking-wider font-mono">Overdue ({stats.overdue})</span>
                 <Link to="/tasks?filter=overdue" className="text-[10px] text-slate-400 font-mono hover:text-slate-600">[View All]</Link>
               </div>
-              {overdueTasks.length === 0 ? <div className="text-xs text-slate-400 font-mono italic py-2">No overdue tasks{hasDateFilter ? ' in range' : ''}.</div> : (
+              {overdueTasks.length === 0 ? <div className="text-xs text-slate-400 font-mono italic py-2">No overdue tasks.</div> : (
                 <div className="divide-y divide-slate-100">
                   {overdueTasks.map(task => (
                     <div key={task.id} className="py-2.5 space-y-1 font-mono text-xs">
@@ -210,7 +159,7 @@ export default function DashboardPage() {
                 <span className="text-xs font-bold text-amber-600 uppercase tracking-wider font-mono">Upcoming Deadlines</span>
                 <Link to="/tasks?filter=assigned" className="text-[10px] text-slate-400 font-mono hover:text-slate-600">[View All]</Link>
               </div>
-              {upcomingDeadlines.length === 0 ? <div className="text-xs text-slate-400 font-mono italic py-2">No tasks due in 3 days{hasDateFilter ? ' in range' : ''}.</div> : (
+              {upcomingDeadlines.length === 0 ? <div className="text-xs text-slate-400 font-mono italic py-2">No tasks due in 3 days.</div> : (
                 <div className="divide-y divide-slate-100">
                   {upcomingDeadlines.map(task => (
                     <div key={task.id} className="py-2.5 space-y-1 font-mono text-xs">
@@ -229,7 +178,7 @@ export default function DashboardPage() {
                 <span className="text-xs font-bold text-slate-700 uppercase tracking-wider font-mono">Active Assignments</span>
                 <Link to="/tasks?filter=all" className="text-[10px] text-slate-400 font-mono hover:text-slate-600">[View All]</Link>
               </div>
-              {currentTasks.length === 0 ? <div className="text-xs text-slate-400 font-mono italic py-2">No active assignments{hasDateFilter ? ' in range' : ''}.</div> : (
+              {currentTasks.length === 0 ? <div className="text-xs text-slate-400 font-mono italic py-2">No active assignments.</div> : (
                 <div className="divide-y divide-slate-100">
                   {currentTasks.map(task => (
                     <div key={task.id} className="py-2.5 space-y-1 font-mono text-xs">

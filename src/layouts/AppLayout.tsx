@@ -95,7 +95,7 @@ export default function AppLayout() {
             {SECTIONS.map((section) => (
               <div key={section.title} className="space-y-1">
                 <div className="px-3 text-[10px] font-bold tracking-widest text-slate-400 uppercase font-mono">{section.title}</div>
-                {renderNavItems(section.items)}
+                {/* compact: items hidden */}
               </div>
             ))}
           </nav>
@@ -126,7 +126,7 @@ export default function AppLayout() {
             {SECTIONS.map((section) => (
               <div key={section.title} className="space-y-1">
                 <div className="px-3 text-[10px] font-bold tracking-widest text-slate-400 uppercase font-mono">{section.title}</div>
-                {renderNavItems(section.items)}
+                {/* compact: items hidden */}
               </div>
             ))}
           </nav>
