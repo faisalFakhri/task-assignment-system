@@ -47,9 +47,19 @@ export default function TasksPage() {
 
   // Sync state with search params (e.g. navigation from Dashboard or sidebar)
   const urlFilter = searchParams.get('filter')
+  const urlStatus = searchParams.get('status')
   const urlId = searchParams.get('id')
 
+  const ALLOWED_STATUSES = ['QC','Open','Assign','Done','Reject','Reopen','Hold','In Progress'] as const
+
   useEffect(() => {
+    // Status param from sidebar has priority — e.g. /tasks?status=QC
+    if (urlStatus && (ALLOWED_STATUSES as readonly string[]).includes(urlStatus)) {
+      setFilterStatus(urlStatus)
+      setFilterOverdueOnly(false)
+      setCurrentPage(1)
+      return
+    }
     // Reset filters and apply presets based on the main category filter
     if (urlFilter) {
       setFilterConsultant('')
@@ -69,8 +79,12 @@ export default function TasksPage() {
         setFilterOverdueOnly(true)
       }
     }
+    // When navigating to /tasks?filter=all or plain /tasks, clear status-driven filter
+    if (!urlFilter && !urlStatus) {
+      // keep current dropdown value — don't force reset, just paginate
+    }
     setCurrentPage(1)
-  }, [urlFilter])
+  }, [urlFilter, urlStatus])
 
   useEffect(() => {
     if (urlId) {
@@ -100,8 +114,11 @@ export default function TasksPage() {
     return Array.from(set)
   }, [tasks])
 
-  // Get current header category title based on urlFilter
+  // Get current header category title based on urlFilter / urlStatus
   const getHeaderTitle = () => {
+    if (urlStatus && (ALLOWED_STATUSES as readonly string[]).includes(urlStatus)) {
+      return `${urlStatus} Tasks`
+    }
     switch (urlFilter) {
       case 'open':
         return 'Open Tasks'
@@ -125,13 +142,14 @@ export default function TasksPage() {
     if (filterType) count++
     if (filterClient) count++
     if (filterProgrammer) count++
-    if (filterStatus && urlFilter !== 'open' && urlFilter !== 'assigned' && urlFilter !== 'completed') count++
+    const statusDrivenBySidebar = !!(urlStatus && (ALLOWED_STATUSES as readonly string[]).includes(urlStatus)) || urlFilter === 'open' || urlFilter === 'assigned' || urlFilter === 'completed'
+    if (filterStatus && !statusDrivenBySidebar) count++
     if (filterSqlServer) count++
     if (filterDatabase) count++
     if (filterOverdueOnly && urlFilter !== 'overdue') count++
     if (searchQuery.trim()) count++
     return count
-  }, [filterConsultant, filterType, filterClient, filterProgrammer, filterStatus, filterSqlServer, filterDatabase, filterOverdueOnly, searchQuery, urlFilter])
+  }, [filterConsultant, filterType, filterClient, filterProgrammer, filterStatus, filterSqlServer, filterDatabase, filterOverdueOnly, searchQuery, urlFilter, urlStatus])
 
   // Process & Filter Tasks
   const filteredTasks = useMemo(() => {
@@ -445,7 +463,7 @@ export default function TasksPage() {
               className={`w-full rounded-xl bg-slate-800/90 border border-white/10 px-2.5 py-2 text-xs text-white focus:outline-none focus:border-violet-400/40 focus:ring-1 focus:ring-violet-400/20 ${
                 filterStatus ? 'border-violet-400/40 bg-violet-500/10 font-semibold text-white' : 'border-white/10 text-white/70'
               }`}
-              disabled={urlFilter === 'open' || urlFilter === 'assigned' || urlFilter === 'completed'}
+              disabled={!!urlStatus || urlFilter === 'open' || urlFilter === 'assigned' || urlFilter === 'completed'}
             >
               <option value="">Status</option>
               <option value="QC">QC</option>

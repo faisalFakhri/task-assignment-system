@@ -16,8 +16,14 @@ const SECTIONS: NavSection[] = [
   { title: 'Overview', items: [{ to: '/dashboard', label: 'Dashboard', exact: true }] },
   { title: 'Tasks', items: [
     { to: '/tasks?filter=all', label: 'All Tasks' },
-    { to: '/tasks?filter=open', label: 'Open' },
-    { to: '/tasks?filter=assigned', label: 'Assigned' },
+    { to: '/tasks?status=QC', label: 'QC' },
+    { to: '/tasks?status=Open', label: 'Open' },
+    { to: '/tasks?status=Assign', label: 'Assign' },
+    { to: '/tasks?status=In%20Progress', label: 'In Progress' },
+    { to: '/tasks?status=Hold', label: 'Hold' },
+    { to: '/tasks?status=Reopen', label: 'Reopen' },
+    { to: '/tasks?status=Reject', label: 'Reject' },
+    { to: '/tasks?status=Done', label: 'Done' },
     { to: '/tasks?filter=overdue', label: 'Overdue' },
   ]},
   { title: 'History', items: [
