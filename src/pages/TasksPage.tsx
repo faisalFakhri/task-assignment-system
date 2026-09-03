@@ -3,7 +3,6 @@ import { useState, useMemo, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useTasks } from '../context/TaskContext'
 import { getRemainingDays } from '../lib/dateUtils'
-import { mockConsultants } from '../data/mockData'
 import StatusBadge from '../components/StatusBadge'
 import TaskTypeBadge from '../components/TaskTypeBadge'
 import DeadlineIndicator from '../components/DeadlineIndicator'
@@ -16,7 +15,7 @@ type SortField = 'id' | 'consultant' | 'type' | 'client' | 'screenReport' | 'sta
 type SortOrder = 'asc' | 'desc'
 
 export default function TasksPage() {
-  const { tasks, clients, programmers, loading, error } = useTasks()
+  const { tasks, clients, consultants, programmers, loading, error } = useTasks()
   const [searchParams, setSearchParams] = useSearchParams()
 
   // Panel state
@@ -112,6 +111,18 @@ export default function TasksPage() {
   const databases = useMemo(() => {
     const set = new Set(tasks.map(t => t.database).filter(Boolean))
     return Array.from(set)
+  }, [tasks])
+
+  const consultantOptions = useMemo(() => {
+    const fromMaster = consultants.map(c => c.name)
+    const fromTasks = tasks.map(t => t.consultant).filter(Boolean) as string[]
+    return Array.from(new Set([...fromMaster, ...fromTasks])).sort((a, b) => a.localeCompare(b))
+  }, [consultants, tasks])
+
+  const typeOptions = useMemo(() => {
+    const distinct = Array.from(new Set(tasks.map(t => t.type).filter(Boolean) as string[]))
+    const base = ['Bugs', 'Improvements'] as string[]
+    return Array.from(new Set([...base, ...distinct])).sort()
   }, [tasks])
 
   // Get current header category title based on urlFilter / urlStatus
@@ -410,8 +421,8 @@ export default function TasksPage() {
               }`}
             >
               <option value="">Consultant</option>
-              {mockConsultants.map(c => (
-                <option key={c.id} value={c.name}>{c.name}</option>
+              {consultantOptions.map(name => (
+                <option key={name} value={name}>{name}</option>
               ))}
             </select>
           </div>
@@ -424,8 +435,9 @@ export default function TasksPage() {
               }`}
             >
               <option value="">Type</option>
-              <option value="Bugs">Bug</option>
-              <option value="Improvements">Improvement</option>
+              {typeOptions.map(tp => (
+                <option key={tp} value={tp}>{tp}</option>
+              ))}
             </select>
           </div>
           <div>
