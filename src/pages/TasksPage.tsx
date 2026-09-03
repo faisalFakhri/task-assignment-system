@@ -304,8 +304,8 @@ export default function TasksPage() {
             <select
               value={filterConsultant}
               onChange={e => setFilterConsultant(e.target.value)}
-              className={`w-full rounded-xl glass-subtle border border-white/10 px-2 py-1.5 text-white focus:outline-none focus:border-violet-400/40 ${
-                filterConsultant ? 'border-violet-400/40 bg-violet-500/10 font-semibold text-white' : 'border-white/10 text-white/60'
+              className={`w-full rounded-xl bg-slate-800/90 border border-white/10 px-2.5 py-2 text-xs text-white focus:outline-none focus:border-violet-400/40 focus:ring-1 focus:ring-violet-400/20 ${
+                filterConsultant ? 'border-violet-400/40 bg-violet-500/10 font-semibold text-white' : 'border-white/10 text-white/70'
               }`}
             >
               <option value="">Consultant</option>
@@ -318,8 +318,8 @@ export default function TasksPage() {
             <select
               value={filterType}
               onChange={e => setFilterType(e.target.value)}
-              className={`w-full rounded-xl glass-subtle border border-white/10 px-2 py-1.5 text-white focus:outline-none focus:border-violet-400/40 ${
-                filterType ? 'border-violet-400/40 bg-violet-500/10 font-semibold text-white' : 'border-white/10 text-white/60'
+              className={`w-full rounded-xl bg-slate-800/90 border border-white/10 px-2.5 py-2 text-xs text-white focus:outline-none focus:border-violet-400/40 focus:ring-1 focus:ring-violet-400/20 ${
+                filterType ? 'border-violet-400/40 bg-violet-500/10 font-semibold text-white' : 'border-white/10 text-white/70'
               }`}
             >
               <option value="">Type</option>
@@ -331,8 +331,8 @@ export default function TasksPage() {
             <select
               value={filterClient}
               onChange={e => setFilterClient(e.target.value)}
-              className={`w-full rounded-xl glass-subtle border border-white/10 px-2 py-1.5 text-white focus:outline-none focus:border-violet-400/40 ${
-                filterClient ? 'border-violet-400/40 bg-violet-500/10 font-semibold text-white' : 'border-white/10 text-white/60'
+              className={`w-full rounded-xl bg-slate-800/90 border border-white/10 px-2.5 py-2 text-xs text-white focus:outline-none focus:border-violet-400/40 focus:ring-1 focus:ring-violet-400/20 ${
+                filterClient ? 'border-violet-400/40 bg-violet-500/10 font-semibold text-white' : 'border-white/10 text-white/70'
               }`}
             >
               <option value="">Client</option>
@@ -345,8 +345,8 @@ export default function TasksPage() {
             <select
               value={filterProgrammer}
               onChange={e => setFilterProgrammer(e.target.value)}
-              className={`w-full rounded-xl glass-subtle border border-white/10 px-2 py-1.5 text-white focus:outline-none focus:border-violet-400/40 ${
-                filterProgrammer ? 'border-violet-400/40 bg-violet-500/10 font-semibold text-white' : 'border-white/10 text-white/60'
+              className={`w-full rounded-xl bg-slate-800/90 border border-white/10 px-2.5 py-2 text-xs text-white focus:outline-none focus:border-violet-400/40 focus:ring-1 focus:ring-violet-400/20 ${
+                filterProgrammer ? 'border-violet-400/40 bg-violet-500/10 font-semibold text-white' : 'border-white/10 text-white/70'
               }`}
             >
               <option value="">Programmer</option>
@@ -359,8 +359,8 @@ export default function TasksPage() {
             <select
               value={filterStatus}
               onChange={e => setFilterStatus(e.target.value)}
-              className={`w-full rounded-xl glass-subtle border border-white/10 px-2 py-1.5 text-white focus:outline-none focus:border-violet-400/40 ${
-                filterStatus ? 'border-violet-400/40 bg-violet-500/10 font-semibold text-white' : 'border-white/10 text-white/60'
+              className={`w-full rounded-xl bg-slate-800/90 border border-white/10 px-2.5 py-2 text-xs text-white focus:outline-none focus:border-violet-400/40 focus:ring-1 focus:ring-violet-400/20 ${
+                filterStatus ? 'border-violet-400/40 bg-violet-500/10 font-semibold text-white' : 'border-white/10 text-white/70'
               }`}
               disabled={urlFilter === 'open' || urlFilter === 'assigned' || urlFilter === 'completed'}
             >
@@ -374,8 +374,8 @@ export default function TasksPage() {
             <select
               value={filterSqlServer}
               onChange={e => setFilterSqlServer(e.target.value)}
-              className={`w-full rounded-xl glass-subtle border border-white/10 px-2 py-1.5 text-white focus:outline-none focus:border-violet-400/40 ${
-                filterSqlServer ? 'border-violet-400/40 bg-violet-500/10 font-semibold text-white' : 'border-white/10 text-white/60'
+              className={`w-full rounded-xl bg-slate-800/90 border border-white/10 px-2.5 py-2 text-xs text-white focus:outline-none focus:border-violet-400/40 focus:ring-1 focus:ring-violet-400/20 ${
+                filterSqlServer ? 'border-violet-400/40 bg-violet-500/10 font-semibold text-white' : 'border-white/10 text-white/70'
               }`}
             >
               <option value="">SQL Server</option>
@@ -388,8 +388,8 @@ export default function TasksPage() {
             <select
               value={filterDatabase}
               onChange={e => setFilterDatabase(e.target.value)}
-              className={`w-full rounded-xl glass-subtle border border-white/10 px-2 py-1.5 text-white focus:outline-none focus:border-violet-400/40 ${
-                filterDatabase ? 'border-violet-400/40 bg-violet-500/10 font-semibold text-white' : 'border-white/10 text-white/60'
+              className={`w-full rounded-xl bg-slate-800/90 border border-white/10 px-2.5 py-2 text-xs text-white focus:outline-none focus:border-violet-400/40 focus:ring-1 focus:ring-violet-400/20 ${
+                filterDatabase ? 'border-violet-400/40 bg-violet-500/10 font-semibold text-white' : 'border-white/10 text-white/70'
               }`}
             >
               <option value="">Database</option>
@@ -399,7 +399,7 @@ export default function TasksPage() {
             </select>
           </div>
           <div className={`flex items-center justify-center border rounded-xl p-1 glass-subtle border-white/10 ${
-            filterOverdueOnly ? 'border-violet-400/40 bg-violet-500/10 font-semibold text-white' : 'border-white/10 text-white/60'
+            filterOverdueOnly ? 'border-violet-400/40 bg-violet-500/10 font-semibold text-white' : 'border-white/10 text-white/70'
           }`}>
             <label className="flex items-center gap-1.5 cursor-pointer select-none">
               <input

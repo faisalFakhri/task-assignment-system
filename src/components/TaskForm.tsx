@@ -211,7 +211,7 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
           <button
             type="submit"
             disabled={submitting}
-            className="rounded-full glass-subtle px-4 py-1 text-xs font-semibold text-slate-900 hover:glass-subtle/90 disabled:opacity-50 min-w-[70px] text-center"
+            className="rounded-full bg-white px-4 py-1.5 text-xs font-semibold text-slate-900 hover:bg-white/90 disabled:opacity-50 min-w-[70px] text-center shadow-lg shadow-black/20"
           >
             {submitting ? (isEditMode ? 'Updating...' : 'Saving...') : 'Save'}
           </button>
@@ -247,7 +247,7 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
               <select
                 value={consultant}
                 onChange={e => setConsultant(e.target.value)}
-                className={`w-full rounded border p-2 focus:outline-none focus:border-violet-400/50 glass-subtle text-xs ${
+                className={`w-full rounded-xl bg-slate-800/90 border px-3 py-2.5 text-sm text-white focus:outline-none focus:border-violet-400/50 focus:ring-1 focus:ring-violet-400/20 ${
                   errors.consultant ? 'border-red-400/40 bg-red-500/10' : 'border-white/10'
                 }`}
               >
@@ -268,7 +268,7 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
               <select
                 value={client}
                 onChange={e => setClient(e.target.value)}
-                className={`w-full rounded border p-2 focus:outline-none focus:border-violet-400/50 glass-subtle text-xs ${
+                className={`w-full rounded-xl bg-slate-800/90 border px-3 py-2.5 text-sm text-white focus:outline-none focus:border-violet-400/50 focus:ring-1 focus:ring-violet-400/20 ${
                   errors.client ? 'border-red-400/40 bg-red-500/10' : 'border-white/10'
                 }`}
               >
@@ -291,7 +291,7 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
               <select
                 value={type}
                 onChange={e => setType(e.target.value as TaskType)}
-                className="w-full rounded-xl glass-subtle border border-white/10 p-2.5 focus:outline-none focus:border-violet-400/50 glass-subtle text-xs"
+                className="w-full rounded-xl bg-slate-800/90 border border-white/10 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-violet-400/50 focus:ring-1 focus:ring-violet-400/20"
               >
                 <option value="Bugs">Bugs</option>
                 <option value="Improvements">Improvements</option>
@@ -304,7 +304,7 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
               <select
                 value={status}
                 onChange={e => setStatus(e.target.value as TaskStatus)}
-                className="w-full rounded-xl glass-subtle border border-white/10 p-2.5 focus:outline-none focus:border-violet-400/50 glass-subtle text-xs"
+                className="w-full rounded-xl bg-slate-800/90 border border-white/10 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-violet-400/50 focus:ring-1 focus:ring-violet-400/20"
               >
                 <option value="Open">Open</option>
                 <option value="Assign">Assign</option>
@@ -322,7 +322,7 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
               value={screenReport}
               onChange={e => setScreenReport(e.target.value)}
               placeholder="e.g. Sales Invoice Screen"
-              className={`w-full rounded border p-2 focus:outline-none focus:border-violet-400/50 glass-subtle text-xs ${
+              className={`w-full rounded-xl bg-slate-800/90 border px-3 py-2.5 text-sm text-white focus:outline-none focus:border-violet-400/50 focus:ring-1 focus:ring-violet-400/20 ${
                 errors.screenReport ? 'border-red-400/40 bg-red-500/10' : 'border-white/10'
               }`}
             />
@@ -344,7 +344,7 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
               onChange={e => setRequest(e.target.value)}
               placeholder="Provide detail requirement description..."
               rows={4}
-              className={`w-full rounded border p-2 focus:outline-none focus:border-violet-400/50 glass-subtle text-xs leading-relaxed ${
+              className={`w-full rounded-xl bg-slate-800/90 border px-3 py-2.5 text-sm text-white focus:outline-none focus:border-violet-400/50 focus:ring-1 focus:ring-violet-400/20 leading-relaxed ${
                 errors.request ? 'border-red-400/40 bg-red-500/10' : 'border-white/10'
               }`}
             />
@@ -365,7 +365,7 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
             <select
               value={programmer}
               onChange={e => setProgrammer(e.target.value)}
-              className="w-full rounded-xl glass-subtle border border-white/10 p-2.5 focus:outline-none focus:border-violet-400/50 glass-subtle text-xs"
+              className="w-full rounded-xl bg-slate-800/90 border border-white/10 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-violet-400/50 focus:ring-1 focus:ring-violet-400/20"
             >
             <option value="">Unassigned</option>
             {programmers.filter(p => p.active || p.name === programmer).map(p => (
@@ -386,7 +386,7 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
                 value={sqlServer}
                 onChange={e => setSqlServer(e.target.value)}
                 placeholder="SRV-SAP-DB01"
-                className="w-full rounded-xl glass-subtle border border-white/10 p-2.5 focus:outline-none focus:border-violet-400/50 glass-subtle text-xs font-mono"
+                className="w-full rounded-xl bg-slate-800/90 border border-white/10 px-3 py-2.5 text-sm text-white font-mono placeholder:text-white/30 focus:outline-none focus:border-violet-400/50 focus:ring-1 focus:ring-violet-400/20"
               />
             </div>
             <div>
@@ -398,7 +398,7 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
                 value={database}
                 onChange={e => setDatabase(e.target.value)}
                 placeholder="DB_PROD"
-                className="w-full rounded-xl glass-subtle border border-white/10 p-2.5 focus:outline-none focus:border-violet-400/50 glass-subtle text-xs font-mono"
+                className="w-full rounded-xl bg-slate-800/90 border border-white/10 px-3 py-2.5 text-sm text-white font-mono placeholder:text-white/30 focus:outline-none focus:border-violet-400/50 focus:ring-1 focus:ring-violet-400/20"
               />
             </div>
           </div>
@@ -417,7 +417,7 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
               type="date"
               value={targetDate}
               onChange={e => setTargetDate(e.target.value)}
-              className="w-full rounded-xl glass-subtle border border-white/10 p-2.5 focus:outline-none focus:border-violet-400/50 glass-subtle text-xs font-mono"
+              className="w-full rounded-xl bg-slate-800/90 border border-white/10 px-3 py-2.5 text-sm text-white font-mono placeholder:text-white/30 focus:outline-none focus:border-violet-400/50 focus:ring-1 focus:ring-violet-400/20"
             />
           </div>
         </div>
@@ -493,7 +493,7 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="rounded border border-gray-300 glass-subtle px-2.5 py-1 text-xs font-semibold text-white/60 hover:glass-subtle"
+                  className="rounded-full bg-white/10 border border-white/10 px-3 py-1.5 text-xs font-semibold text-white hover:bg-white/15"
                 >
                   Choose images...
                 </button>

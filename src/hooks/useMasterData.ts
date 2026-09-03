@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { taskService } from '../services/taskService'
+import { useTasks } from '../context/TaskContext'
 
 export type MasterEntityType = 'clients' | 'consultants' | 'programmers'
 
@@ -13,6 +14,8 @@ export function useMasterData(entity: MasterEntityType) {
   const [data, setData] = useState<MasterRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  // live sync: biar TaskForm langsung lihat data baru tanpa refresh manual
+  const { refreshData } = useTasks()
 
   const fetchData = useCallback(async () => {
     setLoading(true)
@@ -35,21 +38,25 @@ export function useMasterData(entity: MasterEntityType) {
     else if (entity === 'consultants') await taskService.createConsultant({ name })
     else await taskService.createProgrammer({ name })
     await fetchData()
-  }, [entity, fetchData])
+    // sync ke TaskContext biar dropdown di TaskForm langsung kebaca
+    await refreshData()
+  }, [entity, fetchData, refreshData])
 
   const update = useCallback(async (id: string, name: string, active?: boolean) => {
     if (entity === 'clients') await taskService.updateClient(id, { name, active })
     else if (entity === 'consultants') await taskService.updateConsultant(id, { name, active })
     else await taskService.updateProgrammer(id, { name, active })
     await fetchData()
-  }, [entity, fetchData])
+    await refreshData()
+  }, [entity, fetchData, refreshData])
 
   const remove = useCallback(async (id: string) => {
     if (entity === 'clients') await taskService.deleteClient(id)
     else if (entity === 'consultants') await taskService.deleteConsultant(id)
     else await taskService.deleteProgrammer(id)
     await fetchData()
-  }, [entity, fetchData])
+    await refreshData()
+  }, [entity, fetchData, refreshData])
 
   useEffect(() => { fetchData() }, [fetchData])
 

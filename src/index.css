@@ -36,3 +36,9 @@
 ::-webkit-scrollbar-track { background: transparent; }
 
 html, body { background: #020617; }
+
+/* dropdown contrast — dark glass */
+select { color-scheme: dark; }
+select, select option { background: #0f172a; color: #f1f5f9; }
+select:focus { outline: none; }
+
