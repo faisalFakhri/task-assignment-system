@@ -91,8 +91,8 @@ async function getAccessToken(): Promise<string> {
 function corsHeaders(): Record<string, string> {
   return {
     "access-control-allow-origin": "*",
-    "access-control-allow-headers": "authorization, content-type, x-sheets-sync-token",
-    "access-control-allow-methods": "POST, OPTIONS",
+    "access-control-allow-headers": "authorization, apikey, content-type, x-client-info, x-sheets-sync-token, x-supabase-api-version",
+    "access-control-allow-methods": "POST, OPTIONS, GET",
   };
 }
 
