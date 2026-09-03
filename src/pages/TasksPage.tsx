@@ -32,6 +32,7 @@ export default function TasksPage() {
   const [filterSqlServer, setFilterSqlServer] = useState('')
   const [filterDatabase, setFilterDatabase] = useState('')
   const [filterOverdueOnly, setFilterOverdueOnly] = useState(false)
+  const [showFilters, setShowFilters] = useState(false)
 
   // Export selection — checkbox per row (so export tidak harus semua)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
@@ -324,6 +325,18 @@ export default function TasksPage() {
     setActivePanel('edit')
   }
 
+  // chips helpers for active filters
+  const filterChips: { label: string; onClear: () => void }[] = []
+  if (filterConsultant) filterChips.push({ label: `Consultant: ${filterConsultant}`, onClear: () => setFilterConsultant('') })
+  if (filterType) filterChips.push({ label: `Type: ${filterType}`, onClear: () => setFilterType('') })
+  if (filterClient) filterChips.push({ label: `Client: ${filterClient}`, onClear: () => setFilterClient('') })
+  if (filterProgrammer) filterChips.push({ label: `Programmer: ${filterProgrammer}`, onClear: () => setFilterProgrammer('') })
+  if (filterStatus) filterChips.push({ label: `Status: ${filterStatus}`, onClear: () => setFilterStatus('') })
+  if (filterSqlServer) filterChips.push({ label: `SQL: ${filterSqlServer}`, onClear: () => setFilterSqlServer('') })
+  if (filterDatabase) filterChips.push({ label: `DB: ${filterDatabase}`, onClear: () => setFilterDatabase('') })
+  if (filterOverdueOnly) filterChips.push({ label: 'Overdue', onClear: () => setFilterOverdueOnly(false) })
+  if (searchQuery.trim()) filterChips.push({ label: `Search: "${searchQuery.trim()}"`, onClear: () => setSearchQuery('') })
+
   const clearAllFilters = () => {
     setSearchQuery('')
     setFilterConsultant('')
@@ -347,55 +360,68 @@ export default function TasksPage() {
           </div>
         )}
 
-        {/* Page Title & Search Header */}
-        <div className="flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center mb-4">
-          <div>
+        {/* Page Title & Search Header — compact */}
+        <div className="flex flex-col gap-2 mb-3">
+          <div className="flex flex-wrap gap-2 items-center justify-between">
             <h2 className="text-base font-semibold tracking-tight text-slate-800 flex items-center gap-2">
               <span>{getHeaderTitle()}</span>
               <span className="text-xs glass-subtle text-slate-500 px-2 py-0.5 rounded-full font-mono font-normal border border-slate-200 bg-white">
                 {filteredTasks.length} tasks
               </span>
             </h2>
+            <div className="flex items-center gap-1.5 w-full sm:w-auto">
+              <div className="relative flex-1 sm:w-64">
+                <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs">⌕</span>
+                <input
+                  type="text"
+                  placeholder="Search tasks..."
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  className="w-full rounded-full bg-white border border-slate-200 pl-7 pr-3 py-2 focus:outline-none focus:border-violet-300 focus:ring-1 focus:ring-violet-200 placeholder:text-slate-400 text-slate-700 text-xs"
+                />
+              </div>
+              <button
+                onClick={() => setShowFilters(v => !v)}
+                aria-expanded={showFilters}
+                aria-controls="filter-panel"
+                className={`shrink-0 inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-xs font-semibold font-mono transition-colors ${activeFiltersCount > 0 ? 'bg-slate-900 text-white border-slate-900 shadow' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'} ${showFilters ? 'ring-1 ring-violet-300' : ''}`}
+              >
+                <span className="hidden sm:inline">Filter</span>
+                <span className="sm:hidden">☰</span>
+                {activeFiltersCount > 0 && <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${activeFiltersCount > 0 && !showFilters ? 'bg-white text-slate-900' : 'bg-white/20 text-white'}`}>{activeFiltersCount}</span>}
+                <span className={`text-[10px] transition-transform ${showFilters ? 'rotate-180' : ''}`}>▾</span>
+              </button>
+              <button
+                onClick={handleOpenCreate}
+                className="shrink-0 rounded-full bg-slate-900 text-white px-4 py-2 text-xs font-semibold hover:bg-slate-800 transition-colors shadow"
+              >
+                <span className="hidden sm:inline">New Task</span>
+                <span className="sm:hidden">＋</span>
+              </button>
+            </div>
           </div>
-          
-          <div className="flex gap-2 w-full sm:w-auto font-sans text-xs">
-            <div className="relative w-full sm:w-64 font-sans text-xs">
-              <input
-                type="text"
-                placeholder="Search tasks..."
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                className="w-full rounded-xl bg-white border border-slate-200 px-3 py-1.5 focus:outline-none placeholder:text-slate-400 text-slate-700"
-              />
-            </div>
-            <div className="hidden sm:flex items-center gap-1.5">
-              <button
-                onClick={() => handleExport('selection')}
-                disabled={selectedCount===0}
-                className="rounded-full bg-white border border-slate-200 text-slate-700 px-3 py-1.5 text-xs font-semibold hover:bg-white/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                title={selectedCount? `Export ${selectedCount} terpilih ke TEAM ARI (.xlsx)` : 'Pilih task dulu (centang di tabel)'}
-              >
-                Export Pilihan{selectedCount? ` (${selectedCount})`:''}
-              </button>
-              <button
-                onClick={() => handleExport('filtered')}
-                disabled={filteredTasks.length===0}
-                className="rounded-full bg-white border border-slate-200 text-slate-600 px-3 py-1.5 text-xs font-semibold hover:bg-white/5 transition-colors disabled:opacity-30"
-                title="Export hasil filter saat ini"
-              >
-                Export Filter ({filteredTasks.length})
-              </button>
-            </div>
+          {/* desktop export — keep visible on sm+ outside panel */}
+          <div className="hidden sm:flex items-center gap-1.5">
             <button
-              onClick={handleOpenCreate}
-              className="rounded-full bg-white text-slate-900 px-4 py-1.5 font-semibold hover:bg-white/90 transition-colors shrink-0"
+              onClick={() => handleExport('selection')}
+              disabled={selectedCount===0}
+              className="rounded-full bg-white border border-slate-200 text-slate-700 px-3 py-1.5 text-xs font-semibold hover:bg-slate-50 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+              title={selectedCount? `Export ${selectedCount} terpilih ke TEAM ARI (.xlsx)` : 'Pilih task dulu (centang di tabel)'}
             >
-              New Task
+              Export Pilihan{selectedCount? ` (${selectedCount})`:''}
+            </button>
+            <button
+              onClick={() => handleExport('filtered')}
+              disabled={filteredTasks.length===0}
+              className="rounded-full bg-white border border-slate-200 text-slate-600 px-3 py-1.5 text-xs font-semibold hover:bg-slate-50 transition-colors disabled:opacity-30"
+              title="Export hasil filter saat ini"
+            >
+              Export Filter ({filteredTasks.length})
             </button>
             {activeFiltersCount > 0 && (
               <button
                 onClick={clearAllFilters}
-                className="rounded-full bg-white border border-slate-200 text-slate-600 px-3 py-1.5 hover:bg-white/5 transition-colors shrink-0 font-mono border border-slate-200"
+                className="rounded-full bg-white border border-slate-200 text-slate-600 px-3 py-1.5 text-xs font-mono hover:bg-slate-50"
               >
                 Clear filters ({activeFiltersCount})
               </button>
@@ -404,131 +430,135 @@ export default function TasksPage() {
         </div>
 
         {selectedCount > 0 && (
-          <div className="flex items-center gap-2 text-xs font-mono">
+          <div className="flex items-center gap-2 text-xs font-mono mb-2">
             <span className="text-slate-500">{selectedCount} terpilih</span>
-            <button onClick={() => setSelectedIds(new Set())} className="rounded-full glass-subtle border border-slate-200 px-2.5 py-1 text-slate-500 hover:text-slate-700">Clear pilihan</button>
-            <button onClick={() => handleExport('selection')} className="rounded-full bg-white text-slate-900 px-3 py-1 font-semibold">Export Pilihan</button>
+            <button onClick={() => setSelectedIds(new Set())} className="rounded-full bg-white border border-slate-200 px-2.5 py-1 text-slate-500 hover:text-slate-700">Clear pilihan</button>
+            <button onClick={() => handleExport('selection')} className="rounded-full bg-slate-900 text-white px-3 py-1 font-semibold">Export Pilihan</button>
           </div>
         )}
-        {/* Filter Dropdowns Grid */}
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-8 mb-4 text-xs glass rounded-2xl p-3 font-mono">
-          <div>
-            <select
-              value={filterConsultant}
-              onChange={e => setFilterConsultant(e.target.value)}
-              className={`w-full rounded-xl bg-white border border-slate-200 px-2.5 py-2 text-xs text-slate-700 focus:outline-none focus:border-violet-400/40 focus:ring-1 focus:ring-violet-400/20 ${
-                filterConsultant ? 'border-violet-300 bg-violet-50 font-semibold text-violet-700' : 'border-slate-200 text-slate-600'
-              }`}
-            >
-              <option value="">Consultant</option>
-              {consultantOptions.map(name => (
-                <option key={name} value={name}>{name}</option>
-              ))}
-            </select>
+
+        {/* Active filter chips — visible even when panel collapsed */}
+        {filterChips.length > 0 && (
+          <div className="flex flex-wrap items-center gap-1.5 mb-3">
+            {filterChips.map(chip => (
+              <span key={chip.label} className="inline-flex items-center gap-1 rounded-full bg-violet-50 border border-violet-200 text-violet-700 px-2.5 py-1 text-[11px] font-mono">
+                {chip.label}
+                <button onClick={chip.onClear} className="ml-0.5 rounded-full hover:bg-violet-100 w-4 h-4 grid place-items-center leading-none" aria-label={`Clear ${chip.label}`}>×</button>
+              </span>
+            ))}
+            <button onClick={clearAllFilters} className="text-[11px] font-mono text-slate-400 hover:text-slate-600 underline">Clear all</button>
           </div>
-          <div>
-            <select
-              value={filterType}
-              onChange={e => setFilterType(e.target.value)}
-              className={`w-full rounded-xl bg-white border border-slate-200 px-2.5 py-2 text-xs text-slate-700 focus:outline-none focus:border-violet-400/40 focus:ring-1 focus:ring-violet-400/20 ${
-                filterType ? 'border-violet-300 bg-violet-50 font-semibold text-violet-700' : 'border-slate-200 text-slate-600'
-              }`}
-            >
-              <option value="">Type</option>
-              {typeOptions.map(tp => (
-                <option key={tp} value={tp}>{tp}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <select
-              value={filterClient}
-              onChange={e => setFilterClient(e.target.value)}
-              className={`w-full rounded-xl bg-white border border-slate-200 px-2.5 py-2 text-xs text-slate-700 focus:outline-none focus:border-violet-400/40 focus:ring-1 focus:ring-violet-400/20 ${
-                filterClient ? 'border-violet-300 bg-violet-50 font-semibold text-violet-700' : 'border-slate-200 text-slate-600'
-              }`}
-            >
-              <option value="">Client</option>
-              {clients.map(c => (
-                <option key={c.id} value={c.name}>{c.name}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <select
-              value={filterProgrammer}
-              onChange={e => setFilterProgrammer(e.target.value)}
-              className={`w-full rounded-xl bg-white border border-slate-200 px-2.5 py-2 text-xs text-slate-700 focus:outline-none focus:border-violet-400/40 focus:ring-1 focus:ring-violet-400/20 ${
-                filterProgrammer ? 'border-violet-300 bg-violet-50 font-semibold text-violet-700' : 'border-slate-200 text-slate-600'
-              }`}
-            >
-              <option value="">Programmer</option>
-              {programmers.map(p => (
-                <option key={p.id} value={p.name}>{p.name}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <select
-              value={filterStatus}
-              onChange={e => setFilterStatus(e.target.value)}
-              className={`w-full rounded-xl bg-white border border-slate-200 px-2.5 py-2 text-xs text-slate-700 focus:outline-none focus:border-violet-400/40 focus:ring-1 focus:ring-violet-400/20 ${
-                filterStatus ? 'border-violet-300 bg-violet-50 font-semibold text-violet-700' : 'border-slate-200 text-slate-600'
-              }`}
-              disabled={!!urlStatus || urlFilter === 'open' || urlFilter === 'assigned' || urlFilter === 'completed'}
-            >
-              <option value="">Status</option>
-              <option value="QC">QC</option>
-              <option value="Open">Open</option>
-              <option value="Assign">Assign</option>
-              <option value="Done">Done</option>
-              <option value="Reject">Reject</option>
-              <option value="Reopen">Reopen</option>
-              <option value="Hold">Hold</option>
-              <option value="In Progress">In Progress</option>
-            </select>
-          </div>
-          <div>
-            <select
-              value={filterSqlServer}
-              onChange={e => setFilterSqlServer(e.target.value)}
-              className={`w-full rounded-xl bg-white border border-slate-200 px-2.5 py-2 text-xs text-slate-700 focus:outline-none focus:border-violet-400/40 focus:ring-1 focus:ring-violet-400/20 ${
-                filterSqlServer ? 'border-violet-300 bg-violet-50 font-semibold text-violet-700' : 'border-slate-200 text-slate-600'
-              }`}
-            >
-              <option value="">SQL Server</option>
-              {sqlServers.map(s => (
-                <option key={s} value={s}>{s}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <select
-              value={filterDatabase}
-              onChange={e => setFilterDatabase(e.target.value)}
-              className={`w-full rounded-xl bg-white border border-slate-200 px-2.5 py-2 text-xs text-slate-700 focus:outline-none focus:border-violet-400/40 focus:ring-1 focus:ring-violet-400/20 ${
-                filterDatabase ? 'border-violet-300 bg-violet-50 font-semibold text-violet-700' : 'border-slate-200 text-slate-600'
-              }`}
-            >
-              <option value="">Database</option>
-              {databases.map(d => (
-                <option key={d} value={d}>{d}</option>
-              ))}
-            </select>
-          </div>
-          <div className={`flex items-center justify-center border rounded-xl p-1 glass-subtle border-slate-200 ${
-            filterOverdueOnly ? 'border-violet-300 bg-violet-50 font-semibold text-violet-700' : 'border-slate-200 text-slate-600'
-          }`}>
-            <label className="flex items-center gap-1.5 cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={filterOverdueOnly}
-                onChange={e => setFilterOverdueOnly(e.target.checked)}
-                className="rounded text-violet-500 focus:ring-violet-500 h-3w-3"
-                disabled={urlFilter === 'overdue'}
-              />
-              <span>Overdue</span>
-            </label>
+        )}
+
+        {/* Collapsible Filter Panel — accordion */}
+        <div
+          id="filter-panel"
+          className={`grid transition-all duration-200 ease-out ${showFilters ? 'grid-rows-[1fr] opacity-100 mb-3' : 'grid-rows-[0fr] opacity-0'}`}
+        >
+          <div className="overflow-hidden">
+            <div className="glass rounded-2xl p-3 border border-slate-200 bg-white/80">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[11px] font-bold tracking-widest text-slate-400 uppercase font-mono">Filters</span>
+                <div className="flex items-center gap-1.5">
+                  {activeFiltersCount > 0 && <span className="text-[11px] font-mono text-slate-500">{activeFiltersCount} aktif</span>}
+                  <button onClick={clearAllFilters} disabled={activeFiltersCount===0} className="text-[11px] font-mono text-slate-500 hover:text-slate-700 disabled:opacity-30 underline">Reset</button>
+                  <button onClick={() => setShowFilters(false)} className="rounded-full bg-slate-900 text-white px-2.5 py-1 text-[11px] font-mono">Tutup</button>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-2 text-xs font-mono">
+                <select
+                  value={filterConsultant}
+                  onChange={e => setFilterConsultant(e.target.value)}
+                  className={`w-full rounded-xl bg-white border px-2.5 py-2.5 text-xs focus:outline-none focus:border-violet-300 focus:ring-1 focus:ring-violet-200 ${filterConsultant ? 'border-violet-300 bg-violet-50 font-semibold text-violet-700' : 'border-slate-200 text-slate-600'}`}
+                >
+                  <option value="">Consultant</option>
+                  {consultantOptions.map(name => (
+                    <option key={name} value={name}>{name}</option>
+                  ))}
+                </select>
+                <select
+                  value={filterType}
+                  onChange={e => setFilterType(e.target.value)}
+                  className={`w-full rounded-xl bg-white border px-2.5 py-2.5 text-xs focus:outline-none focus:border-violet-300 focus:ring-1 focus:ring-violet-200 ${filterType ? 'border-violet-300 bg-violet-50 font-semibold text-violet-700' : 'border-slate-200 text-slate-600'}`}
+                >
+                  <option value="">Type</option>
+                  {typeOptions.map(tp => (
+                    <option key={tp} value={tp}>{tp}</option>
+                  ))}
+                </select>
+                <select
+                  value={filterClient}
+                  onChange={e => setFilterClient(e.target.value)}
+                  className={`w-full rounded-xl bg-white border px-2.5 py-2.5 text-xs focus:outline-none focus:border-violet-300 focus:ring-1 focus:ring-violet-200 ${filterClient ? 'border-violet-300 bg-violet-50 font-semibold text-violet-700' : 'border-slate-200 text-slate-600'}`}
+                >
+                  <option value="">Client</option>
+                  {clients.map(c => (
+                    <option key={c.id} value={c.name}>{c.name}</option>
+                  ))}
+                </select>
+                <select
+                  value={filterProgrammer}
+                  onChange={e => setFilterProgrammer(e.target.value)}
+                  className={`w-full rounded-xl bg-white border px-2.5 py-2.5 text-xs focus:outline-none focus:border-violet-300 focus:ring-1 focus:ring-violet-200 ${filterProgrammer ? 'border-violet-300 bg-violet-50 font-semibold text-violet-700' : 'border-slate-200 text-slate-600'}`}
+                >
+                  <option value="">Programmer</option>
+                  {programmers.map(p => (
+                    <option key={p.id} value={p.name}>{p.name}</option>
+                  ))}
+                </select>
+                <select
+                  value={filterStatus}
+                  onChange={e => setFilterStatus(e.target.value)}
+                  className={`w-full rounded-xl bg-white border px-2.5 py-2.5 text-xs focus:outline-none focus:border-violet-300 focus:ring-1 focus:ring-violet-200 ${filterStatus ? 'border-violet-300 bg-violet-50 font-semibold text-violet-700' : 'border-slate-200 text-slate-600'}`}
+                  disabled={!!urlStatus || urlFilter === 'open' || urlFilter === 'assigned' || urlFilter === 'completed'}
+                >
+                  <option value="">Status</option>
+                  <option value="QC">QC</option>
+                  <option value="Open">Open</option>
+                  <option value="Assign">Assign</option>
+                  <option value="Done">Done</option>
+                  <option value="Reject">Reject</option>
+                  <option value="Reopen">Reopen</option>
+                  <option value="Hold">Hold</option>
+                  <option value="In Progress">In Progress</option>
+                </select>
+                <select
+                  value={filterSqlServer}
+                  onChange={e => setFilterSqlServer(e.target.value)}
+                  className={`w-full rounded-xl bg-white border px-2.5 py-2.5 text-xs focus:outline-none focus:border-violet-300 focus:ring-1 focus:ring-violet-200 ${filterSqlServer ? 'border-violet-300 bg-violet-50 font-semibold text-violet-700' : 'border-slate-200 text-slate-600'}`}
+                >
+                  <option value="">SQL Server</option>
+                  {sqlServers.map(s => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+                <select
+                  value={filterDatabase}
+                  onChange={e => setFilterDatabase(e.target.value)}
+                  className={`w-full rounded-xl bg-white border px-2.5 py-2.5 text-xs focus:outline-none focus:border-violet-300 focus:ring-1 focus:ring-violet-200 ${filterDatabase ? 'border-violet-300 bg-violet-50 font-semibold text-violet-700' : 'border-slate-200 text-slate-600'}`}
+                >
+                  <option value="">Database</option>
+                  {databases.map(d => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
+                </select>
+                <label className={`flex items-center justify-center gap-1.5 rounded-xl border px-2.5 py-2.5 cursor-pointer select-none bg-white ${filterOverdueOnly ? 'border-violet-300 bg-violet-50 font-semibold text-violet-700' : 'border-slate-200 text-slate-600'}`}>
+                  <input
+                    type="checkbox"
+                    checked={filterOverdueOnly}
+                    onChange={e => setFilterOverdueOnly(e.target.checked)}
+                    className="rounded border-slate-300 text-violet-600 focus:ring-violet-500 h-3.5 w-3.5"
+                    disabled={urlFilter === 'overdue'}
+                  />
+                  <span className="text-xs">Overdue</span>
+                </label>
+              </div>
+              {/* mobile export inside panel */}
+              <div className="flex sm:hidden gap-2 mt-3">
+                <button onClick={() => handleExport('selection')} disabled={selectedCount===0} className="flex-1 rounded-full bg-white border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 disabled:opacity-30">Export Pilihan{selectedCount? ` (${selectedCount})`:''}</button>
+                <button onClick={() => handleExport('filtered')} disabled={filteredTasks.length===0} className="flex-1 rounded-full bg-white border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 disabled:opacity-30">Export Filter ({filteredTasks.length})</button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -638,10 +668,7 @@ export default function TasksPage() {
           )}
         </div>
 
-        <div className="flex sm:hidden gap-2 mt-3">
-          <button onClick={() => handleExport('selection')} disabled={selectedCount===0} className="flex-1 rounded-full bg-white border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 disabled:opacity-30">Export Pilihan{selectedCount? ` (${selectedCount})`:''}</button>
-          <button onClick={() => handleExport('filtered')} disabled={filteredTasks.length===0} className="flex-1 rounded-full bg-white border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-500 disabled:opacity-30">Export Filter</button>
-        </div>
+        
         {/* Pagination Footer */}
         {totalPages > 1 && (
           <div className="flex justify-between items-center mt-3 pt-3 border-t border-slate-100 font-sans text-xs">
