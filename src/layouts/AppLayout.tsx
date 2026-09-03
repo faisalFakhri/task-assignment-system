@@ -35,7 +35,7 @@ const SECTIONS: NavSection[] = [
     { to: '/master/consultants', label: 'Consultants' },
     { to: '/master/programmers', label: 'Programmers' },
   ]},
-  { title: 'Data', items: [{ to: '/import', label: 'Import (TEAM ARI)' }] },
+  { title: 'Data', items: [{ to: '/import', label: 'Import (TEAM ARI)' }, { to: '/guide', label: 'Manual Book' }] },
   { title: 'Configuration', items: [{ to: '/settings', label: 'Settings' }] },
 ]
 
