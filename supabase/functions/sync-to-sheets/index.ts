@@ -96,15 +96,21 @@ function corsHeaders(): Record<string, string> {
   };
 }
 
-function taskToRowValues(taskId: string, row: NonNullable<SyncPayload["row"]>, rowNumber: number): (string | number)[] {
-  // A-M, L is formula =IF(K...), so we set values A-K + M; L is formula string
-  // A No = rowNumber (sheet row index, not task number)
-  // K Target = targetDate as string YYYY-MM-DD (Sheets will parse as date if formatted)
-  const target = row.targetDate ?? "";
-  // L formula — will be set as USER_ENTERED; rowNumber is actual sheet row
+function formatTargetForSheet(ymd: string | null): string {
+  if (!ymd) return "";
+  const m = ymd.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) return ymd;
+  const d = parseInt(m[3], 10);
+  const mo = parseInt(m[2], 10);
+  const y = m[1];
+  return `${d}/${mo}/${y}`;
+}
+
+function taskToRowValues(taskId: string, row: NonNullable<SyncPayload["row"]>, rowNumber: number, seqNo: number): (string | number)[] {
+  const target = formatTargetForSheet(row.targetDate ?? null);
   const formulaL = `=IF(K${rowNumber}="","No Target",IF(G${rowNumber}="Done","",(K${rowNumber}-TODAY())))`;
   return [
-    rowNumber - 1, // No (relative; Sheets can keep manual No)
+    seqNo,
     row.consultant,
     row.type,
     row.client,
@@ -164,6 +170,7 @@ function sheetRange(a1: string): string {
 async function findRowByTaskId(token: string, taskId: string): Promise<number | null> {
   const j = await sheetsGetValues(token, sheetRange('A2:M'));
   const rows = j.values ?? [];
+  // Debug: log first 3 rows length to edge logs
   // Strategy 1: Keterangan contains taskId
   for (let i = 0; i < rows.length; i++) {
     const m = rows[i]?.[12] ?? "";
@@ -173,7 +180,40 @@ async function findRowByTaskId(token: string, taskId: string): Promise<number | 
   for (let i = 0; i < rows.length; i++) {
     if (rows[i]?.some((c) => c === taskId)) return i + 2;
   }
+  // Strategy 3: normalized — trim brackets
+  const bare = taskId.replace(/[\[\]]/g, '');
+  for (let i = 0; i < rows.length; i++) {
+    const rowStr = (rows[i] ?? []).join(' ');
+    if (rowStr.includes(bare)) return i + 2;
+  }
   return null;
+}
+
+async function getNextDataRow(token: string): Promise<number> {
+  const j = await sheetsGetValues(token, sheetRange('A2:M'));
+  const rows = j.values ?? [];
+  // Wi request: cek kolom No (A) aja — baris pertama kosong SETELAH data terakhir, bukan gap di tengah
+  // Sheet bisa ada gap di tengah (row kosong), jadi cari last non-empty A
+  let lastIdx = -1;
+  for (let i = 0; i < rows.length; i++) {
+    const a = (rows[i]?.[0] ?? '').toString().trim();
+    if (a !== '') lastIdx = i;
+  }
+  if (lastIdx === -1) return 2;
+  // Cek apakah row setelah lastIdx memang kosong (seharusnya, karena setelah 55 masih kosong di 63)
+  // Kalau gap di tengah, tetap append setelah last, bukan isi gap
+  return lastIdx + 3; // +1 for header offset, +1 for next, +1 for 1-indexed -> last sheetRow +1
+}
+
+async function getNextSeqNo(token: string): Promise<number> {
+  const j = await sheetsGetValues(token, sheetRange('A2:A'));
+  const vals = j.values ?? [];
+  let maxNo = 0;
+  for (const r of vals) {
+    const n = parseInt((r[0] ?? '').toString().trim(), 10);
+    if (!isNaN(n) && n > maxNo) maxNo = n;
+  }
+  return maxNo + 1;
 }
 
 Deno.serve(async (req: Request) => {
@@ -203,6 +243,34 @@ Deno.serve(async (req: Request) => {
     return new Response(JSON.stringify({ error: "Invalid JSON" }), { status: 400, headers: { ...corsHeaders(), "content-type": "application/json" } });
   }
 
+  if (body?.action === 'debug') {
+    try {
+      const token = await getAccessToken();
+      const j = await sheetsGetValues(token, sheetRange('A2:M'));
+      const rows = j.values ?? [];
+      const sample = rows.slice(0, 3).map(r => r.slice(0, 13));
+      const slice5566 = rows.slice(54, 70).map((r,i) => ({ sheetRow: 56+i, row: r }));
+      const last10 = rows.slice(-10).map((r,i) => ({ idx: rows.length-10+i+2, row: r }));
+      const positions: number[] = [];
+      rows.forEach((r,i)=>{ if ((r ?? []).join(' ').includes('TASK-TEST')) positions.push(i+2) });
+      const nextRow = await getNextDataRow(token);
+      const nextSeq = await getNextSeqNo(token);
+      const aCol = await sheetsGetValues(token, sheetRange('A2:A'));
+      const aLen = aCol.values?.length ?? 0;
+      const amSlice = rows.map((r,i)=> ({ r: i+2, a: r[0] ?? '', l: r[11] ?? '', b: r[1] ?? '' })).filter(x=> x.r<=70 || x.r>=60);
+      return new Response(JSON.stringify({ ok:true, rowsCount: rows.length, aLen, nextRow, nextSeq, positions, sample, slice5566, last10, amSlice: amSlice.slice(0,20) }), { headers: { ...corsHeaders(), 'content-type':'application/json' } });
+    } catch(e:any){ return new Response(JSON.stringify({ error: e?.message ?? String(e)}), { status:500, headers:{...corsHeaders(),'content-type':'application/json'}}) }
+  }
+  if (body?.action === 'clearTest') {
+    try {
+      const token = await getAccessToken();
+      const pos = await findRowByTaskId(token, body.taskId);
+      if (!pos) return new Response(JSON.stringify({ ok:true, note:'not found' }), { headers:{...corsHeaders(),'content-type':'application/json'}});
+      // Clear the row (set empty values for A:M)
+      await sheetsUpdate(token, sheetRange(`A${pos}:M${pos}`), [['','','','','','','','','','','','','']]);
+      return new Response(JSON.stringify({ ok:true, clearedRow: pos }), { headers:{...corsHeaders(),'content-type':'application/json'}});
+    } catch(e:any){ return new Response(JSON.stringify({ error: e?.message ?? String(e)}), { status:500, headers:{...corsHeaders(),'content-type':'application/json'}}) }
+  }
   if (!body?.taskId || !body?.action) {
     return new Response(JSON.stringify({ error: "Missing taskId/action" }), { status: 400, headers: { ...corsHeaders(), "content-type": "application/json" } });
   }
@@ -212,14 +280,14 @@ Deno.serve(async (req: Request) => {
 
     if (body.action === "create") {
       if (!body.row) return new Response(JSON.stringify({ error: "Missing row" }), { status: 400, headers: { ...corsHeaders(), "content-type": "application/json" } });
-      // Determine next row number
-      const existing = await sheetsGetValues(token, sheetRange('A2:A'));
-      const nextRow = (existing.values?.length ?? 0) + 2;
-      // Embed taskId in Keterangan for future find/update: append ` [TASK-xxx]`
-      const notesWithId = body.row.notes ? `${body.row.notes} [${body.taskId}]` : `[${body.taskId}]`;
+      const nextRow = await getNextDataRow(token);
+      const rawNotes = (body.row.notes ?? '').trim();
+      const hasOwnTag = rawNotes.includes(`[${body.taskId}]`);
+      const notesWithId = hasOwnTag ? rawNotes : (rawNotes ? `${rawNotes} [${body.taskId}]` : `[${body.taskId}]`);
       const rowWithId = { ...body.row, notes: notesWithId };
-      const values = taskToRowValues(body.taskId, rowWithId, nextRow);
-      await sheetsAppend(token, sheetRange(`A${nextRow}:M${nextRow}`), [values]);
+      const seqNo = await getNextSeqNo(token);
+      const values = taskToRowValues(body.taskId, rowWithId, nextRow, seqNo);
+      await sheetsUpdate(token, sheetRange(`A${nextRow}:M${nextRow}`), [values]);
       return new Response(JSON.stringify({ ok: true, sheetRow: nextRow }), { headers: { ...corsHeaders(), "content-type": "application/json" } });
     }
 
@@ -228,12 +296,14 @@ Deno.serve(async (req: Request) => {
       if (!rowNum) {
         // fallback to create if not found
         if (!body.row) return new Response(JSON.stringify({ error: "Not found and no row to create" }), { status: 404, headers: { ...corsHeaders(), "content-type": "application/json" } });
-        const existing = await sheetsGetValues(token, sheetRange('A2:A'));
-        const nextRow = (existing.values?.length ?? 0) + 2;
-        const notesWithId = body.row.notes ? `${body.row.notes} [${body.taskId}]` : `[${body.taskId}]`;
+        const nextRow = await getNextDataRow(token);
+        const rawNotes2 = (body.row.notes ?? '').trim();
+        const hasOwnTag2 = rawNotes2.includes(`[${body.taskId}]`);
+        const notesWithId = hasOwnTag2 ? rawNotes2 : (rawNotes2 ? `${rawNotes2} [${body.taskId}]` : `[${body.taskId}]`);
         const rowWithId = { ...body.row, notes: notesWithId };
-        const values = taskToRowValues(body.taskId, rowWithId, nextRow);
-        await sheetsAppend(token, sheetRange(`A${nextRow}:M${nextRow}`), [values]);
+        const seqNo2 = await getNextSeqNo(token);
+        const values = taskToRowValues(body.taskId, rowWithId, nextRow, seqNo2);
+        await sheetsUpdate(token, sheetRange(`A${nextRow}:M${nextRow}`), [values]);
         return new Response(JSON.stringify({ ok: true, created: true, sheetRow: nextRow }), { headers: { ...corsHeaders(), "content-type": "application/json" } });
       }
       if (body.row) {
@@ -243,7 +313,9 @@ Deno.serve(async (req: Request) => {
         const hasTag = curNotes.includes(body.taskId);
         const notesWithId = hasTag ? (body.row.notes ? (curNotes.includes(body.row.notes) ? curNotes : `${body.row.notes} ${curNotes.match(/\[TASK-[^\]]+\]/)?.[0] ?? `[${body.taskId}]`}`) : curNotes) : (body.row.notes ? `${body.row.notes} [${body.taskId}]` : `[${body.taskId}]`);
         const rowWithId = { ...body.row, notes: notesWithId };
-        const values = taskToRowValues(body.taskId, rowWithId, rowNum);
+        const curNoRes = await sheetsGetValues(token, sheetRange(`A${rowNum}:A${rowNum}`));
+        const curNo = parseInt(curNoRes.values?.[0]?.[0] ?? '', 10) || rowNum -1;
+        const values = taskToRowValues(body.taskId, rowWithId, rowNum, curNo);
         await sheetsUpdate(token, sheetRange(`A${rowNum}:M${rowNum}`), [values]);
       } else if (body.status) {
         // status-only update: patch G col
