@@ -66,3 +66,12 @@ export function formatDeadlineText(task: Task): string {
   }
   return `${remaining} day${remaining > 1 ? 's' : ''} left`
 }
+
+export function isInDateRange(dateStr: string, from: string, to: string): boolean {
+  if (!from && !to) return true
+  // dateStr may be ISO (2026-09-03T...) or YYYY-MM-DD — compare YYYY-MM-DD slice
+  const d = dateStr.slice(0, 10)
+  if (from && d < from) return false
+  if (to && d > to) return false
+  return true
+}

@@ -71,13 +71,17 @@ export default function AppLayout() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#020617] text-slate-200 font-sans relative">
-      {/* Ambient mesh — dark glass Varian C */}
+      {/* Ambient mesh — dark glass Varian C + soft colorful wash */}
       <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
         <div className="absolute inset-0 bg-[#020617]" />
-        <div className="absolute -top-[30%] -left-[20%] w-[85%] h-[75%] rounded-full opacity-40" style={{ background: 'radial-gradient(ellipse at center, #4f46e5 0%, #7c3aed 35%, transparent 70%)', filter: 'blur(40px)' }} />
-        <div className="absolute -top-[10%] -right-[15%] w-[70%] h-[60%] rounded-full opacity-30" style={{ background: 'radial-gradient(ellipse at center, #06b6d4 0%, #3b82f6 40%, transparent 70%)', filter: 'blur(40px)' }} />
-        <div className="absolute top-[35%] left-[25%] w-[50%] h-[45%] rounded-full opacity-20" style={{ background: 'radial-gradient(ellipse at center, #8b5cf6 0%, transparent 70%)', filter: 'blur(50px)' }} />
-        <div className="absolute bottom-0 right-0 w-[60%] h-[40%] rounded-full opacity-15" style={{ background: 'radial-gradient(ellipse at center, #0ea5e9 0%, transparent 70%)', filter: 'blur(60px)' }} />
+        <div className="absolute -top-[30%] -left-[20%] w-[85%] h-[75%] rounded-full opacity-35" style={{ background: 'radial-gradient(ellipse at center, #4f46e5 0%, #7c3aed 35%, transparent 70%)', filter: 'blur(40px)' }} />
+        <div className="absolute -top-[10%] -right-[15%] w-[70%] h-[60%] rounded-full opacity-25" style={{ background: 'radial-gradient(ellipse at center, #06b6d4 0%, #3b82f6 35%, transparent 70%)', filter: 'blur(40px)' }} />
+        <div className="absolute top-[35%] left-[25%] w-[50%] h-[45%] rounded-full opacity-14" style={{ background: 'radial-gradient(ellipse at center, #8b5cf6 0%, transparent 70%)', filter: 'blur(50px)' }} />
+        <div className="absolute bottom-0 right-0 w-[60%] h-[40%] rounded-full opacity-10" style={{ background: 'radial-gradient(ellipse at center, #0ea5e9 0%, transparent 70%)', filter: 'blur(60px)' }} />
+        {/* soft washes — tie into card tints */}
+        <div className="absolute -top-[5%] left-[30%] w-[55%] h-[45%] rounded-full opacity-[0.10]" style={{ background: 'radial-gradient(ellipse at center, #e9d5ff 0%, #ddd6fe 25%, transparent 68%)', filter: 'blur(42px)' }} />
+        <div className="absolute top-[50%] right-[5%] w-[45%] h-[42%] rounded-full opacity-[0.08]" style={{ background: 'radial-gradient(ellipse at center, #a7f3d0 0%, #6ee7b7 30%, transparent 68%)', filter: 'blur(44px)' }} />
+        <div className="absolute bottom-[8%] left-[10%] w-[48%] h-[40%] rounded-full opacity-[0.07]" style={{ background: 'radial-gradient(ellipse at center, #fed7aa 0%, #fca5a5 28%, transparent 68%)', filter: 'blur(46px)' }} />
         <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
       </div>
 
