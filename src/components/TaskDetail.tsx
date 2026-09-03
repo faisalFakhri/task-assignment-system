@@ -58,13 +58,41 @@ export default function TaskDetail({ taskId, onClose, onEdit }: TaskDetailProps)
       else addToast('success', `Attachment${pending.length===1?'':'s'} uploaded.`)
     } finally { pending.forEach(p => URL.revokeObjectURL(p.previewUrl)); setUploading(false); await loadDetails() }
   }
+  const handlePasteUpload = async (e: React.ClipboardEvent) => {
+    const items = e.clipboardData?.items
+    if (!items) return
+    const pasted: File[] = []
+    for (let i = 0; i < items.length; i++) {
+      const it = items[i]
+      if (it.type.startsWith('image/')) {
+        const f = it.getAsFile()
+        if (f) {
+          const ext = f.type.split('/')[1] || 'png'
+          const name = !f.name || f.name === 'image.png' ? `Screenshot-${Date.now()}-${i}.${ext}` : f.name
+          const renamed = f.name === name ? f : new File([f], name, { type: f.type })
+          pasted.push(renamed)
+        }
+      }
+    }
+    if (!pasted.length) return
+    e.preventDefault()
+    const pending = pasted.filter(f => { const m = validateAttachmentFile(f); if (m) { addToast('error', `${f.name}: ${m}`); return false } return true }).map(file => ({ file, description: '', previewUrl: URL.createObjectURL(file) }))
+    if (!pending.length) return
+    addToast('info', `Pasting ${pending.length} screenshot...`)
+    setUploading(true)
+    try {
+      const result = await uploadFilesSequentially(pending, taskId, p => uploadAttachment(p), (c,t) => addToast('info', `Uploading ${c} of ${t}...`))
+      if (result.failed.length) { addToast('success', `${result.succeeded} of ${pending.length} uploaded.`); addToast('error', `Failed: ${result.failed.join(', ')}`) }
+      else addToast('success', `${pending.length} screenshot pasted & uploaded.`)
+    } finally { pending.forEach(p => URL.revokeObjectURL(p.previewUrl)); setUploading(false); await loadDetails() }
+  }
   const handleDeleteConfirm = async () => {
     if (!deleteTarget) return; setDeleting(true)
     try { await deleteAttachment(deleteTarget.id); addToast('success', 'Attachment deleted.'); setDeleteTarget(null); await loadDetails() }
     catch (err: any) { addToast('error', err.message || 'Delete failed') } finally { setDeleting(false) }
   }
   return (
-    <div className="flex flex-col h-full text-sm">
+    <div className="flex flex-col h-full text-sm" onPaste={handlePasteUpload}>
       <div className="flex items-center justify-between border-b border-white/10 p-4 shrink-0 glass-subtle">
         <div className="flex items-center gap-2">
           <span className="font-mono font-bold text-sm text-white">{task.id}</span>
@@ -102,6 +130,7 @@ export default function TaskDetail({ taskId, onClose, onEdit }: TaskDetailProps)
         <div className="glass rounded-2xl p-4 space-y-3">
           <div className="flex items-center justify-between">
             <div className="text-[10px] font-bold tracking-widest text-white/30 font-mono uppercase">Attachments ({loadingAttachments ? '...' : taskAttachments.length})</div>
+            <span className="text-[9px] font-mono text-white/25 hidden sm:inline">Ctrl+V paste</span>
             <button type="button" onClick={() => addFilesRef.current?.click()} disabled={uploading} className="rounded-full glass-subtle border border-white/10 px-3 py-1 text-[10px] font-semibold text-white/60 hover:text-white disabled:opacity-40">{uploading ? 'Uploading...' : '+ Add'}</button>
           </div>
           <input ref={addFilesRef} type="file" accept="image/png,image/jpeg,image/webp" multiple className="hidden" onChange={handleAddFiles} />

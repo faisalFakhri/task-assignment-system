@@ -187,6 +187,40 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
     }
   }
 
+  const handlePaste = (e: React.ClipboardEvent) => {
+    if (isEditMode) return
+    const items = e.clipboardData?.items
+    if (!items) return
+    const pasted: File[] = []
+    for (let i = 0; i < items.length; i++) {
+      const it = items[i]
+      if (it.type.startsWith('image/')) {
+        const f = it.getAsFile()
+        if (f) {
+          const ext = f.type.split('/')[1] || 'png'
+          const name = !f.name || f.name === 'image.png' ? `Screenshot-${Date.now()}-${i}.${ext}` : f.name
+          const renamed = f.name === name ? f : new File([f], name, { type: f.type })
+          pasted.push(renamed)
+        }
+      }
+    }
+    if (!pasted.length) return
+    // Do not paste image text into focused input
+    e.preventDefault()
+    const accepted: PendingAttachmentFile[] = []
+    pasted.forEach(file => {
+      const msg = validateAttachmentFile(file)
+      if (msg) { addToast('error', `${file.name}: ${msg}`); return }
+      const dup = pendingFiles.some(p => p.file.name === file.name && p.file.size === file.size)
+      if (dup) { addToast('error', `${file.name} is already in the list.`); return }
+      accepted.push({ file, description: '', previewUrl: URL.createObjectURL(file) })
+    })
+    if (accepted.length) {
+      setPendingFiles(prev => [...prev, ...accepted])
+      addToast('success', `${accepted.length} screenshot pasted (Ctrl+V).`)
+    }
+  }
+
   const removePendingFile = (index: number) => {
     setPendingFiles(prev => {
       const next = [...prev]
@@ -201,7 +235,7 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col h-full text-sm">
+    <form onSubmit={handleSubmit} onPaste={handlePaste} className="flex flex-col h-full text-sm">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-white/10 p-4 shrink-0 glass-subtle">
         <span className="font-semibold text-sm text-white font-mono">
@@ -486,7 +520,7 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
               )}
 
               <div className="space-y-2 border border-white/10 rounded p-3 glass-subtle">
-                <div className="text-[10px] text-white/30 font-bold uppercase tracking-wider font-mono">Add Attachment</div>
+                <div className="flex items-center justify-between"><span className="text-[10px] text-white/30 font-bold uppercase tracking-wider font-mono">Add Attachment</span><span className="text-[9px] font-mono text-white/25">Ctrl+V untuk paste</span></div>
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -502,7 +536,7 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
                 >
                   Choose images...
                 </button>
-                <p className="text-[10px] text-white/30 font-mono">PNG, JPEG, or WebP. Max 5 MB per file.</p>
+                <p className="text-[10px] text-white/30 font-mono">PNG, JPEG, or WebP. Max 5 MB. Paste screenshot langsung Ctrl+V atau klik Choose.</p>
               </div>
             </div>
           )}
