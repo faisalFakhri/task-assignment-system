@@ -6,6 +6,7 @@ import ClientsPage from './pages/ClientsPage'
 import ConsultantsPage from './pages/ConsultantsPage'
 import ProgrammersPage from './pages/ProgrammersPage'
 import SettingsPage from './pages/SettingsPage'
+import ImportPage from './pages/ImportPage'
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
         <Route path="master/consultants" element={<ConsultantsPage />} />
         <Route path="master/programmers" element={<ProgrammersPage />} />
         <Route path="settings" element={<SettingsPage />} />
+        <Route path="import" element={<ImportPage />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Route>
     </Routes>

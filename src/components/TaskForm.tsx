@@ -306,9 +306,14 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
                 onChange={e => setStatus(e.target.value as TaskStatus)}
                 className="w-full rounded-xl bg-slate-800/90 border border-white/10 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-violet-400/50 focus:ring-1 focus:ring-violet-400/20"
               >
+                <option value="QC">QC</option>
                 <option value="Open">Open</option>
-                <option value="Assign">Assign</option>
                 <option value="Done">Done</option>
+                <option value="Reject">Reject</option>
+                <option value="Reopen">Reopen</option>
+                <option value="Hold">Hold</option>
+                <option value="Assign">Assign</option>
+                <option value="In Progress">In Progress</option>
               </select>
             </div>
           </div>

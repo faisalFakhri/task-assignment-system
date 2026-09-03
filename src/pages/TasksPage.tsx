@@ -9,6 +9,7 @@ import TaskTypeBadge from '../components/TaskTypeBadge'
 import DeadlineIndicator from '../components/DeadlineIndicator'
 import EmptyState from '../components/EmptyState'
 import TaskDetail from '../components/TaskDetail'
+import { exportTeamAri } from '../lib/excelTeamAri'
 import TaskForm from '../components/TaskForm'
 
 type SortField = 'id' | 'consultant' | 'type' | 'client' | 'screenReport' | 'status' | 'programmer' | 'targetDate'
@@ -227,6 +228,13 @@ export default function TasksPage() {
     setSearchParams(params)
   }
 
+  const handleExport = async () => {
+    try {
+      await exportTeamAri(filteredTasks.length ? filteredTasks : tasks)
+    } catch (err: any) {
+      alert(err.message || 'Export gagal')
+    }
+  }
   const handleOpenCreate = () => {
     setActivePanel('create')
     setSelectedTaskId(null)
@@ -281,6 +289,14 @@ export default function TasksPage() {
                 className="w-full rounded-xl glass-subtle border border-white/10 px-3 py-1.5 focus:outline-none placeholder:text-white/25 text-white"
               />
             </div>
+            <button
+              onClick={handleExport}
+              disabled={filteredTasks.length===0}
+              className="rounded-full glass border border-white/10 text-white/80 px-4 py-1.5 font-semibold hover:bg-white/5 transition-colors shrink-0 disabled:opacity-40"
+              title="Export hasil filter ke TEAM ARI (.xlsx)"
+            >
+              Export Excel
+            </button>
             <button
               onClick={handleOpenCreate}
               className="rounded-full bg-white text-slate-900 px-4 py-1.5 font-semibold hover:bg-white/90 transition-colors shrink-0"
@@ -365,9 +381,14 @@ export default function TasksPage() {
               disabled={urlFilter === 'open' || urlFilter === 'assigned' || urlFilter === 'completed'}
             >
               <option value="">Status</option>
+              <option value="QC">QC</option>
               <option value="Open">Open</option>
               <option value="Assign">Assign</option>
               <option value="Done">Done</option>
+              <option value="Reject">Reject</option>
+              <option value="Reopen">Reopen</option>
+              <option value="Hold">Hold</option>
+              <option value="In Progress">In Progress</option>
             </select>
           </div>
           <div>

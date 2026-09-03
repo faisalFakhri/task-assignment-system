@@ -1,4 +1,4 @@
-export type TaskStatus = 'Open' | 'Assign' | 'Done'
+export type TaskStatus = 'Open' | 'Assign' | 'Done' | 'QC' | 'Reject' | 'Reopen' | 'Hold' | 'In Progress'
 export type TaskType = 'Bugs' | 'Improvements'
 
 export interface Task {
