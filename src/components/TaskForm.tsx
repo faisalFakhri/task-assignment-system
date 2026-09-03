@@ -201,17 +201,17 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col h-full bg-white text-sm text-gray-800 font-sans">
+    <form onSubmit={handleSubmit} className="flex flex-col h-full text-sm">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-gray-200 p-4 shrink-0 bg-gray-50/50 h-12">
-        <span className="font-bold text-sm text-gray-900">
+      <div className="flex items-center justify-between border-b border-white/10 p-4 shrink-0 glass-subtle">
+        <span className="font-semibold text-sm text-white font-mono">
           {isEditMode ? `Edit Task: ${taskId}` : 'Create New Task'}
         </span>
         <div className="flex gap-2">
           <button
             type="submit"
             disabled={submitting}
-            className="rounded border border-blue-600 bg-blue-600 px-3 py-1 text-xs font-semibold text-white hover:bg-blue-700 disabled:opacity-50 min-w-[70px] text-center"
+            className="rounded-full glass-subtle px-4 py-1 text-xs font-semibold text-slate-900 hover:glass-subtle/90 disabled:opacity-50 min-w-[70px] text-center"
           >
             {submitting ? (isEditMode ? 'Updating...' : 'Saving...') : 'Save'}
           </button>
@@ -219,7 +219,7 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
             type="button"
             disabled={submitting}
             onClick={onClose}
-            className="rounded border border-gray-200 bg-white px-3 py-1 text-xs text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+            className="rounded-full glass-subtle border border-white/10 px-3 py-1 text-xs text-white/60 hover:text-white disabled:opacity-50"
           >
             Cancel
           </button>
@@ -229,26 +229,26 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
       {/* Body Scroll */}
       <div className="flex-1 overflow-y-auto p-5 space-y-6">
         {submitError && (
-          <div className="rounded border border-red-200 bg-red-50 p-3 text-xs font-mono text-red-700">
+          <div className="glass rounded-2xl border-red-400/20 bg-red-500/10 p-3 text-xs font-mono text-red-300">
             Error: {submitError}
           </div>
         )}
         {/* Section: Assignment */}
         <div className="space-y-4">
-          <h3 className="text-xs font-bold text-gray-400 font-mono tracking-wider uppercase border-b border-gray-100 pb-1">
+          <h3 className="text-xs font-bold text-white/30 font-mono tracking-wider uppercase border-b border-white/5 pb-1">
             Assignment
           </h3>
           
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-[11px] font-semibold text-gray-600 mb-1">
+              <label className="block text-[11px] font-semibold text-white/50 mb-1">
                 Consultant *
               </label>
               <select
                 value={consultant}
                 onChange={e => setConsultant(e.target.value)}
-                className={`w-full rounded border p-2 focus:outline-none focus:border-blue-400 bg-white text-xs ${
-                  errors.consultant ? 'border-red-500 bg-red-50/10' : 'border-gray-200'
+                className={`w-full rounded border p-2 focus:outline-none focus:border-violet-400/50 glass-subtle text-xs ${
+                  errors.consultant ? 'border-red-400/40 bg-red-500/10' : 'border-white/10'
                 }`}
               >
                 <option value="">Choose Consultant</option>
@@ -258,18 +258,18 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
                   </option>
                 ))}
               </select>
-              {errors.consultant && <p className="text-[10px] text-red-600 mt-1 font-mono">{errors.consultant}</p>}
+              {errors.consultant && <p className="text-[10px] text-red-300 mt-1 font-mono">{errors.consultant}</p>}
             </div>
 
             <div>
-              <label className="block text-[11px] font-semibold text-gray-600 mb-1">
+              <label className="block text-[11px] font-semibold text-white/50 mb-1">
                 Client *
               </label>
               <select
                 value={client}
                 onChange={e => setClient(e.target.value)}
-                className={`w-full rounded border p-2 focus:outline-none focus:border-blue-400 bg-white text-xs ${
-                  errors.client ? 'border-red-500 bg-red-50/10' : 'border-gray-200'
+                className={`w-full rounded border p-2 focus:outline-none focus:border-violet-400/50 glass-subtle text-xs ${
+                  errors.client ? 'border-red-400/40 bg-red-500/10' : 'border-white/10'
                 }`}
               >
                 <option value="">Choose Client</option>
@@ -279,32 +279,32 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
                   </option>
                 ))}
               </select>
-              {errors.client && <p className="text-[10px] text-red-600 mt-1 font-mono">{errors.client}</p>}
+              {errors.client && <p className="text-[10px] text-red-300 mt-1 font-mono">{errors.client}</p>}
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-[11px] font-semibold text-gray-600 mb-1">
+              <label className="block text-[11px] font-semibold text-white/50 mb-1">
                 Type *
               </label>
               <select
                 value={type}
                 onChange={e => setType(e.target.value as TaskType)}
-                className="w-full rounded border border-gray-200 p-2 focus:outline-none focus:border-blue-400 bg-white text-xs"
+                className="w-full rounded-xl glass-subtle border border-white/10 p-2.5 focus:outline-none focus:border-violet-400/50 glass-subtle text-xs"
               >
                 <option value="Bugs">Bugs</option>
                 <option value="Improvements">Improvements</option>
               </select>
             </div>
             <div>
-              <label className="block text-[11px] font-semibold text-gray-600 mb-1">
+              <label className="block text-[11px] font-semibold text-white/50 mb-1">
                 Status *
               </label>
               <select
                 value={status}
                 onChange={e => setStatus(e.target.value as TaskStatus)}
-                className="w-full rounded border border-gray-200 p-2 focus:outline-none focus:border-blue-400 bg-white text-xs"
+                className="w-full rounded-xl glass-subtle border border-white/10 p-2.5 focus:outline-none focus:border-violet-400/50 glass-subtle text-xs"
               >
                 <option value="Open">Open</option>
                 <option value="Assign">Assign</option>
@@ -314,7 +314,7 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
           </div>
 
           <div>
-            <label className="block text-[11px] font-semibold text-gray-600 mb-1">
+            <label className="block text-[11px] font-semibold text-white/50 mb-1">
               Screen / Report Name *
             </label>
             <input
@@ -322,21 +322,21 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
               value={screenReport}
               onChange={e => setScreenReport(e.target.value)}
               placeholder="e.g. Sales Invoice Screen"
-              className={`w-full rounded border p-2 focus:outline-none focus:border-blue-400 bg-white text-xs ${
-                errors.screenReport ? 'border-red-500 bg-red-50/10' : 'border-gray-200'
+              className={`w-full rounded border p-2 focus:outline-none focus:border-violet-400/50 glass-subtle text-xs ${
+                errors.screenReport ? 'border-red-400/40 bg-red-500/10' : 'border-white/10'
               }`}
             />
-            {errors.screenReport && <p className="text-[10px] text-red-600 mt-1 font-mono">{errors.screenReport}</p>}
+            {errors.screenReport && <p className="text-[10px] text-red-300 mt-1 font-mono">{errors.screenReport}</p>}
           </div>
         </div>
 
         {/* Section: Request */}
         <div className="space-y-4">
-          <h3 className="text-xs font-bold text-gray-400 font-mono tracking-wider uppercase border-b border-gray-100 pb-1">
+          <h3 className="text-xs font-bold text-white/30 font-mono tracking-wider uppercase border-b border-white/5 pb-1">
             Request
           </h3>
           <div>
-            <label className="block text-[11px] font-semibold text-gray-600 mb-1">
+            <label className="block text-[11px] font-semibold text-white/50 mb-1">
               Request Description *
             </label>
             <textarea
@@ -344,28 +344,28 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
               onChange={e => setRequest(e.target.value)}
               placeholder="Provide detail requirement description..."
               rows={4}
-              className={`w-full rounded border p-2 focus:outline-none focus:border-blue-400 bg-white text-xs leading-relaxed ${
-                errors.request ? 'border-red-500 bg-red-50/10' : 'border-gray-200'
+              className={`w-full rounded border p-2 focus:outline-none focus:border-violet-400/50 glass-subtle text-xs leading-relaxed ${
+                errors.request ? 'border-red-400/40 bg-red-500/10' : 'border-white/10'
               }`}
             />
-            {errors.request && <p className="text-[10px] text-red-600 mt-1 font-mono">{errors.request}</p>}
+            {errors.request && <p className="text-[10px] text-red-300 mt-1 font-mono">{errors.request}</p>}
           </div>
         </div>
 
         {/* Section: Technical */}
         <div className="space-y-4">
-          <h3 className="text-xs font-bold text-gray-400 font-mono tracking-wider uppercase border-b border-gray-100 pb-1">
+          <h3 className="text-xs font-bold text-white/30 font-mono tracking-wider uppercase border-b border-white/5 pb-1">
             Technical
           </h3>
           
           <div>
-            <label className="block text-[11px] font-semibold text-gray-600 mb-1">
+            <label className="block text-[11px] font-semibold text-white/50 mb-1">
               Assigned Programmer
             </label>
             <select
               value={programmer}
               onChange={e => setProgrammer(e.target.value)}
-              className="w-full rounded border border-gray-200 p-2 focus:outline-none focus:border-blue-400 bg-white text-xs"
+              className="w-full rounded-xl glass-subtle border border-white/10 p-2.5 focus:outline-none focus:border-violet-400/50 glass-subtle text-xs"
             >
             <option value="">Unassigned</option>
             {programmers.filter(p => p.active || p.name === programmer).map(p => (
@@ -378,7 +378,7 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-[11px] font-semibold text-gray-600 mb-1">
+              <label className="block text-[11px] font-semibold text-white/50 mb-1">
                 SQL Server
               </label>
               <input
@@ -386,11 +386,11 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
                 value={sqlServer}
                 onChange={e => setSqlServer(e.target.value)}
                 placeholder="SRV-SAP-DB01"
-                className="w-full rounded border border-gray-200 p-2 focus:outline-none focus:border-blue-400 bg-white text-xs font-mono"
+                className="w-full rounded-xl glass-subtle border border-white/10 p-2.5 focus:outline-none focus:border-violet-400/50 glass-subtle text-xs font-mono"
               />
             </div>
             <div>
-              <label className="block text-[11px] font-semibold text-gray-600 mb-1">
+              <label className="block text-[11px] font-semibold text-white/50 mb-1">
                 Database Name
               </label>
               <input
@@ -398,7 +398,7 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
                 value={database}
                 onChange={e => setDatabase(e.target.value)}
                 placeholder="DB_PROD"
-                className="w-full rounded border border-gray-200 p-2 focus:outline-none focus:border-blue-400 bg-white text-xs font-mono"
+                className="w-full rounded-xl glass-subtle border border-white/10 p-2.5 focus:outline-none focus:border-violet-400/50 glass-subtle text-xs font-mono"
               />
             </div>
           </div>
@@ -406,30 +406,30 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
 
         {/* Section: Schedule */}
         <div className="space-y-4">
-          <h3 className="text-xs font-bold text-gray-400 font-mono tracking-wider uppercase border-b border-gray-100 pb-1">
+          <h3 className="text-xs font-bold text-white/30 font-mono tracking-wider uppercase border-b border-white/5 pb-1">
             Schedule
           </h3>
           <div>
-            <label className="block text-[11px] font-semibold text-gray-600 mb-1">
+            <label className="block text-[11px] font-semibold text-white/50 mb-1">
               Target Date (Deadline)
             </label>
             <input
               type="date"
               value={targetDate}
               onChange={e => setTargetDate(e.target.value)}
-              className="w-full rounded border border-gray-200 p-2 focus:outline-none focus:border-blue-400 bg-white text-xs font-mono"
+              className="w-full rounded-xl glass-subtle border border-white/10 p-2.5 focus:outline-none focus:border-violet-400/50 glass-subtle text-xs font-mono"
             />
           </div>
         </div>
 
         {/* Section: Additional Information */}
         <div className="space-y-4">
-          <h3 className="text-xs font-bold text-gray-400 font-mono tracking-wider uppercase border-b border-gray-100 pb-1">
+          <h3 className="text-xs font-bold text-white/30 font-mono tracking-wider uppercase border-b border-white/5 pb-1">
             Additional Information
           </h3>
           
           <div>
-            <label className="block text-[11px] font-semibold text-gray-600 mb-1">
+            <label className="block text-[11px] font-semibold text-white/50 mb-1">
               Notes
             </label>
             <textarea
@@ -437,35 +437,35 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
               onChange={e => setNotes(e.target.value)}
               placeholder="Internal notes..."
               rows={2}
-              className="w-full rounded border border-gray-200 p-2 focus:outline-none focus:border-blue-400 bg-white text-xs leading-relaxed"
+              className="w-full rounded-xl glass-subtle border border-white/10 p-2.5 focus:outline-none focus:border-violet-400/50 glass-subtle text-xs leading-relaxed"
             />
           </div>
 
           {/* Local Attachments Section (Create Mode Only) */}
           {!isEditMode && (
             <div className="space-y-3 pt-2">
-              <label className="block text-[11px] font-semibold text-gray-600">
+              <label className="block text-[11px] font-semibold text-white/50">
                 Attachments ({pendingFiles.length})
               </label>
 
               {pendingFiles.length > 0 && (
-                <div className="space-y-2 bg-gray-50 p-2.5 border border-gray-200 rounded">
+                <div className="space-y-2 glass-subtle p-2.5 border border-white/10 rounded">
                   {pendingFiles.map((att, idx) => (
                     <div key={idx} className="flex items-center gap-2 text-xs">
                       <img
                         src={att.previewUrl}
                         alt={att.file.name}
-                        className="h-10 w-14 object-cover rounded border border-gray-200 bg-white shrink-0"
+                        className="h-10 w-14 object-cover rounded border border-white/10 glass-subtle shrink-0"
                       />
                       <div className="flex-1 min-w-0">
-                        <div className="text-gray-700 font-semibold truncate">{att.file.name}</div>
-                        <div className="text-[10px] text-gray-400 font-mono">{formatFileSize(att.file.size)}</div>
+                        <div className="text-white/60 font-semibold truncate">{att.file.name}</div>
+                        <div className="text-[10px] text-white/30 font-mono">{formatFileSize(att.file.size)}</div>
                         <input
                           type="text"
                           placeholder="Description (Optional)"
                           value={att.description}
                           onChange={e => updateFileDescription(idx, e.target.value)}
-                          className="mt-1 w-full rounded border border-gray-200 p-1 focus:outline-none focus:border-blue-400 bg-white text-[11px]"
+                          className="mt-1 w-full rounded border border-white/10 p-1 focus:outline-none focus:border-violet-400/50 glass-subtle text-[11px]"
                         />
                       </div>
                       <button
@@ -480,8 +480,8 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
                 </div>
               )}
 
-              <div className="space-y-2 border border-gray-200 rounded p-3 bg-gray-50/20">
-                <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider font-mono">Add Attachment</div>
+              <div className="space-y-2 border border-white/10 rounded p-3 glass-subtle">
+                <div className="text-[10px] text-white/30 font-bold uppercase tracking-wider font-mono">Add Attachment</div>
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -493,11 +493,11 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="rounded border border-gray-300 bg-white px-2.5 py-1 text-xs font-semibold text-gray-700 hover:bg-gray-50"
+                  className="rounded border border-gray-300 glass-subtle px-2.5 py-1 text-xs font-semibold text-white/60 hover:glass-subtle"
                 >
                   Choose images...
                 </button>
-                <p className="text-[10px] text-gray-400 font-mono">PNG, JPEG, or WebP. Max 5 MB per file.</p>
+                <p className="text-[10px] text-white/30 font-mono">PNG, JPEG, or WebP. Max 5 MB per file.</p>
               </div>
             </div>
           )}

@@ -46,22 +46,22 @@ export default function ConfirmDialog({
 
   return (
     <div className="fixed inset-0 z-[150] flex items-center justify-center">
-      <div className="absolute inset-0 bg-gray-900/40" onClick={loading ? undefined : onCancel} />
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={loading ? undefined : onCancel} />
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="confirm-title"
-        className="relative bg-white rounded border border-gray-200 shadow-lg max-w-sm w-full mx-4 p-5 space-y-4"
+        className="relative glass-strong rounded-2xl shadow-2xl max-w-sm w-full mx-4 p-5 space-y-4"
       >
-        <h3 id="confirm-title" className="text-sm font-bold text-gray-900">{title}</h3>
-        <p className="text-xs text-gray-600 leading-relaxed">{message}</p>
+        <h3 id="confirm-title" className="text-sm font-semibold text-white font-mono">{title}</h3>
+        <p className="text-xs text-white/50 leading-relaxed">{message}</p>
         <div className="flex justify-end gap-2 pt-2">
           <button
             ref={cancelRef}
             type="button"
             disabled={loading}
             onClick={onCancel}
-            className="rounded border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-600 hover:bg-gray-50 disabled:opacity-40"
+            className="rounded-full glass-subtle border border-white/10 px-4 py-1.5 text-xs text-white/60 hover:text-white disabled:opacity-40"
           >
             {cancelLabel}
           </button>

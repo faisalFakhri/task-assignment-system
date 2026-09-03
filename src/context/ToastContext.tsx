@@ -1,65 +1,34 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react'
 
 type ToastType = 'success' | 'error' | 'info'
-
-interface Toast {
-  id: number
-  type: ToastType
-  message: string
-}
-
-interface ToastContextType {
-  toasts: Toast[]
-  addToast: (type: ToastType, message: string) => void
-  removeToast: (id: number) => void
-}
+interface Toast { id: number; type: ToastType; message: string }
+interface ToastContextType { toasts: Toast[]; addToast: (type: ToastType, message: string) => void; removeToast: (id: number) => void }
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined)
-
 let nextId = 0
 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([])
-
   const addToast = useCallback((type: ToastType, message: string) => {
     const id = nextId++
     setToasts(prev => [...prev, { id, type, message }])
     const duration = type === 'error' ? 8000 : 4000
-    setTimeout(() => {
-      setToasts(prev => prev.filter(t => t.id !== id))
-    }, duration)
+    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), duration)
   }, [])
-
-  const removeToast = useCallback((id: number) => {
-    setToasts(prev => prev.filter(t => t.id !== id))
-  }, [])
-
+  const removeToast = useCallback((id: number) => setToasts(prev => prev.filter(t => t.id !== id)), [])
   const styles: Record<ToastType, string> = {
-    success: 'border-emerald-300 bg-emerald-50 text-emerald-800',
-    error: 'border-red-300 bg-red-50 text-red-800',
-    info: 'border-blue-300 bg-blue-50 text-blue-800',
+    success: 'border-emerald-400/20 bg-emerald-500/15 text-emerald-100 glass',
+    error: 'border-red-400/20 bg-red-500/15 text-red-100 glass',
+    info: 'border-sky-400/20 bg-sky-500/12 text-sky-100 glass',
   }
-
   return (
     <ToastContext.Provider value={{ toasts, addToast, removeToast }}>
       {children}
-      <div
-        aria-live="polite"
-        className="fixed bottom-4 right-4 z-[200] flex flex-col gap-2 max-w-sm"
-      >
+      <div aria-live="polite" className="fixed bottom-4 right-4 z-[200] flex flex-col gap-2 max-w-sm">
         {toasts.map(toast => (
-          <div
-            key={toast.id}
-            role="status"
-            className={`rounded border px-3 py-2 text-xs font-sans shadow-md flex justify-between items-start gap-3 ${styles[toast.type]}`}
-          >
-            <span>{toast.message}</span>
-            <button
-              onClick={() => removeToast(toast.id)}
-              className="shrink-0 text-[10px] font-mono opacity-60 hover:opacity-100"
-            >
-              &times;
-            </button>
+          <div key={toast.id} role="status" className={`rounded-2xl border px-3 py-2.5 text-xs font-mono shadow-xl backdrop-blur-xl flex justify-between items-start gap-3 ${styles[toast.type]}`}>
+            <span className="leading-relaxed">{toast.message}</span>
+            <button onClick={() => removeToast(toast.id)} className="shrink-0 text-[14px] opacity-60 hover:opacity-100 leading-none">×</button>
           </div>
         ))}
       </div>

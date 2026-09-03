@@ -3,15 +3,13 @@ import type { TaskType } from '../types/task.types'
 interface TaskTypeBadgeProps {
   type: TaskType
 }
-
 export default function TaskTypeBadge({ type }: TaskTypeBadgeProps) {
   const styles = {
-    Bugs: 'bg-rose-50 text-rose-700 border-rose-200',
-    Improvements: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+    Bugs: 'bg-rose-400/15 text-rose-300 border-rose-400/20',
+    Improvements: 'bg-violet-400/15 text-violet-300 border-violet-400/20',
   }
-
   return (
-    <span className={`inline-flex items-center rounded border px-1.5 py-0.5 text-xs font-medium font-mono ${styles[type]}`}>
+    <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium font-mono ${styles[type]}`}>
       {type === 'Bugs' ? 'Bug' : 'Improvement'}
     </span>
   )

@@ -250,11 +250,11 @@ export default function TasksPage() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-80px)] relative overflow-hidden gap-4 text-sm text-gray-800">
+    <div className="flex h-[calc(100vh-80px)] relative overflow-hidden gap-4 text-sm">
       {/* List Content */}
       <div className="flex-1 flex flex-col min-w-0">
         {error && (
-          <div className="mb-4 rounded border border-red-200 bg-red-50 p-3 text-xs font-mono text-red-700 flex justify-between items-center shrink-0">
+          <div className="mb-4 rounded-2xl glass border-red-400/20 bg-red-500/10 p-3 text-xs font-mono text-red-300 flex justify-between items-center shrink-0">
             <span>Error: {error}</span>
             <button onClick={() => window.location.reload()} className="underline font-bold">[Retry]</button>
           </div>
@@ -263,9 +263,9 @@ export default function TasksPage() {
         {/* Page Title & Search Header */}
         <div className="flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center mb-4">
           <div>
-            <h2 className="text-lg font-bold tracking-tight text-gray-900 flex items-center gap-2">
+            <h2 className="text-base font-semibold tracking-tight text-white flex items-center gap-2">
               <span>{getHeaderTitle()}</span>
-              <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded font-mono font-normal">
+              <span className="text-xs glass-subtle text-white/50 px-2 py-0.5 rounded-full font-mono font-normal border border-white/5">
                 {filteredTasks.length} tasks
               </span>
             </h2>
@@ -278,19 +278,19 @@ export default function TasksPage() {
                 placeholder="Search tasks..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                className="w-full rounded border border-gray-200 px-3 py-1.5 focus:border-blue-500 focus:outline-none placeholder-gray-400 bg-white"
+                className="w-full rounded-xl glass-subtle border border-white/10 px-3 py-1.5 focus:outline-none placeholder:text-white/25 text-white"
               />
             </div>
             <button
               onClick={handleOpenCreate}
-              className="rounded border border-blue-600 bg-blue-600 text-white px-3 py-1.5 font-semibold hover:bg-blue-700 transition-colors shrink-0"
+              className="rounded-full bg-white text-slate-900 px-4 py-1.5 font-semibold hover:bg-white/90 transition-colors shrink-0"
             >
               New Task
             </button>
             {activeFiltersCount > 0 && (
               <button
                 onClick={clearAllFilters}
-                className="rounded border border-gray-200 bg-gray-50 text-gray-700 px-3 py-1.5 hover:bg-gray-100 transition-colors shrink-0 font-mono"
+                className="rounded-full glass-subtle text-white/70 px-3 py-1.5 hover:bg-white/5 transition-colors shrink-0 font-mono border border-white/10"
               >
                 Clear filters ({activeFiltersCount})
               </button>
@@ -299,13 +299,13 @@ export default function TasksPage() {
         </div>
 
         {/* Filter Dropdowns Grid */}
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-8 mb-4 text-xs border-b border-gray-100 pb-4 bg-gray-50/20 p-2 rounded">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-8 mb-4 text-xs glass rounded-2xl p-3 font-mono">
           <div>
             <select
               value={filterConsultant}
               onChange={e => setFilterConsultant(e.target.value)}
-              className={`w-full rounded border p-1 bg-white focus:outline-none focus:border-blue-400 ${
-                filterConsultant ? 'border-blue-500 bg-blue-50/10 font-semibold' : 'border-gray-200'
+              className={`w-full rounded-xl glass-subtle border border-white/10 px-2 py-1.5 text-white focus:outline-none focus:border-violet-400/40 ${
+                filterConsultant ? 'border-violet-400/40 bg-violet-500/10 font-semibold text-white' : 'border-white/10 text-white/60'
               }`}
             >
               <option value="">Consultant</option>
@@ -318,8 +318,8 @@ export default function TasksPage() {
             <select
               value={filterType}
               onChange={e => setFilterType(e.target.value)}
-              className={`w-full rounded border p-1 bg-white focus:outline-none focus:border-blue-400 ${
-                filterType ? 'border-blue-500 bg-blue-50/10 font-semibold' : 'border-gray-200'
+              className={`w-full rounded-xl glass-subtle border border-white/10 px-2 py-1.5 text-white focus:outline-none focus:border-violet-400/40 ${
+                filterType ? 'border-violet-400/40 bg-violet-500/10 font-semibold text-white' : 'border-white/10 text-white/60'
               }`}
             >
               <option value="">Type</option>
@@ -331,8 +331,8 @@ export default function TasksPage() {
             <select
               value={filterClient}
               onChange={e => setFilterClient(e.target.value)}
-              className={`w-full rounded border p-1 bg-white focus:outline-none focus:border-blue-400 ${
-                filterClient ? 'border-blue-500 bg-blue-50/10 font-semibold' : 'border-gray-200'
+              className={`w-full rounded-xl glass-subtle border border-white/10 px-2 py-1.5 text-white focus:outline-none focus:border-violet-400/40 ${
+                filterClient ? 'border-violet-400/40 bg-violet-500/10 font-semibold text-white' : 'border-white/10 text-white/60'
               }`}
             >
               <option value="">Client</option>
@@ -345,8 +345,8 @@ export default function TasksPage() {
             <select
               value={filterProgrammer}
               onChange={e => setFilterProgrammer(e.target.value)}
-              className={`w-full rounded border p-1 bg-white focus:outline-none focus:border-blue-400 ${
-                filterProgrammer ? 'border-blue-500 bg-blue-50/10 font-semibold' : 'border-gray-200'
+              className={`w-full rounded-xl glass-subtle border border-white/10 px-2 py-1.5 text-white focus:outline-none focus:border-violet-400/40 ${
+                filterProgrammer ? 'border-violet-400/40 bg-violet-500/10 font-semibold text-white' : 'border-white/10 text-white/60'
               }`}
             >
               <option value="">Programmer</option>
@@ -359,8 +359,8 @@ export default function TasksPage() {
             <select
               value={filterStatus}
               onChange={e => setFilterStatus(e.target.value)}
-              className={`w-full rounded border p-1 bg-white focus:outline-none focus:border-blue-400 ${
-                filterStatus ? 'border-blue-500 bg-blue-50/10 font-semibold' : 'border-gray-200'
+              className={`w-full rounded-xl glass-subtle border border-white/10 px-2 py-1.5 text-white focus:outline-none focus:border-violet-400/40 ${
+                filterStatus ? 'border-violet-400/40 bg-violet-500/10 font-semibold text-white' : 'border-white/10 text-white/60'
               }`}
               disabled={urlFilter === 'open' || urlFilter === 'assigned' || urlFilter === 'completed'}
             >
@@ -374,8 +374,8 @@ export default function TasksPage() {
             <select
               value={filterSqlServer}
               onChange={e => setFilterSqlServer(e.target.value)}
-              className={`w-full rounded border p-1 bg-white focus:outline-none focus:border-blue-400 ${
-                filterSqlServer ? 'border-blue-500 bg-blue-50/10 font-semibold' : 'border-gray-200'
+              className={`w-full rounded-xl glass-subtle border border-white/10 px-2 py-1.5 text-white focus:outline-none focus:border-violet-400/40 ${
+                filterSqlServer ? 'border-violet-400/40 bg-violet-500/10 font-semibold text-white' : 'border-white/10 text-white/60'
               }`}
             >
               <option value="">SQL Server</option>
@@ -388,8 +388,8 @@ export default function TasksPage() {
             <select
               value={filterDatabase}
               onChange={e => setFilterDatabase(e.target.value)}
-              className={`w-full rounded border p-1 bg-white focus:outline-none focus:border-blue-400 ${
-                filterDatabase ? 'border-blue-500 bg-blue-50/10 font-semibold' : 'border-gray-200'
+              className={`w-full rounded-xl glass-subtle border border-white/10 px-2 py-1.5 text-white focus:outline-none focus:border-violet-400/40 ${
+                filterDatabase ? 'border-violet-400/40 bg-violet-500/10 font-semibold text-white' : 'border-white/10 text-white/60'
               }`}
             >
               <option value="">Database</option>
@@ -398,15 +398,15 @@ export default function TasksPage() {
               ))}
             </select>
           </div>
-          <div className={`flex items-center justify-center border rounded p-1 bg-white ${
-            filterOverdueOnly ? 'border-blue-500 bg-blue-50/10 font-semibold' : 'border-gray-200'
+          <div className={`flex items-center justify-center border rounded-xl p-1 glass-subtle border-white/10 ${
+            filterOverdueOnly ? 'border-violet-400/40 bg-violet-500/10 font-semibold text-white' : 'border-white/10 text-white/60'
           }`}>
             <label className="flex items-center gap-1.5 cursor-pointer select-none">
               <input
                 type="checkbox"
                 checked={filterOverdueOnly}
                 onChange={e => setFilterOverdueOnly(e.target.checked)}
-                className="rounded text-blue-600 focus:ring-blue-500 h-3w-3"
+                className="rounded text-violet-500 focus:ring-violet-500 h-3w-3"
                 disabled={urlFilter === 'overdue'}
               />
               <span>Overdue</span>
@@ -415,9 +415,9 @@ export default function TasksPage() {
         </div>
 
         {/* Tasks Table */}
-        <div className="flex-1 border border-gray-200 rounded overflow-auto bg-white min-h-0 relative">
+        <div className="flex-1 glass rounded-2xl overflow-auto min-h-0 relative">
           {loading ? (
-            <div className="p-12 h-full flex flex-col items-center justify-center font-mono text-xs text-gray-500">
+            <div className="p-12 h-full flex flex-col items-center justify-center font-mono text-xs text-white/30">
               Loading database...
             </div>
           ) : sortedTasks.length === 0 ? (
@@ -430,8 +430,8 @@ export default function TasksPage() {
               />
             </div>
           ) : (
-            <table className="min-w-full divide-y divide-gray-200 text-left text-[12px] font-sans table-fixed">
-              <thead className="bg-gray-50 sticky top-0 z-10 font-mono text-[10px] text-gray-500 uppercase tracking-wider">
+            <table className="min-w-full divide-y divide-white/5 text-left text-[12px] font-sans table-fixed">
+              <thead className="bg-white/[0.04] backdrop-blur sticky top-0 z-10 font-mono text-[10px] text-white/40 uppercase tracking-wider">
                 <tr>
                   {[
                     { field: 'id', label: 'ID', width: 'w-24' },
@@ -447,12 +447,12 @@ export default function TasksPage() {
                       key={col.field}
                       scope="col"
                       onClick={() => handleSort(col.field as SortField)}
-                      className={`px-3 py-2 font-bold cursor-pointer hover:bg-gray-100 ${col.width}`}
+                      className={`px-3 py-2 font-bold cursor-pointer hover:bg-white/5 ${col.width}`}
                     >
                       <div className="flex items-center gap-1.5">
                         <span>{col.label}</span>
                         {sortField === col.field && (
-                          <span className="text-[10px] text-gray-400">{sortOrder === 'asc' ? '▲' : '▼'}</span>
+                          <span className="text-[10px] text-white/30">{sortOrder === 'asc' ? '▲' : '▼'}</span>
                         )}
                       </div>
                     </th>
@@ -465,33 +465,33 @@ export default function TasksPage() {
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200 bg-white">
+              <tbody className="divide-y divide-white/5">
                 {paginatedTasks.map(task => {
                   const isSelected = selectedTaskId === task.id
                   return (
                     <tr
                       key={task.id}
                       onClick={() => handleRowClick(task.id)}
-                      className={`cursor-pointer hover:bg-blue-50/10 transition-colors ${
-                        isSelected ? 'bg-blue-50/30' : ''
+                      className={`cursor-pointer hover:bg-white/[0.04] transition-colors ${
+                        isSelected ? 'bg-white/5' : ''
                       }`}
                     >
-                      <td className="whitespace-nowrap px-3 py-2 font-bold text-gray-900 font-mono">{task.id}</td>
-                      <td className="whitespace-nowrap px-3 py-2 text-gray-600 truncate">{task.consultant}</td>
+                      <td className="whitespace-nowrap px-3 py-2 font-bold text-white font-mono">{task.id}</td>
+                      <td className="whitespace-nowrap px-3 py-2 text-white/60 truncate">{task.consultant}</td>
                       <td className="whitespace-nowrap px-3 py-2">
                         <TaskTypeBadge type={task.type} />
                       </td>
-                      <td className="whitespace-nowrap px-3 py-2 text-gray-900 truncate font-semibold">
+                      <td className="whitespace-nowrap px-3 py-2 text-white truncate font-semibold">
                         {task.client}
                       </td>
-                      <td className="whitespace-nowrap px-3 py-2 text-gray-600 truncate">{task.screenReport}</td>
+                      <td className="whitespace-nowrap px-3 py-2 text-white/60 truncate">{task.screenReport}</td>
                       <td className="whitespace-nowrap px-3 py-2">
                         <StatusBadge status={task.status} />
                       </td>
-                      <td className="whitespace-nowrap px-3 py-2 text-gray-600 truncate">
-                        {task.programmer || <span className="italic text-gray-400">unassigned</span>}
+                      <td className="whitespace-nowrap px-3 py-2 text-white/60 truncate">
+                        {task.programmer || <span className="italic text-white/25">unassigned</span>}
                       </td>
-                      <td className="whitespace-nowrap px-3 py-2 text-gray-500 font-mono">{task.targetDate || '-'}</td>
+                      <td className="whitespace-nowrap px-3 py-2 text-white/40 font-mono">{task.targetDate || '-'}</td>
                       <td className="whitespace-nowrap px-3 py-2">
                         <DeadlineIndicator task={task} />
                       </td>
@@ -501,7 +501,7 @@ export default function TasksPage() {
                             e.stopPropagation()
                             handleRowClick(task.id)
                           }}
-                          className="text-[11px] text-blue-600 hover:text-blue-800 hover:underline font-semibold"
+                          className="text-[11px] text-violet-300 hover:text-violet-200 hover:underline font-semibold"
                         >
                           View
                         </button>
@@ -516,8 +516,8 @@ export default function TasksPage() {
 
         {/* Pagination Footer */}
         {totalPages > 1 && (
-          <div className="flex justify-between items-center mt-3 pt-3 border-t border-gray-100 font-sans text-xs">
-            <div className="text-gray-400">
+          <div className="flex justify-between items-center mt-3 pt-3 border-t border-white/5 font-sans text-xs">
+            <div className="text-white/35">
               Showing {(currentPage - 1) * itemsPerPage + 1} -{' '}
               {Math.min(currentPage * itemsPerPage, sortedTasks.length)} of {sortedTasks.length} tasks
             </div>
@@ -525,17 +525,17 @@ export default function TasksPage() {
               <button
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
-                className="rounded border border-gray-200 bg-white px-2 py-1 hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white"
+                className="rounded-full glass-subtle border border-white/10 px-3 py-1 text-white/70 hover:bg-white/5 disabled:opacity-40"
               >
                 [PREV]
               </button>
-              <span className="px-2 text-gray-700">
+              <span className="px-2 text-white/60">
                 Page {currentPage} of {totalPages}
               </span>
               <button
                 disabled={currentPage === totalPages}
                 onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
-                className="rounded border border-gray-200 bg-white px-2 py-1 hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white"
+                className="rounded-full glass-subtle border border-white/10 px-3 py-1 text-white/70 hover:bg-white/5 disabled:opacity-40"
               >
                 [NEXT]
               </button>
@@ -546,7 +546,7 @@ export default function TasksPage() {
 
       {/* Side Panel Drawer (Overlay on small screens, split layout on large screen) */}
       {activePanel && (
-        <div className="absolute inset-y-0 right-0 z-40 w-full sm:w-[500px] lg:w-[600px] lg:relative lg:inset-auto lg:z-10 bg-white border-l border-gray-200 flex flex-col h-full shadow-2xl lg:shadow-none animate-in slide-in-from-right duration-150">
+        <div className="absolute inset-y-0 right-0 z-40 w-full sm:w-[500px] lg:w-[600px] lg:relative lg:inset-auto lg:z-10 glass-strong border-l border-white/10 flex flex-col h-full shadow-2xl lg:shadow-none animate-in slide-in-from-right duration-150">
           {activePanel === 'detail' && selectedTaskId && (
             <TaskDetail
               taskId={selectedTaskId}

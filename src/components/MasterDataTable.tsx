@@ -70,80 +70,80 @@ export default function MasterDataTable({ entity, title, entityLabel }: Props) {
     }
   }
 
-  if (loading) return <div className="p-6 text-sm font-mono text-gray-500">Loading {title}...</div>
-  if (error) return <div className="p-6 text-sm font-mono text-red-600">Error: {error}</div>
+  if (loading) return <div className="p-6 text-sm font-mono text-white/50">Loading {title}...</div>
+  if (error) return <div className="p-6 text-sm font-mono text-red-300">Error: {error}</div>
 
   return (
     <div className="space-y-4 max-w-4xl">
-      <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+      <div className="glass-strong rounded-2xl px-4 py-3 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2 className="text-base font-semibold tracking-tight text-gray-900 font-mono">{title}</h2>
-          <p className="text-xs text-gray-500 font-mono mt-0.5">
-            {filtered.length} / {data.length} {entityLabel.toLowerCase()}s · termasuk non-aktif untuk manajemen
+          <h2 className="text-sm font-semibold tracking-tight text-white font-mono">{title}</h2>
+          <p className="text-xs text-white/40 font-mono mt-0.5">
+            {filtered.length} / {data.length} {entityLabel.toLowerCase()}s · termasuk non-aktif
           </p>
         </div>
         <button
           onClick={openCreate}
-          className="inline-flex items-center rounded bg-gray-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-black font-mono"
+          className="inline-flex items-center rounded-full bg-white px-4 py-1.5 text-xs font-medium text-slate-900 hover:bg-white/90 font-mono shrink-0"
         >
           + Tambah {entityLabel}
         </button>
       </div>
 
-      <div className="flex gap-2">
+      <div className="glass rounded-2xl p-3">
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder={`Cari ID / nama ${entityLabel.toLowerCase()}...`}
-          className="w-full max-w-sm rounded border border-gray-200 bg-white px-3 py-1.5 text-xs font-mono placeholder:text-gray-400 focus:border-gray-400 focus:outline-none"
+          className="w-full max-w-sm rounded-xl glass-subtle px-3 py-2 text-xs font-mono placeholder:text-white/25 text-white border border-white/5 focus:outline-none focus:border-white/15"
         />
       </div>
 
-      <div className="border border-gray-200 rounded overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200 text-left text-xs font-mono">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-4 py-2 font-medium text-gray-500">ID</th>
-              <th className="px-4 py-2 font-medium text-gray-500">Name</th>
-              <th className="px-4 py-2 font-medium text-gray-500">Status</th>
-              <th className="px-4 py-2 font-medium text-gray-500 text-right">Aksi</th>
+      <div className="glass rounded-2xl overflow-hidden">
+        <table className="min-w-full divide-y divide-white/5 text-left text-xs font-mono">
+          <thead className="bg-white/[0.03] backdrop-blur">
+            <tr className="text-white/40">
+              <th className="px-4 py-2.5 font-medium">ID</th>
+              <th className="px-4 py-2.5 font-medium">Name</th>
+              <th className="px-4 py-2.5 font-medium">Status</th>
+              <th className="px-4 py-2.5 font-medium text-right">Aksi</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 bg-white">
+          <tbody className="divide-y divide-white/5">
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-gray-400">
+                <td colSpan={4} className="px-4 py-10 text-center text-white/30">
                   Tidak ada data{search ? ` untuk "${search}"` : ''}.
                 </td>
               </tr>
             ) : (
               filtered.map((row) => (
-                <tr key={row.id} className={`hover:bg-gray-50/50 ${!row.active ? 'opacity-60' : ''}`}>
-                  <td className="whitespace-nowrap px-4 py-2 text-gray-900 font-semibold">{row.id}</td>
-                  <td className="px-4 py-2 text-gray-600">{row.name}</td>
-                  <td className="whitespace-nowrap px-4 py-2">
+                <tr key={row.id} className={`hover:bg-white/[0.04] ${!row.active ? 'opacity-55' : ''}`}>
+                  <td className="whitespace-nowrap px-4 py-2.5 text-white font-semibold">{row.id}</td>
+                  <td className="px-4 py-2.5 text-white/70">{row.name}</td>
+                  <td className="whitespace-nowrap px-4 py-2.5">
                     <span
-                      className={`inline-flex rounded px-1.5 py-0.5 text-[10px] font-medium border ${
+                      className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium border ${
                         row.active
-                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                          : 'bg-gray-50 text-gray-500 border-gray-200'
+                          ? 'bg-emerald-400/15 text-emerald-300 border-emerald-400/20'
+                          : 'bg-white/5 text-white/40 border-white/10'
                       }`}
                     >
                       {row.active ? 'Active' : 'Inactive'}
                     </span>
                   </td>
-                  <td className="whitespace-nowrap px-4 py-2 text-right space-x-1">
+                  <td className="whitespace-nowrap px-4 py-2.5 text-right space-x-1">
                     <button
                       onClick={() => handleToggle(row)}
                       title={row.active ? 'Nonaktifkan' : 'Aktifkan'}
-                      className="rounded border border-gray-200 bg-white px-2 py-1 text-[11px] hover:bg-gray-50"
+                      className="rounded-full glass-subtle px-2.5 py-1 text-[11px] text-white/70 hover:text-white border border-white/10"
                     >
                       {row.active ? '⏸ Off' : '▶ On'}
                     </button>
                     <button
                       onClick={() => openEdit(row)}
                       title="Edit"
-                      className="rounded border border-gray-200 bg-white px-2 py-1 text-[11px] hover:bg-gray-50"
+                      className="rounded-full glass-subtle px-2.5 py-1 text-[11px] text-white/70 hover:text-white border border-white/10"
                     >
                       ✎ Edit
                     </button>
@@ -151,7 +151,7 @@ export default function MasterDataTable({ entity, title, entityLabel }: Props) {
                       <button
                         onClick={() => handleDelete(row)}
                         title="Nonaktifkan (soft delete)"
-                        className="rounded border border-red-200 bg-red-50 px-2 py-1 text-[11px] text-red-700 hover:bg-red-100"
+                        className="rounded-full bg-red-500/15 border border-red-400/20 px-2.5 py-1 text-[11px] text-red-300 hover:bg-red-500/20"
                       >
                         ✕ Hapus
                       </button>
@@ -165,36 +165,36 @@ export default function MasterDataTable({ entity, title, entityLabel }: Props) {
       </div>
 
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-lg bg-white p-5 shadow-lg">
-            <h3 className="text-sm font-semibold font-mono text-gray-900">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md rounded-2xl glass-strong p-5 shadow-2xl">
+            <h3 className="text-sm font-semibold font-mono text-white">
               {editing ? `Edit ${entityLabel}` : `Tambah ${entityLabel} Baru`}
             </h3>
-            <p className="mt-1 text-xs font-mono text-gray-500">
+            <p className="mt-1 text-xs font-mono text-white/40">
               {editing ? `ID: ${editing.id}` : 'ID akan digenerate otomatis (CLI-/CON-/PROG- prefix).'}
             </p>
             <label className="mt-4 block">
-              <span className="text-xs font-mono text-gray-600">Nama *</span>
+              <span className="text-xs font-mono text-white/60">Nama *</span>
               <input
                 autoFocus
                 value={formName}
                 onChange={(e) => setFormName(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
                 placeholder={`Nama ${entityLabel.toLowerCase()}`}
-                className="mt-1 w-full rounded border border-gray-200 px-3 py-2 text-sm font-mono focus:border-gray-400 focus:outline-none"
+                className="mt-1 w-full rounded-xl glass-subtle px-3 py-2.5 text-sm font-mono text-white placeholder:text-white/25 focus:outline-none focus:border-white/15 border border-white/10"
               />
             </label>
             <div className="mt-5 flex justify-end gap-2">
               <button
                 onClick={() => setModalOpen(false)}
-                className="rounded border border-gray-200 bg-white px-3 py-1.5 text-xs font-mono hover:bg-gray-50"
+                className="rounded-full glass-subtle px-4 py-1.5 text-xs font-mono text-white/70 hover:text-white border border-white/10"
               >
                 Batal
               </button>
               <button
                 onClick={handleSubmit}
                 disabled={submitting || !formName.trim()}
-                className="rounded bg-gray-900 px-3 py-1.5 text-xs font-mono font-medium text-white hover:bg-black disabled:opacity-50"
+                className="rounded-full bg-white px-4 py-1.5 text-xs font-mono font-semibold text-slate-900 hover:bg-white/90 disabled:opacity-50"
               >
                 {submitting ? 'Menyimpan...' : editing ? 'Simpan' : 'Tambah'}
               </button>
