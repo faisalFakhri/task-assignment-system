@@ -108,7 +108,8 @@ function formatTargetForSheet(ymd: string | null): string {
 
 function taskToRowValues(taskId: string, row: NonNullable<SyncPayload["row"]>, rowNumber: number, seqNo: number): (string | number)[] {
   const target = formatTargetForSheet(row.targetDate ?? null);
-  const formulaL = `=IF(K${rowNumber}="","No Target",IF(G${rowNumber}="Done","",(K${rowNumber}-TODAY())))`;
+  // Sheet locale id_ID uses ; as separator — use ; to avoid #ERROR! (was comma)
+  const formulaL = `=IFERROR(IF(K${rowNumber}="";"No Target";IF(G${rowNumber}="Done";"";(K${rowNumber}-TODAY())));"")`;
   return [
     seqNo,
     row.consultant,
@@ -280,6 +281,21 @@ Deno.serve(async (req: Request) => {
 
     if (body.action === "create") {
       if (!body.row) return new Response(JSON.stringify({ error: "Missing row" }), { status: 400, headers: { ...corsHeaders(), "content-type": "application/json" } });
+      // Dedup: if already exists (retry from queue), treat as update
+      const existingRow = await findRowByTaskId(token, body.taskId);
+      if (existingRow) {
+        const cur = await sheetsGetValues(token, sheetRange(`M${existingRow}:M${existingRow}`));
+        const curNotes = cur.values?.[0]?.[0] ?? "";
+        const rawNotes2 = (body.row.notes ?? '').trim();
+        const hasTag2 = curNotes.includes(body.taskId) || rawNotes2.includes(`[${body.taskId}]`);
+        const notesWithId2 = hasTag2 ? (curNotes.includes(body.taskId) ? curNotes : (rawNotes2 ? `${rawNotes2} [${body.taskId}]` : `[${body.taskId}]`)) : (rawNotes2 ? `${rawNotes2} [${body.taskId}]` : `[${body.taskId}]`);
+        const rowWithId2 = { ...body.row, notes: notesWithId2 };
+        const curNoRes2 = await sheetsGetValues(token, sheetRange(`A${existingRow}:A${existingRow}`));
+        const curNo2 = parseInt(curNoRes2.values?.[0]?.[0] ?? '', 10) || existingRow -1;
+        const values2 = taskToRowValues(body.taskId, rowWithId2, existingRow, curNo2);
+        await sheetsUpdate(token, sheetRange(`A${existingRow}:M${existingRow}`), [values2]);
+        return new Response(JSON.stringify({ ok: true, sheetRow: existingRow, dedup: true }), { headers: { ...corsHeaders(), "content-type": "application/json" } });
+      }
       const nextRow = await getNextDataRow(token);
       const rawNotes = (body.row.notes ?? '').trim();
       const hasOwnTag = rawNotes.includes(`[${body.taskId}]`);
