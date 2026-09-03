@@ -5,6 +5,9 @@ import './index.css'
 import App from './App'
 import { TaskProvider } from './context/TaskContext'
 import { ToastProvider } from './context/ToastContext'
+import { initFont } from './lib/fonts'
+
+initFont()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

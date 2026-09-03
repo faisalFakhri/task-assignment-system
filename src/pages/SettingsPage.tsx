@@ -1,9 +1,14 @@
+import FontPicker from '../components/FontPicker'
+
 export default function SettingsPage() {
   return (
-    <div className="space-y-4 max-w-xl">
+    <div className="space-y-4 max-w-3xl">
       <div className="glass-strong rounded-2xl px-5 py-4">
         <h2 className="text-sm font-semibold tracking-tight text-white font-mono">SYSTEM_SETTINGS</h2>
         <p className="text-xs text-white/40 font-mono mt-0.5">Thresholds &amp; constants · dark glass Varian C · Supabase backend</p>
+      </div>
+      <div className="glass rounded-2xl p-5">
+        <FontPicker />
       </div>
       <div className="glass rounded-2xl p-4 space-y-0 font-mono text-xs divide-y divide-white/5">
         <div className="flex justify-between items-center py-3">

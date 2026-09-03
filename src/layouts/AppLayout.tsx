@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { TODAY_STR } from '../lib/dateUtils'
+import FontPicker from '../components/FontPicker'
 
 interface NavItem {
   to: string
@@ -139,6 +140,7 @@ export default function AppLayout() {
             <div className="hidden md:block text-xs text-white/45 font-mono truncate">Internal Task &amp; Assignment Management</div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
+            <div className="hidden lg:flex"><FontPicker compact /></div>
             <span className="hidden sm:inline-flex items-center gap-2 glass-subtle rounded-full px-3 py-1">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span className="text-[11px] font-mono text-white/60">Supabase</span>
