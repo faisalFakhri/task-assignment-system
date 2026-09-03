@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 
 const STORAGE_KEY = 'footer_walker_enabled'
-const MESSAGES = ['meow~ 🐾', 'semangat wi!', 'jalan dulu...', '*purr*', 'keep shipping! 🚀', 'ngoding terus!', '🐱💨']
+const MESSAGES = ['meow~ 🐾', 'semangat wi!', 'jalan dulu...', '*purr*', 'keep shipping! 🚀', 'ngoding terus!', '🐱💨', 'halo! 👋']
 
 export function isWalkerEnabled(): boolean {
   try {
@@ -13,7 +13,7 @@ export function isWalkerEnabled(): boolean {
 export default function FooterWalker() {
   const [enabled, setEnabled] = useState<boolean>(() => isWalkerEnabled())
   const [bubble, setBubble] = useState<string | null>(null)
-  const [flipped, setFlipped] = useState(false)
+  const [manualFlip, setManualFlip] = useState(false)
 
   useEffect(() => {
     const h = () => setEnabled(isWalkerEnabled())
@@ -28,116 +28,148 @@ export default function FooterWalker() {
 
   useEffect(() => {
     if (!bubble) return
-    const t = setTimeout(() => setBubble(null), 1600)
+    const t = setTimeout(() => setBubble(null), 1700)
     return () => clearTimeout(t)
   }, [bubble])
 
   if (!enabled) return null
 
-  const onCatClick = () => {
-    setFlipped((f) => !f)
-    setBubble(MESSAGES[Math.floor(Math.random() * MESSAGES.length)])
-  }
-
   return (
-    <div className="shrink-0 h-[42px] relative overflow-hidden border-t border-white/[0.06] bg-white/[0.02] backdrop-blur">
-      {/* dotted ground */}
-      <div className="absolute inset-x-0 bottom-[10px] h-px opacity-40" style={{ backgroundImage: 'linear-gradient(to right, rgba(255,255,255,0.35) 2px, transparent 2px)', backgroundSize: '10px 1px', backgroundRepeat: 'repeat-x' }} />
-      {/* walker */}
-      <div
-        className={`absolute bottom-[11px] cursor-pointer select-none ${flipped ? 'walker-flipped' : 'walker'}`}
-        onClick={onCatClick}
-        title="klik aku! 🐱"
-        style={{ pointerEvents: 'auto' }}
-      >
-        {/* bubble */}
-        {bubble && (
-          <div className="absolute -top-8 left-1/2 -translate-x-1/2 -translate-y-1 glass-strong rounded-full px-2.5 py-1 text-[11px] font-mono text-white whitespace-nowrap shadow-lg border border-white/15 pointer-events-none">
-            {bubble}
+    <div className="shrink-0 relative overflow-hidden select-none" style={{ height: 46, borderTop: '1px solid rgba(255,255,255,0.06)', background: 'linear-gradient(to bottom, rgba(255,255,255,0.02), rgba(255,255,255,0.0))', backdropFilter: 'blur(6px)' }}>
+      {/* subtle ground line like Hermes */}
+      <div className="absolute left-0 right-0" style={{ bottom: 13, height: 1, opacity: 0.9, background: 'repeating-linear-gradient(to right, rgba(255,255,255,0.28) 0 6px, transparent 6px 12px)' }} />
+      {/* soft glow behind walker to mimic Hermes ambient */}
+      <div className="walker-track">
+        <div
+          className="walker-cat"
+          onClick={() => { setManualFlip(f => !f); setBubble(MESSAGES[Math.floor(Math.random() * MESSAGES.length)]) }}
+          title="klik aku 🐱"
+          style={{ transform: manualFlip ? 'scaleX(-1)' : undefined }}
+        >
+          {bubble && (
+            <div className="walker-bubble glass-strong rounded-full px-2.5 py-1 text-[11px] font-mono text-white whitespace-nowrap shadow-lg border border-white/15">
+              {bubble}
+            </div>
+          )}
+          <div className="cat-bob">
+            <svg width="58" height="36" viewBox="0 0 38 22" shapeRendering="crispEdges" style={{ display: 'block', imageRendering: 'pixelated' as any }}>
+              {/* shadow under feet */}
+              <ellipse cx="19" cy="20.6" rx="10.5" ry="1.4" fill="rgba(0,0,0,0.32)" />
+              {/* tail — behind body */}
+              <g className="cat-tail" style={{ transformOrigin: '24px 11px' }}>
+                <rect x="24.5" y="10.2" width="7.2" height="3.2" rx="1.4" fill="#FFC07A" stroke="#2D1B0F" strokeWidth="0.7" />
+                <rect x="30.6" y="9.2" width="3.4" height="2.8" rx="1.2" fill="#FFC07A" stroke="#2D1B0F" strokeWidth="0.7" />
+                <rect x="31.2" y="10" width="1.6" height="1" rx="0.4" fill="#FFF2E6" />
+              </g>
+              {/* hind leg back */}
+              <g className="leg hind">
+                <rect x="21.2" y="15.2" width="2.8" height="3.6" rx="1" fill="#FFC07A" stroke="#2D1B0F" strokeWidth="0.7" />
+                <rect x="21.5" y="18.2" width="2.2" height="1" rx="0.4" fill="#2D1B0F" />
+              </g>
+              {/* body */}
+              <rect x="10.5" y="9.8" width="14.2" height="6.8" rx="2" fill="#FFC07A" stroke="#2D1B0F" strokeWidth="0.75" />
+              {/* belly patch */}
+              <rect x="12" y="11.2" width="9.5" height="3.2" rx="1.2" fill="#FFF4E6" />
+              <rect x="14.2" y="12" width="3" height="1" rx="0.5" fill="white" opacity="0.0" />
+              {/* chest fluff */}
+              <ellipse cx="11.2" cy="12.6" rx="2.1" ry="1.7" fill="#FFF4E6" stroke="#2D1B0F" strokeWidth="0.5" />
+              {/* head */}
+              <rect x="5.2" y="4.2" width="12.2" height="9.2" rx="2.2" fill="#FFC07A" stroke="#2D1B0F" strokeWidth="0.75" />
+              {/* ears */}
+              <path d="M6.2 4.6 L8.8 1.1 L11.2 4.6 Z" fill="#FFC07A" stroke="#2D1B0F" strokeWidth="0.7" strokeLinejoin="round" />
+              <path d="M12.2 4.6 L14.8 1.1 L17.2 4.6 Z" fill="#FFC07A" stroke="#2D1B0F" strokeWidth="0.7" strokeLinejoin="round" />
+              <path d="M7.6 3.8 L8.8 2.2 L10 3.8 Z" fill="#FF8FA3" />
+              <path d="M13.6 3.8 L14.8 2.2 L16 3.8 Z" fill="#FF8FA3" />
+              {/* blush */}
+              <ellipse cx="6.8" cy="9.6" rx="1.3" ry="0.9" fill="#FF8FA3" opacity="0.55" />
+              <ellipse cx="15.9" cy="9.6" rx="1.3" ry="0.9" fill="#FF8FA3" opacity="0.55" />
+              {/* eyes — big cute */}
+              <rect x="7" y="7" width="3.4" height="3.4" rx="1.1" fill="#0F0A1E" />
+              <rect x="12.2" y="7" width="3.4" height="3.4" rx="1.1" fill="#0F0A1E" />
+              {/* eye highlights */}
+              <rect x="7.8" y="7.7" width="1.2" height="1.2" rx="0.5" fill="white" />
+              <rect x="13" y="7.7" width="1.2" height="1.2" rx="0.5" fill="white" />
+              <rect x="7.7" y="9.1" width="0.7" height="0.6" rx="0.3" fill="white" opacity="0.7" />
+              <rect x="12.9" y="9.1" width="0.7" height="0.6" rx="0.3" fill="white" opacity="0.7" />
+              {/* nose */}
+              <rect x="10.35" y="10.1" width="1.7" height="1.2" rx="0.5" fill="#FF5A79" stroke="#2D1B0F" strokeWidth="0.45" />
+              {/* mouth w */}
+              <path d="M8.9 11.5 Q10.1 12.3 11.2 11.5 Q12.3 12.3 13.5 11.5" fill="none" stroke="#2D1B0F" strokeWidth="0.7" strokeLinecap="round" strokeLinejoin="round" />
+              {/* whiskers */}
+              <rect x="2.6" y="8.2" width="3" height="0.55" rx="0.3" fill="#2D1B0F" opacity="0.55" />
+              <rect x="2.6" y="9.7" width="3" height="0.55" rx="0.3" fill="#2D1B0F" opacity="0.55" />
+              <rect x="17.2" y="8.2" width="3" height="0.55" rx="0.3" fill="#2D1B0F" opacity="0.55" />
+              <rect x="17.2" y="9.7" width="3" height="0.55" rx="0.3" fill="#2D1B0F" opacity="0.55" />
+              {/* front legs */}
+              <g className="leg front-a">
+                <rect x="11.2" y="16.2" width="2.8" height="3.6" rx="1" fill="#FFC07A" stroke="#2D1B0F" strokeWidth="0.7" />
+                <rect x="11.5" y="18.8" width="2.2" height="1" rx="0.4" fill="#2D1B0F" />
+              </g>
+              <g className="leg front-b">
+                <rect x="15.2" y="16.2" width="2.8" height="3.6" rx="1" fill="#FFC07A" stroke="#2D1B0F" strokeWidth="0.7" />
+                <rect x="15.5" y="18.8" width="2.2" height="1" rx="0.4" fill="#2D1B0F" />
+              </g>
+            </svg>
           </div>
-        )}
-        <div className="cat-bob">
-          {/* Pixel Cat SVG — 32x20 viewBox, pixelated */}
-          <svg width="52" height="32" viewBox="0 0 32 20" shapeRendering="crispEdges" style={{ imageRendering: 'pixelated' as any, display: 'block' }}>
-            {/* shadow */}
-            <ellipse cx="16" cy="19" rx="9" ry="1.2" fill="rgba(0,0,0,0.35)" />
-            {/* tail */}
-            <g className="cat-tail" style={{ transformOrigin: '20px 10px' }}>
-              <rect x="20" y="9" width="6" height="3" rx="0.5" fill="#ffb86b" stroke="#4a2c0a" strokeWidth="0.6" />
-              <rect x="25.5" y="8.5" width="2.5" height="2" rx="0.5" fill="#ffb86b" stroke="#4a2c0a" strokeWidth="0.6" />
-            </g>
-            {/* body */}
-            <rect x="8" y="8.5" width="12" height="6.5" rx="1" fill="#ffb86b" stroke="#4a2c0a" strokeWidth="0.7" />
-            <rect x="9" y="9.5" width="10" height="2" rx="0.5" fill="white" opacity="0.95" />
-            {/* head */}
-            <rect x="3.5" y="3.5" width="10.5" height="8" rx="1.2" fill="#ffb86b" stroke="#4a2c0a" strokeWidth="0.7" />
-            {/* ears */}
-            <rect x="4" y="1.2" width="3.5" height="3.5" rx="0.6" fill="#ffb86b" stroke="#4a2c0a" strokeWidth="0.7" />
-            <rect x="10" y="1.2" width="3.5" height="3.5" rx="0.6" fill="#ffb86b" stroke="#4a2c0a" strokeWidth="0.7" />
-            <rect x="5.2" y="2.3" width="1.4" height="1.4" rx="0.3" fill="#ff7a8a" />
-            <rect x="11.2" y="2.3" width="1.4" height="1.4" rx="0.3" fill="#ff7a8a" />
-            {/* eyes */}
-            <rect x="5.5" y="6.5" width="2.2" height="2.6" rx="0.6" fill="#1a1033" />
-            <rect x="10.2" y="6.5" width="2.2" height="2.6" rx="0.6" fill="#1a1033" />
-            <rect x="6.2" y="7.2" width="0.9" height="1" rx="0.4" fill="white" />
-            <rect x="10.9" y="7.2" width="0.9" height="1" rx="0.4" fill="white" />
-            {/* nose / mouth */}
-            <rect x="8.6" y="9.2" width="1.1" height="1" rx="0.3" fill="#ff4d6a" />
-            <rect x="7.5" y="10.4" width="1.8" height="0.7" rx="0.3" fill="#4a2c0a" opacity="0.9" />
-            <rect x="9.3" y="10.4" width="1.8" height="0.7" rx="0.3" fill="#4a2c0a" opacity="0.9" />
-            {/* legs — two groups for walk cycle */}
-            <g className="leg leg1">
-              <rect x="9" y="15" width="2.4" height="3.2" rx="0.6" fill="#ffb86b" stroke="#4a2c0a" strokeWidth="0.6" />
-              <rect x="9.4" y="17.8" width="1.6" height="0.9" rx="0.3" fill="#4a2c0a" />
-            </g>
-            <g className="leg leg2">
-              <rect x="13" y="15" width="2.4" height="3.2" rx="0.6" fill="#ffb86b" stroke="#4a2c0a" strokeWidth="0.6" />
-              <rect x="13.4" y="17.8" width="1.6" height="0.9" rx="0.3" fill="#4a2c0a" />
-            </g>
-            <g className="leg leg1" style={{ animationDelay: '0.15s' } as any}>
-              <rect x="17.2" y="15" width="2.4" height="3.2" rx="0.6" fill="#ffb86b" stroke="#4a2c0a" strokeWidth="0.6" />
-              <rect x="17.6" y="17.8" width="1.6" height="0.9" rx="0.3" fill="#4a2c0a" />
-            </g>
-            {/* whiskers */}
-            <rect x="2" y="7.2" width="2.2" height="0.5" rx="0.3" fill="#4a2c0a" opacity="0.6" />
-            <rect x="2" y="8.6" width="2.2" height="0.5" rx="0.3" fill="#4a2c0a" opacity="0.6" />
-            <rect x="14.2" y="7.2" width="2.2" height="0.5" rx="0.3" fill="#4a2c0a" opacity="0.6" />
-            <rect x="14.2" y="8.6" width="2.2" height="0.5" rx="0.3" fill="#4a2c0a" opacity="0.6" />
-          </svg>
         </div>
       </div>
       <style>{`
-        .walker { left: 8px; animation: walkerMove 13s linear infinite alternate; }
-        .walker-flipped { left: 8px; animation: walkerMoveFlipped 13s linear infinite alternate; }
-        .cat-bob { animation: catBob 0.6s ease-in-out infinite; }
-        .leg { animation: legWalk 0.32s ease-in-out infinite; }
-        .leg2 { animation-delay: 0.16s; }
-        .cat-tail { animation: tailWag 0.5s ease-in-out infinite; transform-box: fill-box; }
-        @keyframes walkerMove {
-          0% { transform: translateX(0) scaleX(1); }
-          49% { transform: translateX(0) scaleX(1); }
-          50% { transform: translateX(calc(100vw - 248px - 64px)) scaleX(-1); }
-          100% { transform: translateX(calc(100vw - 248px - 64px)) scaleX(-1); }
+        .walker-track {
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
         }
-        @keyframes walkerMoveFlipped {
-          0% { transform: translateX(calc(100vw - 248px - 64px)) scaleX(-1); }
-          100% { transform: translateX(0) scaleX(1); }
+        .walker-cat {
+          position: absolute;
+          bottom: 14px;
+          left: 10px;
+          cursor: pointer;
+          pointer-events: auto;
+          animation: hermesWalk 11.5s linear infinite;
+          will-change: left, transform;
         }
+        .walker-bubble {
+          position: absolute;
+          left: 50%;
+          top: -10px;
+          transform: translate(-50%, -100%);
+          pointer-events: none;
+          animation: bubblePop 0.18s ease-out;
+        }
+        .cat-bob { animation: catBob 0.62s ease-in-out infinite; }
+        .leg { animation: legStep 0.34s ease-in-out infinite; }
+        .leg.front-b { animation-delay: 0.17s; }
+        .leg.hind { animation-delay: 0.08s; }
+        .cat-tail { animation: tailWag 0.48s ease-in-out infinite; transform-box: fill-box; }
+
+        @keyframes hermesWalk {
+          0%   { left: 10px; transform: scaleX(1); }
+          44%  { left: 10px; transform: scaleX(1); }
+          45%  { left: 10px; transform: scaleX(1); }
+          46%  { left: 10px; transform: scaleX(-1); }
+          90%  { left: calc(100% - 68px); transform: scaleX(-1); }
+          94%  { left: calc(100% - 68px); transform: scaleX(-1); }
+          95%  { left: calc(100% - 68px); transform: scaleX(1); }
+          100% { left: 10px; transform: scaleX(1); }
+        }
+        @keyframes catBob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-1.6px); } }
+        @keyframes legStep { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-1.8px); } }
+        @keyframes tailWag { 0%,100% { transform: rotate(-12deg); } 50% { transform: rotate(16deg); } }
+        @keyframes bubblePop { from { transform: translate(-50%, -100%) scale(0.85); opacity: 0; } to { transform: translate(-50%, -100%) scale(1); opacity: 1; } }
+
         @media (max-width: 768px) {
-          @keyframes walkerMove {
-            0% { transform: translateX(0) scaleX(1); }
-            49% { transform: translateX(0) scaleX(1); }
-            50% { transform: translateX(calc(100vw - 64px)) scaleX(-1); }
-            100% { transform: translateX(calc(100vw - 64px)) scaleX(-1); }
-          }
-          @keyframes walkerMoveFlipped {
-            0% { transform: translateX(calc(100vw - 64px)) scaleX(-1); }
-            100% { transform: translateX(0) scaleX(1); }
+          @keyframes hermesWalk {
+            0%   { left: 8px; transform: scaleX(1); }
+            44%  { left: 8px; transform: scaleX(1); }
+            46%  { left: 8px; transform: scaleX(-1); }
+            90%  { left: calc(100% - 66px); transform: scaleX(-1); }
+            95%  { left: calc(100% - 66px); transform: scaleX(1); }
+            100% { left: 8px; transform: scaleX(1); }
           }
         }
-        @keyframes catBob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
-        @keyframes legWalk { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-1.5px); } }
-        @keyframes tailWag { 0%,100% { transform: rotate(-10deg); } 50% { transform: rotate(14deg); } }
+        @media (prefers-reduced-motion: reduce) {
+          .walker-cat, .cat-bob, .leg, .cat-tail { animation: none !important; }
+        }
       `}</style>
     </div>
   )
