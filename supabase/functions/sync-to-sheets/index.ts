@@ -121,7 +121,8 @@ function taskToRowValues(taskId: string, row: NonNullable<SyncPayload["row"]>, r
 }
 
 async function sheetsGetValues(token: string, range: string) {
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(range)}`;
+  const encoded = encodeURIComponent(range).replace(/'/g, '%27');
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encoded}`;
   const r = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
   const j = await r.json();
   if (!r.ok) throw new Error(`sheets get ${r.status}: ${JSON.stringify(j)}`);
@@ -129,7 +130,8 @@ async function sheetsGetValues(token: string, range: string) {
 }
 
 async function sheetsAppend(token: string, range: string, values: (string | number)[][], valueInputOption = "USER_ENTERED") {
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(range)}:append?valueInputOption=${valueInputOption}&insertDataOption=INSERT_ROWS`;
+  const encoded = encodeURIComponent(range).replace(/'/g, '%27');
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encoded}:append?valueInputOption=${valueInputOption}&insertDataOption=INSERT_ROWS`;
   const r = await fetch(url, {
     method: "POST",
     headers: { Authorization: `Bearer ${token}`, "content-type": "application/json" },
@@ -141,7 +143,8 @@ async function sheetsAppend(token: string, range: string, values: (string | numb
 }
 
 async function sheetsUpdate(token: string, range: string, values: (string | number)[][], valueInputOption = "USER_ENTERED") {
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(range)}?valueInputOption=${valueInputOption}`;
+  const encoded = encodeURIComponent(range).replace(/'/g, '%27');
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encoded}?valueInputOption=${valueInputOption}`;
   const r = await fetch(url, {
     method: "PUT",
     headers: { Authorization: `Bearer ${token}`, "content-type": "application/json" },
@@ -152,10 +155,14 @@ async function sheetsUpdate(token: string, range: string, values: (string | numb
   return j;
 }
 
+function sheetRange(a1: string): string {
+  // Quote sheet name if it contains space
+  const name = SHEET_NAME.includes(' ') || SHEET_NAME.includes("'") ? `'${SHEET_NAME}'` : SHEET_NAME;
+  return `${name}!${a1}`;
+}
+
 async function findRowByTaskId(token: string, taskId: string): Promise<number | null> {
-  // Heuristic: taskId may be in column M (Keterangan) as `[TASK-...]` or hidden; also try full sheet scan on column M and G lookup
-  // Fast path: scan A:M
-  const j = await sheetsGetValues(token, `${SHEET_NAME}!A2:M`);
+  const j = await sheetsGetValues(token, sheetRange('A2:M'));
   const rows = j.values ?? [];
   // Strategy 1: Keterangan contains taskId
   for (let i = 0; i < rows.length; i++) {
@@ -206,13 +213,13 @@ Deno.serve(async (req: Request) => {
     if (body.action === "create") {
       if (!body.row) return new Response(JSON.stringify({ error: "Missing row" }), { status: 400, headers: { ...corsHeaders(), "content-type": "application/json" } });
       // Determine next row number
-      const existing = await sheetsGetValues(token, `${SHEET_NAME}!A2:A`);
+      const existing = await sheetsGetValues(token, sheetRange('A2:A'));
       const nextRow = (existing.values?.length ?? 0) + 2;
       // Embed taskId in Keterangan for future find/update: append ` [TASK-xxx]`
       const notesWithId = body.row.notes ? `${body.row.notes} [${body.taskId}]` : `[${body.taskId}]`;
       const rowWithId = { ...body.row, notes: notesWithId };
       const values = taskToRowValues(body.taskId, rowWithId, nextRow);
-      await sheetsAppend(token, `${SHEET_NAME}!A${nextRow}:M${nextRow}`, [values]);
+      await sheetsAppend(token, sheetRange(`A${nextRow}:M${nextRow}`), [values]);
       return new Response(JSON.stringify({ ok: true, sheetRow: nextRow }), { headers: { ...corsHeaders(), "content-type": "application/json" } });
     }
 
@@ -221,26 +228,26 @@ Deno.serve(async (req: Request) => {
       if (!rowNum) {
         // fallback to create if not found
         if (!body.row) return new Response(JSON.stringify({ error: "Not found and no row to create" }), { status: 404, headers: { ...corsHeaders(), "content-type": "application/json" } });
-        const existing = await sheetsGetValues(token, `${SHEET_NAME}!A2:A`);
+        const existing = await sheetsGetValues(token, sheetRange('A2:A'));
         const nextRow = (existing.values?.length ?? 0) + 2;
         const notesWithId = body.row.notes ? `${body.row.notes} [${body.taskId}]` : `[${body.taskId}]`;
         const rowWithId = { ...body.row, notes: notesWithId };
         const values = taskToRowValues(body.taskId, rowWithId, nextRow);
-        await sheetsAppend(token, `${SHEET_NAME}!A${nextRow}:M${nextRow}`, [values]);
+        await sheetsAppend(token, sheetRange(`A${nextRow}:M${nextRow}`), [values]);
         return new Response(JSON.stringify({ ok: true, created: true, sheetRow: nextRow }), { headers: { ...corsHeaders(), "content-type": "application/json" } });
       }
       if (body.row) {
         // Preserve existing Keterangan's taskId tag if present
-        const cur = await sheetsGetValues(token, `${SHEET_NAME}!M${rowNum}:M${rowNum}`);
+        const cur = await sheetsGetValues(token, sheetRange(`M${rowNum}:M${rowNum}`));
         const curNotes = cur.values?.[0]?.[0] ?? "";
         const hasTag = curNotes.includes(body.taskId);
         const notesWithId = hasTag ? (body.row.notes ? (curNotes.includes(body.row.notes) ? curNotes : `${body.row.notes} ${curNotes.match(/\[TASK-[^\]]+\]/)?.[0] ?? `[${body.taskId}]`}`) : curNotes) : (body.row.notes ? `${body.row.notes} [${body.taskId}]` : `[${body.taskId}]`);
         const rowWithId = { ...body.row, notes: notesWithId };
         const values = taskToRowValues(body.taskId, rowWithId, rowNum);
-        await sheetsUpdate(token, `${SHEET_NAME}!A${rowNum}:M${rowNum}`, [values]);
+        await sheetsUpdate(token, sheetRange(`A${rowNum}:M${rowNum}`), [values]);
       } else if (body.status) {
         // status-only update: patch G col
-        await sheetsUpdate(token, `${SHEET_NAME}!G${rowNum}:G${rowNum}`, [[body.status]]);
+        await sheetsUpdate(token, sheetRange(`G${rowNum}:G${rowNum}`), [[body.status]]);
       }
       return new Response(JSON.stringify({ ok: true, sheetRow: rowNum }), { headers: { ...corsHeaders(), "content-type": "application/json" } });
     }
@@ -250,10 +257,10 @@ Deno.serve(async (req: Request) => {
       if (!rowNum) return new Response(JSON.stringify({ ok: true, note: "No sheet row for task" }), { headers: { ...corsHeaders(), "content-type": "application/json" } });
       // Option: set status to Done or tag Keterangan with [ARCHIVED]
       // Here we append to Keterangan and optionally set G=Done if not already
-      const cur = await sheetsGetValues(token, `${SHEET_NAME}!M${rowNum}:M${rowNum}`);
+      const cur = await sheetsGetValues(token, sheetRange(`M${rowNum}:M${rowNum}`));
       const curNotes = cur.values?.[0]?.[0] ?? "";
       const nextNotes = curNotes.includes("[ARCHIVED]") ? curNotes : `${curNotes} [ARCHIVED]`.trim();
-      await sheetsUpdate(token, `${SHEET_NAME}!M${rowNum}:M${rowNum}`, [[nextNotes]]);
+      await sheetsUpdate(token, sheetRange(`M${rowNum}:M${rowNum}`), [[nextNotes]]);
       return new Response(JSON.stringify({ ok: true, sheetRow: rowNum }), { headers: { ...corsHeaders(), "content-type": "application/json" } });
     }
 
