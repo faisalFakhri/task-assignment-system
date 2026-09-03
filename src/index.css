@@ -6,60 +6,59 @@
   --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
 }
 
-/* Dark glass — Varian C + soft tint */
+/* Light soft pastel — warm, airy */
 .glass {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.72);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  box-shadow: 0 8px 32px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15,23,42,0.04);
 }
 .glass-strong {
-  background: rgba(255, 255, 255, 0.09);
+  background: rgba(255, 255, 255, 0.84);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(15, 23, 42, 0.07);
+  box-shadow: 0 12px 40px rgba(15, 23, 42, 0.08), 0 2px 8px rgba(15,23,42,0.04);
 }
 .glass-subtle {
-  background: rgba(255, 255, 255, 0.035);
+  background: rgba(255, 255, 255, 0.55);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(15, 23, 42, 0.05);
 }
-.glow-violet { box-shadow: 0 0 40px rgba(124, 58, 237, 0.28), 0 8px 32px rgba(0, 0, 0, 0.35); }
-.glow-cyan { box-shadow: 0 0 40px rgba(6, 182, 212, 0.22), 0 8px 32px rgba(0, 0, 0, 0.35); }
-.glow-amber { box-shadow: 0 0 40px rgba(245, 158, 11, 0.2), 0 8px 32px rgba(0, 0, 0, 0.35); }
+.glow-violet { box-shadow: 0 0 24px rgba(124, 58, 237, 0.12), 0 8px 24px rgba(15,23,42,0.06); }
+.glow-cyan { box-shadow: 0 0 24px rgba(6, 182, 212, 0.10), 0 8px 24px rgba(15,23,42,0.06); }
+.glow-amber { box-shadow: 0 0 24px rgba(245, 158, 11, 0.10), 0 8px 24px rgba(15,23,42,0.06); }
 
-/* Soft tinted glass — per status (desaturated, 12-15% tint on dark) */
-.glass-tint-open    { background: rgba(186, 214, 255, 0.12); border-color: rgba(147,197,253,0.22); }
-.glass-tint-assign  { background: rgba(255, 236, 179, 0.13); border-color: rgba(252,211,77,0.22); }
-.glass-tint-progress{ background: rgba(186, 235, 255, 0.12); border-color: rgba(125,211,252,0.22); }
-.glass-tint-qc      { background: rgba(216, 203, 255, 0.14); border-color: rgba(196,181,253,0.24); }
-.glass-tint-hold    { background: rgba(203, 213, 225, 0.11); border-color: rgba(148,163,184,0.20); }
-.glass-tint-reopen  { background: rgba(255, 214, 175, 0.13); border-color: rgba(253,186,116,0.22); }
-.glass-tint-reject  { background: rgba(255, 194, 194, 0.12); border-color: rgba(252,165,165,0.22); }
-.glass-tint-done    { background: rgba(187, 247, 208, 0.13); border-color: rgba(134,239,172,0.22); }
-.glass-tint-total   { background: rgba(255,255,255,0.07);   border-color: rgba(255,255,255,0.10); }
-.glass-tint-overdue { background: rgba(255, 196, 160, 0.12); border-color: rgba(251,146,60,0.20); }
+/* Soft tinted glass — per status (light pastel cards) */
+.glass-tint-open     { background: rgba(239, 246, 255, 0.92); border-color: rgba(147,197,253,0.45); }
+.glass-tint-assign   { background: rgba(255, 251, 235, 0.92); border-color: rgba(252,211,77,0.45); }
+.glass-tint-progress { background: rgba(236, 254, 255, 0.92); border-color: rgba(125,211,252,0.45); }
+.glass-tint-qc       { background: rgba(245, 243, 255, 0.92); border-color: rgba(196,181,253,0.45); }
+.glass-tint-hold     { background: rgba(241, 245, 249, 0.92); border-color: rgba(148,163,184,0.35); }
+.glass-tint-reopen   { background: rgba(255, 247, 237, 0.92); border-color: rgba(253,186,116,0.45); }
+.glass-tint-reject   { background: rgba(254, 242, 242, 0.92); border-color: rgba(252,165,165,0.45); }
+.glass-tint-done     { background: rgba(240, 253, 244, 0.92); border-color: rgba(134,239,172,0.40); }
+.glass-tint-total    { background: rgba(255,255,255,0.90);   border-color: rgba(15,23,42,0.06); }
+.glass-tint-overdue  { background: rgba(255, 247, 237, 0.92); border-color: rgba(251,146,60,0.35); }
 
 /* subtle hover lift for stat cards */
 .glass-tint-open:hover, .glass-tint-assign:hover, .glass-tint-progress:hover,
 .glass-tint-qc:hover, .glass-tint-hold:hover, .glass-tint-reopen:hover,
 .glass-tint-reject:hover, .glass-tint-done:hover, .glass-tint-total:hover {
-  border-color: rgba(255,255,255,0.18);
-  box-shadow: 0 10px 36px rgba(0,0,0,0.40), inset 0 1px 0 rgba(255,255,255,0.08);
+  border-color: rgba(15,23,42,0.12);
+  box-shadow: 0 10px 28px rgba(15,23,42,0.08), 0 2px 8px rgba(15,23,42,0.06);
 }
 
-* { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.12) transparent; }
+* { scrollbar-width: thin; scrollbar-color: rgba(15,23,42,0.10) transparent; }
 ::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 999px; }
+::-webkit-scrollbar-thumb { background: rgba(15,23,42,0.10); border-radius: 999px; }
 ::-webkit-scrollbar-track { background: transparent; }
 
-html, body { background: #020617; }
+html, body { background: #f8fafc; color: #0f172a; }
 
-/* dropdown contrast — dark glass */
-select { color-scheme: dark; }
-select, select option { background: #0f172a; color: #f1f5f9; }
+/* dropdown — light */
+select { color-scheme: light; }
+select, select option { background: #ffffff; color: #0f172a; }
 select:focus { outline: none; }
-

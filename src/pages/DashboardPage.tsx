@@ -38,8 +38,6 @@ export default function DashboardPage() {
   const [recentActivity, setRecentActivity] = useState<TaskHistory[]>([])
   const [loadingActivity, setLoadingActivity] = useState(true)
   const [activityError, setActivityError] = useState<string | null>(null)
-
-  // Date range filter
   const [fromDate, setFromDate] = useState('')
   const [toDate, setToDate] = useState('')
   const [filterMode, setFilterMode] = useState<FilterMode>('created')
@@ -55,11 +53,7 @@ export default function DashboardPage() {
   }, [fetchRecentHistory])
 
   const masters = useMemo(() => ({ consultants, clients, programmers }), [consultants, clients, programmers])
-
-  // Active (non-archived) tasks
   const activeTasksList = useMemo(() => tasks.filter(t => !t.archived), [tasks])
-
-  // Apply date range filter
   const filteredByDate = useMemo(() => {
     if (!fromDate && !toDate) return activeTasksList
     return activeTasksList.filter(t => {
@@ -70,9 +64,7 @@ export default function DashboardPage() {
       return isInDateRange(t.createdAt, fromDate, toDate)
     })
   }, [activeTasksList, fromDate, toDate, filterMode])
-
   const hasDateFilter = !!(fromDate || toDate)
-
   const stats = useMemo(() => {
     const byStatus: Record<string, number> = {}
     ALL_STATUSES.forEach(s => { byStatus[s] = filteredByDate.filter(t => t.status === s).length })
@@ -82,11 +74,9 @@ export default function DashboardPage() {
     const dueSoon = filteredByDate.filter(t => { if (t.status === 'Done' || !t.targetDate) return false; const r = getRemainingDays(t.targetDate); return r !== null && r >= 1 && r <= 3 }).length
     return { total, byStatus, overdue, dueToday, dueSoon }
   }, [filteredByDate])
-
   const overdueTasks = useMemo(() => filteredByDate.filter(t => { if (t.status === 'Done' || !t.targetDate) return false; const r = getRemainingDays(t.targetDate); return r !== null && r < 0 }).slice(0, 5), [filteredByDate])
   const upcomingDeadlines = useMemo(() => filteredByDate.filter(t => { if (t.status === 'Done' || !t.targetDate) return false; const r = getRemainingDays(t.targetDate); return r !== null && r >= 0 && r <= 3 }).sort((a,b) => (getRemainingDays(a.targetDate) ?? 999) - (getRemainingDays(b.targetDate) ?? 999)).slice(0, 5), [filteredByDate])
   const currentTasks = useMemo(() => filteredByDate.filter(t => t.status !== 'Done').slice(0, 5), [filteredByDate])
-
   const applyPreset = (preset: 'today' | '7d' | 'month' | 'reset') => {
     if (preset === 'today') { setFromDate(TODAY_STR); setToDate(TODAY_STR) }
     else if (preset === '7d') { setFromDate(addDays(TODAY_STR, -6)); setToDate(TODAY_STR) }
@@ -97,67 +87,60 @@ export default function DashboardPage() {
   return (
     <div className="space-y-4">
       {error && (
-        <div className="glass rounded-2xl border-red-400/20 bg-red-500/10 p-3 text-xs font-mono text-red-300 flex justify-between items-center">
+        <div className="glass rounded-2xl border-red-300 bg-red-50 p-3 text-xs font-mono text-red-600 flex justify-between items-center">
           <span>Error: {error}</span>
-          <button onClick={() => window.location.reload()} className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-900">[Retry]</button>
+          <button onClick={() => window.location.reload()} className="rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold text-white">[Retry]</button>
         </div>
       )}
       {loading ? (
-        <div className="glass rounded-2xl p-12 text-center font-mono text-xs text-white/40">Loading dashboard metrics...</div>
+        <div className="glass rounded-2xl p-12 text-center font-mono text-xs text-slate-400">Loading dashboard metrics...</div>
       ) : (
         <>
           <div className="glass-strong rounded-2xl px-5 py-4 flex flex-wrap items-end justify-between gap-3">
             <div>
-              <h2 className="text-base font-semibold tracking-tight text-white">Dashboard</h2>
-              <p className="text-xs text-white/40 font-mono mt-0.5">
+              <h2 className="text-base font-semibold tracking-tight text-slate-800">Dashboard</h2>
+              <p className="text-xs text-slate-400 font-mono mt-0.5">
                 Overview relative to {TODAY_STR} · Supabase · {activeTasksList.length} active tasks
-                {hasDateFilter ? <span className="text-violet-300"> · filtered {filteredByDate.length} in range</span> : null}
+                {hasDateFilter ? <span className="text-violet-600"> · filtered {filteredByDate.length} in range</span> : null}
               </p>
             </div>
-            <span className="hidden sm:inline-flex items-center gap-2 glass-subtle rounded-full px-3 py-1 text-[11px] font-mono text-white/50">soft tint · per-status</span>
+            <span className="hidden sm:inline-flex items-center gap-2 glass-subtle rounded-full px-3 py-1 text-[11px] font-mono text-slate-500">soft pastel · light</span>
           </div>
 
           {/* Date range filter bar */}
           <div className="glass rounded-2xl p-3 flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-2">
-              <span className="text-[11px] font-bold tracking-widest text-white/30 uppercase font-mono">Filter Tanggal</span>
-              <div className="flex rounded-full glass-subtle p-0.5 border border-white/10">
-                <button
-                  onClick={() => setFilterMode('created')}
-                  className={`px-2.5 py-1 rounded-full text-[11px] font-mono font-semibold transition-colors ${filterMode === 'created' ? 'bg-white text-slate-900' : 'text-white/50 hover:text-white'}`}
-                >Created</button>
-                <button
-                  onClick={() => setFilterMode('target')}
-                  className={`px-2.5 py-1 rounded-full text-[11px] font-mono font-semibold transition-colors ${filterMode === 'target' ? 'bg-white text-slate-900' : 'text-white/50 hover:text-white'}`}
-                >Target</button>
+              <span className="text-[11px] font-bold tracking-widest text-slate-400 uppercase font-mono">Filter Tanggal</span>
+              <div className="flex rounded-full glass-subtle p-0.5 border border-slate-200">
+                <button onClick={() => setFilterMode('created')} className={`px-2.5 py-1 rounded-full text-[11px] font-mono font-semibold transition-colors ${filterMode === 'created' ? 'bg-slate-900 text-white' : 'text-slate-400 hover:text-slate-700'}`}>Created</button>
+                <button onClick={() => setFilterMode('target')} className={`px-2.5 py-1 rounded-full text-[11px] font-mono font-semibold transition-colors ${filterMode === 'target' ? 'bg-slate-900 text-white' : 'text-slate-400 hover:text-slate-700'}`}>Target</button>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <input type="date" value={fromDate} onChange={e => setFromDate(e.target.value)} className="rounded-xl glass-subtle border border-white/10 px-2.5 py-1.5 text-xs font-mono text-white bg-transparent focus:outline-none focus:border-violet-400/40" />
-              <span className="text-white/25 font-mono text-xs">—</span>
-              <input type="date" value={toDate} onChange={e => setToDate(e.target.value)} className="rounded-xl glass-subtle border border-white/10 px-2.5 py-1.5 text-xs font-mono text-white bg-transparent focus:outline-none focus:border-violet-400/40" />
+              <input type="date" value={fromDate} onChange={e => setFromDate(e.target.value)} className="rounded-xl glass-subtle border border-slate-200 px-2.5 py-1.5 text-xs font-mono text-slate-700 bg-white focus:outline-none focus:border-violet-300" />
+              <span className="text-slate-300 font-mono text-xs">—</span>
+              <input type="date" value={toDate} onChange={e => setToDate(e.target.value)} className="rounded-xl glass-subtle border border-slate-200 px-2.5 py-1.5 text-xs font-mono text-slate-700 bg-white focus:outline-none focus:border-violet-300" />
             </div>
             <div className="flex items-center gap-1.5 flex-wrap">
-              <button onClick={() => applyPreset('today')} className={`px-2.5 py-1 rounded-full text-[11px] font-mono border transition-colors ${fromDate === TODAY_STR && toDate === TODAY_STR ? 'bg-violet-500/20 border-violet-400/30 text-violet-200' : 'glass-subtle border-white/10 text-white/50 hover:text-white'}`}>Hari ini</button>
-              <button onClick={() => applyPreset('7d')} className="px-2.5 py-1 rounded-full text-[11px] font-mono glass-subtle border border-white/10 text-white/50 hover:text-white">7 Hari</button>
-              <button onClick={() => applyPreset('month')} className="px-2.5 py-1 rounded-full text-[11px] font-mono glass-subtle border border-white/10 text-white/50 hover:text-white">Bulan Ini</button>
-              {hasDateFilter && <button onClick={() => applyPreset('reset')} className="px-2.5 py-1 rounded-full text-[11px] font-mono bg-white text-slate-900 font-semibold">Reset</button>}
+              <button onClick={() => applyPreset('today')} className={`px-2.5 py-1 rounded-full text-[11px] font-mono border transition-colors ${fromDate === TODAY_STR && toDate === TODAY_STR ? 'bg-violet-100 border-violet-300 text-violet-700' : 'glass-subtle border-slate-200 text-slate-500 hover:text-slate-700'}`}>Hari ini</button>
+              <button onClick={() => applyPreset('7d')} className="px-2.5 py-1 rounded-full text-[11px] font-mono glass-subtle border border-slate-200 text-slate-500 hover:text-slate-700">7 Hari</button>
+              <button onClick={() => applyPreset('month')} className="px-2.5 py-1 rounded-full text-[11px] font-mono glass-subtle border border-slate-200 text-slate-500 hover:text-slate-700">Bulan Ini</button>
+              {hasDateFilter && <button onClick={() => applyPreset('reset')} className="px-2.5 py-1 rounded-full text-[11px] font-mono bg-slate-900 text-white font-semibold">Reset</button>}
             </div>
-            {hasDateFilter && <span className="text-[11px] font-mono text-white/30">{fromDate || '…'} → {toDate || '…'}</span>}
+            {hasDateFilter && <span className="text-[11px] font-mono text-slate-400">{fromDate || '…'} → {toDate || '…'}</span>}
           </div>
 
           {/* Per-status cards: Total + 8 statuses */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-9">
-            {/* Total */}
             <Link to="/tasks?filter=all" className="glass glass-tint-total rounded-2xl p-4 relative overflow-hidden hover:scale-[1.015] transition-transform">
-              <div className="absolute -top-8 -right-8 w-20 h-20 rounded-full blur-2xl opacity-20 bg-gradient-to-br from-violet-500 to-cyan-400" />
+              <div className="absolute -top-8 -right-8 w-20 h-20 rounded-full blur-2xl opacity-20 bg-gradient-to-br from-violet-400 to-cyan-400" />
               <div className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-white/80" />
-                <span className="text-[10px] font-bold tracking-widest text-white/50 uppercase font-mono">Total</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+                <span className="text-[10px] font-bold tracking-widest text-slate-500 uppercase font-mono">Total</span>
               </div>
-              <div className="mt-1 text-xl font-semibold font-mono tabular-nums text-white">{stats.total}</div>
-              <div className="text-[11px] font-mono text-white/30 truncate">{hasDateFilter ? 'in range' : 'active'}</div>
-              <div className="mt-3 h-1.5 rounded-full bg-white/5 overflow-hidden"><div className="h-full rounded-full bg-gradient-to-r from-violet-500 to-cyan-400" style={{ width: `${Math.min(100, Math.max(12, stats.total * 4))}%` }} /></div>
+              <div className="mt-1 text-xl font-semibold font-mono tabular-nums text-slate-800">{stats.total}</div>
+              <div className="text-[11px] font-mono text-slate-400 truncate">{hasDateFilter ? 'in range' : 'active'}</div>
+              <div className="mt-3 h-1.5 rounded-full bg-slate-100 overflow-hidden"><div className="h-full rounded-full bg-gradient-to-r from-violet-400 to-cyan-400" style={{ width: `${Math.min(100, Math.max(12, stats.total * 4))}%` }} /></div>
             </Link>
             {ALL_STATUSES.map(s => {
               const cfg = STATUS_CONFIG[s]
@@ -167,11 +150,11 @@ export default function DashboardPage() {
                   <div className={`absolute -top-8 -right-8 w-20 h-20 rounded-full blur-2xl opacity-20 bg-gradient-to-br ${cfg.accent}`} />
                   <div className="flex items-center gap-1.5">
                     <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
-                    <span className="text-[10px] font-bold tracking-widest text-white/50 uppercase font-mono truncate">{s}</span>
+                    <span className="text-[10px] font-bold tracking-widest text-slate-500 uppercase font-mono truncate">{s}</span>
                   </div>
-                  <div className="mt-1 text-xl font-semibold font-mono tabular-nums text-white">{v}</div>
-                  <div className="text-[11px] font-mono text-white/30 truncate">{v === 0 ? '—' : v === 1 ? '1 task' : `${v} tasks`}</div>
-                  <div className="mt-3 h-1.5 rounded-full bg-white/5 overflow-hidden"><div className={`h-full rounded-full bg-gradient-to-r ${cfg.accent}`} style={{ width: `${v === 0 ? 8 : Math.min(100, Math.max(14, v * 12))}%` }} /></div>
+                  <div className="mt-1 text-xl font-semibold font-mono tabular-nums text-slate-800">{v}</div>
+                  <div className="text-[11px] font-mono text-slate-400 truncate">{v === 0 ? '—' : v === 1 ? '1 task' : `${v} tasks`}</div>
+                  <div className="mt-3 h-1.5 rounded-full bg-slate-100 overflow-hidden"><div className={`h-full rounded-full bg-gradient-to-r ${cfg.accent}`} style={{ width: `${v === 0 ? 8 : Math.min(100, Math.max(14, v * 12))}%` }} /></div>
                 </Link>
               )
             })}
@@ -181,80 +164,80 @@ export default function DashboardPage() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="glass glass-tint-overdue rounded-2xl p-3.5 flex items-center justify-between">
               <div>
-                <div className="text-[10px] font-bold tracking-widest text-white/40 uppercase font-mono">Overdue</div>
-                <div className="text-lg font-semibold font-mono text-white">{stats.overdue}</div>
+                <div className="text-[10px] font-bold tracking-widest text-slate-400 uppercase font-mono">Overdue</div>
+                <div className="text-lg font-semibold font-mono text-slate-800">{stats.overdue}</div>
               </div>
-              <span className={`text-[11px] font-mono px-2.5 py-1 rounded-full border ${stats.overdue > 0 ? 'bg-red-500/15 text-red-300 border-red-400/20' : 'bg-white/5 text-white/30 border-white/10'}`}>{stats.overdue > 0 ? 'needs attention' : 'all clear'}</span>
+              <span className={`text-[11px] font-mono px-2.5 py-1 rounded-full border ${stats.overdue > 0 ? 'bg-red-50 text-red-600 border-red-200' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>{stats.overdue > 0 ? 'needs attention' : 'all clear'}</span>
             </div>
             <div className="glass glass-tint-assign rounded-2xl p-3.5 flex items-center justify-between">
               <div>
-                <div className="text-[10px] font-bold tracking-widest text-white/40 uppercase font-mono">Due Today</div>
-                <div className="text-lg font-semibold font-mono text-white">{stats.dueToday}</div>
+                <div className="text-[10px] font-bold tracking-widest text-slate-400 uppercase font-mono">Due Today</div>
+                <div className="text-lg font-semibold font-mono text-slate-800">{stats.dueToday}</div>
               </div>
-              <span className="text-[11px] font-mono px-2.5 py-1 rounded-full glass-subtle border border-white/10 text-white/50">{stats.dueToday > 0 ? 'due today' : '—'}</span>
+              <span className="text-[11px] font-mono px-2.5 py-1 rounded-full glass-subtle border border-slate-200 text-slate-500">{stats.dueToday > 0 ? 'due today' : '—'}</span>
             </div>
-            <div className="glass rounded-2xl p-3.5 flex items-center justify-between" style={{ background: 'rgba(186,235,255,0.09)', borderColor: 'rgba(125,211,252,0.18)' }}>
+            <div className="glass rounded-2xl p-3.5 flex items-center justify-between" style={{ background: 'rgba(236,254,255,0.9)', borderColor: 'rgba(125,211,252,0.35)' }}>
               <div>
-                <div className="text-[10px] font-bold tracking-widest text-white/40 uppercase font-mono">Due in 3 Days</div>
-                <div className="text-lg font-semibold font-mono text-white">{stats.dueSoon}</div>
+                <div className="text-[10px] font-bold tracking-widest text-slate-400 uppercase font-mono">Due in 3 Days</div>
+                <div className="text-lg font-semibold font-mono text-slate-800">{stats.dueSoon}</div>
               </div>
-              <span className="text-[11px] font-mono px-2.5 py-1 rounded-full glass-subtle border border-white/10 text-white/50">{stats.dueSoon > 0 ? 'upcoming' : '—'}</span>
+              <span className="text-[11px] font-mono px-2.5 py-1 rounded-full glass-subtle border border-slate-200 text-slate-500">{stats.dueSoon > 0 ? 'upcoming' : '—'}</span>
             </div>
           </div>
 
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
             <div className="glass rounded-2xl p-4">
-              <div className="flex items-center justify-between border-b border-white/5 pb-2 mb-3">
-                <span className="text-xs font-bold text-red-300 uppercase tracking-wider font-mono">Overdue ({stats.overdue})</span>
-                <Link to="/tasks?filter=overdue" className="text-[10px] text-white/30 font-mono hover:text-white/60">[View All]</Link>
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-3">
+                <span className="text-xs font-bold text-red-500 uppercase tracking-wider font-mono">Overdue ({stats.overdue})</span>
+                <Link to="/tasks?filter=overdue" className="text-[10px] text-slate-400 font-mono hover:text-slate-600">[View All]</Link>
               </div>
-              {overdueTasks.length === 0 ? <div className="text-xs text-white/30 font-mono italic py-2">No overdue tasks{hasDateFilter ? ' in range' : ''}.</div> : (
-                <div className="divide-y divide-white/5">
+              {overdueTasks.length === 0 ? <div className="text-xs text-slate-400 font-mono italic py-2">No overdue tasks{hasDateFilter ? ' in range' : ''}.</div> : (
+                <div className="divide-y divide-slate-100">
                   {overdueTasks.map(task => (
                     <div key={task.id} className="py-2.5 space-y-1 font-mono text-xs">
                       <div className="flex justify-between items-start gap-2">
-                        <Link to={`/tasks?id=${task.id}`} className="font-semibold text-white hover:text-violet-300">{task.id}</Link>
+                        <Link to={`/tasks?id=${task.id}`} className="font-semibold text-slate-800 hover:text-violet-600">{task.id}</Link>
                         <DeadlineIndicator task={task} />
                       </div>
-                      <div className="text-white/45 truncate text-[11px]">{task.client} // {task.screenReport}</div>
+                      <div className="text-slate-400 truncate text-[11px]">{task.client} // {task.screenReport}</div>
                     </div>
                   ))}
                 </div>
               )}
             </div>
             <div className="glass rounded-2xl p-4">
-              <div className="flex items-center justify-between border-b border-white/5 pb-2 mb-3">
-                <span className="text-xs font-bold text-amber-300 uppercase tracking-wider font-mono">Upcoming Deadlines</span>
-                <Link to="/tasks?filter=assigned" className="text-[10px] text-white/30 font-mono hover:text-white/60">[View All]</Link>
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-3">
+                <span className="text-xs font-bold text-amber-600 uppercase tracking-wider font-mono">Upcoming Deadlines</span>
+                <Link to="/tasks?filter=assigned" className="text-[10px] text-slate-400 font-mono hover:text-slate-600">[View All]</Link>
               </div>
-              {upcomingDeadlines.length === 0 ? <div className="text-xs text-white/30 font-mono italic py-2">No tasks due in 3 days{hasDateFilter ? ' in range' : ''}.</div> : (
-                <div className="divide-y divide-white/5">
+              {upcomingDeadlines.length === 0 ? <div className="text-xs text-slate-400 font-mono italic py-2">No tasks due in 3 days{hasDateFilter ? ' in range' : ''}.</div> : (
+                <div className="divide-y divide-slate-100">
                   {upcomingDeadlines.map(task => (
                     <div key={task.id} className="py-2.5 space-y-1 font-mono text-xs">
                       <div className="flex justify-between items-start gap-2">
-                        <Link to={`/tasks?id=${task.id}`} className="font-semibold text-white hover:text-violet-300">{task.id}</Link>
+                        <Link to={`/tasks?id=${task.id}`} className="font-semibold text-slate-800 hover:text-violet-600">{task.id}</Link>
                         <DeadlineIndicator task={task} />
                       </div>
-                      <div className="text-white/45 truncate text-[11px]">{task.client} // {task.screenReport}</div>
+                      <div className="text-slate-400 truncate text-[11px]">{task.client} // {task.screenReport}</div>
                     </div>
                   ))}
                 </div>
               )}
             </div>
             <div className="glass rounded-2xl p-4">
-              <div className="flex items-center justify-between border-b border-white/5 pb-2 mb-3">
-                <span className="text-xs font-bold text-white/80 uppercase tracking-wider font-mono">Active Assignments</span>
-                <Link to="/tasks?filter=all" className="text-[10px] text-white/30 font-mono hover:text-white/60">[View All]</Link>
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-3">
+                <span className="text-xs font-bold text-slate-700 uppercase tracking-wider font-mono">Active Assignments</span>
+                <Link to="/tasks?filter=all" className="text-[10px] text-slate-400 font-mono hover:text-slate-600">[View All]</Link>
               </div>
-              {currentTasks.length === 0 ? <div className="text-xs text-white/30 font-mono italic py-2">No active assignments{hasDateFilter ? ' in range' : ''}.</div> : (
-                <div className="divide-y divide-white/5">
+              {currentTasks.length === 0 ? <div className="text-xs text-slate-400 font-mono italic py-2">No active assignments{hasDateFilter ? ' in range' : ''}.</div> : (
+                <div className="divide-y divide-slate-100">
                   {currentTasks.map(task => (
                     <div key={task.id} className="py-2.5 space-y-1 font-mono text-xs">
                       <div className="flex justify-between items-start gap-2">
-                        <Link to={`/tasks?id=${task.id}`} className="font-semibold text-white hover:text-violet-300">{task.id}</Link>
+                        <Link to={`/tasks?id=${task.id}`} className="font-semibold text-slate-800 hover:text-violet-600">{task.id}</Link>
                         <div className="flex gap-1.5 shrink-0"><StatusBadge status={task.status} /><TaskTypeBadge type={task.type} /></div>
                       </div>
-                      <div className="text-white/45 truncate text-[11px]">{task.client} // {task.screenReport}</div>
+                      <div className="text-slate-400 truncate text-[11px]">{task.client} // {task.screenReport}</div>
                     </div>
                   ))}
                 </div>
@@ -263,25 +246,25 @@ export default function DashboardPage() {
           </div>
 
           <div className="glass rounded-2xl p-4">
-            <h3 className="text-[10px] font-bold tracking-widest text-white/30 uppercase font-mono">Recent Activity · task_history</h3>
-            <div className="mt-3 rounded-xl overflow-hidden border border-white/5 divide-y divide-white/5">
-              {loadingActivity ? <div className="p-4 text-white/30 font-mono italic text-center text-xs">Loading activity...</div>
-              : activityError ? <div className="p-4 text-red-300 font-mono italic text-center text-xs">Failed to load activity.</div>
-              : recentActivity.length === 0 ? <div className="p-4 text-white/30 font-mono italic text-center text-xs">No recent activity.</div>
+            <h3 className="text-[10px] font-bold tracking-widest text-slate-400 uppercase font-mono">Recent Activity · task_history</h3>
+            <div className="mt-3 rounded-xl overflow-hidden border border-slate-200 divide-y divide-slate-100">
+              {loadingActivity ? <div className="p-4 text-slate-400 font-mono italic text-center text-xs">Loading activity...</div>
+              : activityError ? <div className="p-4 text-red-500 font-mono italic text-center text-xs">Failed to load activity.</div>
+              : recentActivity.length === 0 ? <div className="p-4 text-slate-400 font-mono italic text-center text-xs">No recent activity.</div>
               : recentActivity.map((log) => (
-                  <div key={log.id} className="p-3 flex flex-col sm:flex-row sm:justify-between gap-2 hover:bg-white/[0.03]">
+                  <div key={log.id} className="p-3 flex flex-col sm:flex-row sm:justify-between gap-2 hover:bg-slate-50">
                     <div className="flex flex-wrap items-center gap-1.5 text-xs">
-                      <Link to={`/tasks?id=${log.taskId}`} className="font-semibold font-mono text-white hover:text-violet-300">{log.taskId}</Link>
-                      <span className="text-white/15 font-mono">|</span>
-                      <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold font-mono border ${log.action === 'CREATE' ? 'bg-sky-400/15 text-sky-300 border-sky-400/20' : log.action === 'COMPLETE' ? 'bg-emerald-400/15 text-emerald-300 border-emerald-400/20' : log.action === 'ARCHIVE' ? 'bg-white/5 text-white/40 border-white/10' : 'bg-amber-400/15 text-amber-300 border-amber-400/20'}`}>{log.action}</span>
-                      <span className="text-white/50">
+                      <Link to={`/tasks?id=${log.taskId}`} className="font-semibold font-mono text-slate-800 hover:text-violet-600">{log.taskId}</Link>
+                      <span className="text-slate-300 font-mono">|</span>
+                      <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold font-mono border ${log.action === 'CREATE' ? 'bg-sky-50 text-sky-600 border-sky-200' : log.action === 'COMPLETE' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : log.action === 'ARCHIVE' ? 'bg-slate-50 text-slate-500 border-slate-200' : 'bg-amber-50 text-amber-600 border-amber-200'}`}>{log.action}</span>
+                      <span className="text-slate-500">
                         {log.action === 'CREATE' && 'Task created'}
                         {log.action === 'COMPLETE' && 'Task marked Done'}
                         {log.action === 'ARCHIVE' && 'Task archived'}
-                        {log.action === 'UPDATE' && <span>Changed <span className="font-semibold text-white">{fieldLabel(log.field)}</span>: <span className="text-white/30 line-through">{resolveDisplayValue(log.field, log.oldValue, masters)}</span> → <span className="text-white">{resolveDisplayValue(log.field, log.newValue, masters)}</span></span>}
+                        {log.action === 'UPDATE' && <span>Changed <span className="font-semibold text-slate-800">{fieldLabel(log.field)}</span>: <span className="text-slate-400 line-through">{resolveDisplayValue(log.field, log.oldValue, masters)}</span> → <span className="text-slate-800">{resolveDisplayValue(log.field, log.newValue, masters)}</span></span>}
                       </span>
                     </div>
-                    <div className="text-white/25 text-[10px] font-mono whitespace-nowrap self-start sm:self-center">{log.timestamp}</div>
+                    <div className="text-slate-400 text-[10px] font-mono whitespace-nowrap self-start sm:self-center">{log.timestamp}</div>
                   </div>
                 ))}
             </div>

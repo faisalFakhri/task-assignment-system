@@ -4,7 +4,6 @@ import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { TODAY_STR } from '../lib/dateUtils'
 import FontPicker from '../components/FontPicker'
 import FooterWalker from '../components/FooterWalker'
-
 interface NavItem {
   to: string
   label: string
@@ -59,7 +58,7 @@ export default function AppLayout() {
             to={item.to}
             onClick={() => setSidebarOpen(false)}
             className={`block px-3 py-1.5 text-xs font-mono rounded-xl transition-colors ${
-              active ? 'bg-white text-slate-900 font-semibold shadow' : 'text-white/60 hover:bg-white/5 hover:text-white'
+              active ? 'bg-slate-900 text-white font-semibold shadow' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
             }`}
           >
             {item.label}
@@ -70,66 +69,63 @@ export default function AppLayout() {
   )
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#020617] text-slate-200 font-sans relative">
-      {/* Ambient mesh — dark glass Varian C + soft colorful wash */}
+    <div className="flex h-screen overflow-hidden bg-[#f8fafc] text-slate-700 font-sans relative">
+      {/* Ambient mesh — light soft pastel */}
       <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute inset-0 bg-[#020617]" />
-        <div className="absolute -top-[30%] -left-[20%] w-[85%] h-[75%] rounded-full opacity-35" style={{ background: 'radial-gradient(ellipse at center, #4f46e5 0%, #7c3aed 35%, transparent 70%)', filter: 'blur(40px)' }} />
-        <div className="absolute -top-[10%] -right-[15%] w-[70%] h-[60%] rounded-full opacity-25" style={{ background: 'radial-gradient(ellipse at center, #06b6d4 0%, #3b82f6 35%, transparent 70%)', filter: 'blur(40px)' }} />
-        <div className="absolute top-[35%] left-[25%] w-[50%] h-[45%] rounded-full opacity-14" style={{ background: 'radial-gradient(ellipse at center, #8b5cf6 0%, transparent 70%)', filter: 'blur(50px)' }} />
-        <div className="absolute bottom-0 right-0 w-[60%] h-[40%] rounded-full opacity-10" style={{ background: 'radial-gradient(ellipse at center, #0ea5e9 0%, transparent 70%)', filter: 'blur(60px)' }} />
-        {/* soft washes — tie into card tints */}
-        <div className="absolute -top-[5%] left-[30%] w-[55%] h-[45%] rounded-full opacity-[0.10]" style={{ background: 'radial-gradient(ellipse at center, #e9d5ff 0%, #ddd6fe 25%, transparent 68%)', filter: 'blur(42px)' }} />
-        <div className="absolute top-[50%] right-[5%] w-[45%] h-[42%] rounded-full opacity-[0.08]" style={{ background: 'radial-gradient(ellipse at center, #a7f3d0 0%, #6ee7b7 30%, transparent 68%)', filter: 'blur(44px)' }} />
-        <div className="absolute bottom-[8%] left-[10%] w-[48%] h-[40%] rounded-full opacity-[0.07]" style={{ background: 'radial-gradient(ellipse at center, #fed7aa 0%, #fca5a5 28%, transparent 68%)', filter: 'blur(46px)' }} />
-        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
+        <div className="absolute inset-0 bg-[#f8fafc]" />
+        <div className="absolute -top-[28%] -left-[16%] w-[78%] h-[68%] rounded-full opacity-[0.55]" style={{ background: 'radial-gradient(ellipse at center, #e9d5ff 0%, #ddd6fe 30%, transparent 70%)', filter: 'blur(44px)' }} />
+        <div className="absolute -top-[8%] -right-[12%] w-[68%] h-[56%] rounded-full opacity-[0.40]" style={{ background: 'radial-gradient(ellipse at center, #bae6fd 0%, #93c5fd 32%, transparent 70%)', filter: 'blur(44px)' }} />
+        <div className="absolute top-[30%] left-[20%] w-[52%] h-[46%] rounded-full opacity-[0.28]" style={{ background: 'radial-gradient(ellipse at center, #ddd6fe 0%, transparent 70%)', filter: 'blur(50px)' }} />
+        <div className="absolute bottom-[-6%] right-[-4%] w-[58%] h-[44%] rounded-full opacity-[0.32]" style={{ background: 'radial-gradient(ellipse at center, #a7f3d0 0%, #6ee7b7 32%, transparent 70%)', filter: 'blur(52px)' }} />
+        <div className="absolute bottom-[8%] left-[8%] w-[46%] h-[38%] rounded-full opacity-[0.30]" style={{ background: 'radial-gradient(ellipse at center, #fed7aa 0%, #fecaca 30%, transparent 70%)', filter: 'blur(48px)' }} />
+        <div className="absolute inset-0 opacity-[0.035]" style={{ backgroundImage: 'linear-gradient(rgba(15,23,42,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,0.07) 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
       </div>
 
-      {/* Sidebar Desktop — glass */}
+      {/* Sidebar Desktop — glass light */}
       <aside className="hidden w-[248px] shrink-0 flex-col gap-4 p-4 md:flex">
         <div className="glass-strong rounded-2xl p-4">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500 to-cyan-400 flex items-center justify-center text-white font-bold text-xs font-mono shadow-lg">TA</div>
             <div>
-              <div className="text-[11px] font-semibold tracking-widest text-white font-mono">TASK ASSIGNMENT</div>
-              <div className="text-[10px] text-white/40 font-mono -mt-0.5">dark glass · Varian C</div>
+              <div className="text-[11px] font-semibold tracking-widest text-slate-800 font-mono">TASK ASSIGNMENT</div>
+              <div className="text-[10px] text-slate-400 font-mono -mt-0.5">soft pastel · light</div>
             </div>
           </div>
           <nav className="mt-4 space-y-3">
             {SECTIONS.map((section) => (
               <div key={section.title} className="space-y-1">
-                <div className="px-3 text-[10px] font-bold tracking-widest text-white/25 uppercase font-mono">{section.title}</div>
+                <div className="px-3 text-[10px] font-bold tracking-widest text-slate-400 uppercase font-mono">{section.title}</div>
                 {renderNavItems(section.items)}
               </div>
             ))}
           </nav>
         </div>
         <div className="glass rounded-2xl p-3 flex items-center gap-3">
-          <img src="https://i.pravatar.cc/100?img=12" alt="user" className="w-8 h-8 rounded-full object-cover ring-1 ring-white/10" />
+          <img src="https://i.pravatar.cc/100?img=12" alt="user" className="w-8 h-8 rounded-full object-cover ring-1 ring-slate-200" />
           <div className="min-w-0">
-            <div className="text-xs font-medium text-white font-mono truncate">Internal</div>
-            <div className="text-[10px] text-white/40 font-mono truncate">System · {TODAY_STR}</div>
+            <div className="text-xs font-medium text-slate-700 font-mono truncate">Internal</div>
+            <div className="text-[10px] text-slate-400 font-mono truncate">System · {TODAY_STR}</div>
           </div>
-          <span className="ml-auto w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)] shrink-0" />
+          <span className="ml-auto w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)] shrink-0" />
         </div>
       </aside>
 
       {/* Mobile overlay */}
-      {sidebarOpen && <div className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm md:hidden" onClick={() => setSidebarOpen(false)} />}
-      {/* Mobile drawer — glass */}
+      {sidebarOpen && <div className="fixed inset-0 z-40 bg-slate-900/10 backdrop-blur-sm md:hidden" onClick={() => setSidebarOpen(false)} />}
+      {/* Mobile drawer — glass light */}
       <aside className={`fixed inset-y-0 left-0 z-50 w-[280px] transform p-4 transition-transform duration-200 ease-in-out md:hidden ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="glass-strong rounded-2xl p-4 h-full flex flex-col">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500 to-cyan-400 flex items-center justify-center text-white font-bold text-xs font-mono">TA</div>
-              <span className="text-xs font-semibold tracking-widest text-white font-mono">TASK ASSIGNMENT</span>
+              <span className="text-xs font-semibold tracking-widest text-slate-800 font-mono">TASK ASSIGNMENT</span>
             </div>
-            <button onClick={() => setSidebarOpen(false)} className="rounded-xl glass-subtle px-2 py-1 text-xs font-mono text-white/60">[close]</button>
+            <button onClick={() => setSidebarOpen(false)} className="rounded-xl glass-subtle px-2 py-1 text-xs font-mono text-slate-500">[close]</button>
           </div>
           <nav className="mt-4 space-y-3 overflow-y-auto flex-1">
             {SECTIONS.map((section) => (
               <div key={section.title} className="space-y-1">
-                <div className="px-3 text-[10px] font-bold tracking-widest text-white/25 uppercase font-mono">{section.title}</div>
+                <div className="px-3 text-[10px] font-bold tracking-widest text-slate-400 uppercase font-mono">{section.title}</div>
                 {renderNavItems(section.items)}
               </div>
             ))}
@@ -141,16 +137,16 @@ export default function AppLayout() {
       <div className="flex flex-1 flex-col overflow-hidden min-w-0">
         <header className="flex h-12 items-center justify-between gap-3 px-4 md:px-6 shrink-0">
           <div className="flex items-center gap-3 min-w-0">
-            <button onClick={() => setSidebarOpen(true)} className="rounded-xl glass px-3 py-1.5 text-xs font-mono text-white/80 md:hidden">MENU</button>
-            <div className="hidden md:block text-xs text-white/45 font-mono truncate">Internal Task &amp; Assignment Management</div>
+            <button onClick={() => setSidebarOpen(true)} className="rounded-xl glass px-3 py-1.5 text-xs font-mono text-slate-600 md:hidden">MENU</button>
+            <div className="hidden md:block text-xs text-slate-400 font-mono truncate">Internal Task &amp; Assignment Management</div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <div className="hidden lg:flex"><FontPicker compact /></div>
             <span className="hidden sm:inline-flex items-center gap-2 glass-subtle rounded-full px-3 py-1">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-[11px] font-mono text-white/60">Supabase</span>
+              <span className="text-[11px] font-mono text-slate-600">Supabase</span>
             </span>
-            <span className="text-xs font-mono text-white/30 hidden lg:inline">System Date: <span className="font-semibold text-white/70">{TODAY_STR}</span></span>
+            <span className="text-xs font-mono text-slate-400 hidden lg:inline">System Date: <span className="font-semibold text-slate-700">{TODAY_STR}</span></span>
           </div>
         </header>
         <main className="flex-1 overflow-auto p-4 md:p-6">
