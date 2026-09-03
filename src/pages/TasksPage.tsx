@@ -350,9 +350,9 @@ export default function TasksPage() {
         {/* Page Title & Search Header */}
         <div className="flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center mb-4">
           <div>
-            <h2 className="text-base font-semibold tracking-tight text-white flex items-center gap-2">
+            <h2 className="text-base font-semibold tracking-tight text-slate-800 flex items-center gap-2">
               <span>{getHeaderTitle()}</span>
-              <span className="text-xs glass-subtle text-white/50 px-2 py-0.5 rounded-full font-mono font-normal border border-white/5">
+              <span className="text-xs glass-subtle text-slate-500 px-2 py-0.5 rounded-full font-mono font-normal border border-slate-200 bg-white">
                 {filteredTasks.length} tasks
               </span>
             </h2>
@@ -365,14 +365,14 @@ export default function TasksPage() {
                 placeholder="Search tasks..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                className="w-full rounded-xl glass-subtle border border-white/10 px-3 py-1.5 focus:outline-none placeholder:text-white/25 text-white"
+                className="w-full rounded-xl bg-white border border-slate-200 px-3 py-1.5 focus:outline-none placeholder:text-slate-400 text-slate-700"
               />
             </div>
             <div className="hidden sm:flex items-center gap-1.5">
               <button
                 onClick={() => handleExport('selection')}
                 disabled={selectedCount===0}
-                className="rounded-full glass border border-white/10 text-white px-3 py-1.5 text-xs font-semibold hover:bg-white/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                className="rounded-full bg-white border border-slate-200 text-slate-700 px-3 py-1.5 text-xs font-semibold hover:bg-white/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                 title={selectedCount? `Export ${selectedCount} terpilih ke TEAM ARI (.xlsx)` : 'Pilih task dulu (centang di tabel)'}
               >
                 Export Pilihan{selectedCount? ` (${selectedCount})`:''}
@@ -380,7 +380,7 @@ export default function TasksPage() {
               <button
                 onClick={() => handleExport('filtered')}
                 disabled={filteredTasks.length===0}
-                className="rounded-full glass border border-white/10 text-white/70 px-3 py-1.5 text-xs font-semibold hover:bg-white/5 transition-colors disabled:opacity-30"
+                className="rounded-full bg-white border border-slate-200 text-slate-600 px-3 py-1.5 text-xs font-semibold hover:bg-white/5 transition-colors disabled:opacity-30"
                 title="Export hasil filter saat ini"
               >
                 Export Filter ({filteredTasks.length})
@@ -395,7 +395,7 @@ export default function TasksPage() {
             {activeFiltersCount > 0 && (
               <button
                 onClick={clearAllFilters}
-                className="rounded-full glass-subtle text-white/70 px-3 py-1.5 hover:bg-white/5 transition-colors shrink-0 font-mono border border-white/10"
+                className="rounded-full bg-white border border-slate-200 text-slate-600 px-3 py-1.5 hover:bg-white/5 transition-colors shrink-0 font-mono border border-slate-200"
               >
                 Clear filters ({activeFiltersCount})
               </button>
@@ -405,8 +405,8 @@ export default function TasksPage() {
 
         {selectedCount > 0 && (
           <div className="flex items-center gap-2 text-xs font-mono">
-            <span className="text-white/50">{selectedCount} terpilih</span>
-            <button onClick={() => setSelectedIds(new Set())} className="rounded-full glass-subtle border border-white/10 px-2.5 py-1 text-white/60 hover:text-white">Clear pilihan</button>
+            <span className="text-slate-500">{selectedCount} terpilih</span>
+            <button onClick={() => setSelectedIds(new Set())} className="rounded-full glass-subtle border border-slate-200 px-2.5 py-1 text-slate-500 hover:text-slate-700">Clear pilihan</button>
             <button onClick={() => handleExport('selection')} className="rounded-full bg-white text-slate-900 px-3 py-1 font-semibold">Export Pilihan</button>
           </div>
         )}
@@ -416,8 +416,8 @@ export default function TasksPage() {
             <select
               value={filterConsultant}
               onChange={e => setFilterConsultant(e.target.value)}
-              className={`w-full rounded-xl bg-slate-800/90 border border-white/10 px-2.5 py-2 text-xs text-white focus:outline-none focus:border-violet-400/40 focus:ring-1 focus:ring-violet-400/20 ${
-                filterConsultant ? 'border-violet-400/40 bg-violet-500/10 font-semibold text-white' : 'border-white/10 text-white/70'
+              className={`w-full rounded-xl bg-white border border-slate-200 px-2.5 py-2 text-xs text-slate-700 focus:outline-none focus:border-violet-400/40 focus:ring-1 focus:ring-violet-400/20 ${
+                filterConsultant ? 'border-violet-300 bg-violet-50 font-semibold text-violet-700' : 'border-slate-200 text-slate-600'
               }`}
             >
               <option value="">Consultant</option>
@@ -430,8 +430,8 @@ export default function TasksPage() {
             <select
               value={filterType}
               onChange={e => setFilterType(e.target.value)}
-              className={`w-full rounded-xl bg-slate-800/90 border border-white/10 px-2.5 py-2 text-xs text-white focus:outline-none focus:border-violet-400/40 focus:ring-1 focus:ring-violet-400/20 ${
-                filterType ? 'border-violet-400/40 bg-violet-500/10 font-semibold text-white' : 'border-white/10 text-white/70'
+              className={`w-full rounded-xl bg-white border border-slate-200 px-2.5 py-2 text-xs text-slate-700 focus:outline-none focus:border-violet-400/40 focus:ring-1 focus:ring-violet-400/20 ${
+                filterType ? 'border-violet-300 bg-violet-50 font-semibold text-violet-700' : 'border-slate-200 text-slate-600'
               }`}
             >
               <option value="">Type</option>
@@ -444,8 +444,8 @@ export default function TasksPage() {
             <select
               value={filterClient}
               onChange={e => setFilterClient(e.target.value)}
-              className={`w-full rounded-xl bg-slate-800/90 border border-white/10 px-2.5 py-2 text-xs text-white focus:outline-none focus:border-violet-400/40 focus:ring-1 focus:ring-violet-400/20 ${
-                filterClient ? 'border-violet-400/40 bg-violet-500/10 font-semibold text-white' : 'border-white/10 text-white/70'
+              className={`w-full rounded-xl bg-white border border-slate-200 px-2.5 py-2 text-xs text-slate-700 focus:outline-none focus:border-violet-400/40 focus:ring-1 focus:ring-violet-400/20 ${
+                filterClient ? 'border-violet-300 bg-violet-50 font-semibold text-violet-700' : 'border-slate-200 text-slate-600'
               }`}
             >
               <option value="">Client</option>
@@ -458,8 +458,8 @@ export default function TasksPage() {
             <select
               value={filterProgrammer}
               onChange={e => setFilterProgrammer(e.target.value)}
-              className={`w-full rounded-xl bg-slate-800/90 border border-white/10 px-2.5 py-2 text-xs text-white focus:outline-none focus:border-violet-400/40 focus:ring-1 focus:ring-violet-400/20 ${
-                filterProgrammer ? 'border-violet-400/40 bg-violet-500/10 font-semibold text-white' : 'border-white/10 text-white/70'
+              className={`w-full rounded-xl bg-white border border-slate-200 px-2.5 py-2 text-xs text-slate-700 focus:outline-none focus:border-violet-400/40 focus:ring-1 focus:ring-violet-400/20 ${
+                filterProgrammer ? 'border-violet-300 bg-violet-50 font-semibold text-violet-700' : 'border-slate-200 text-slate-600'
               }`}
             >
               <option value="">Programmer</option>
@@ -472,8 +472,8 @@ export default function TasksPage() {
             <select
               value={filterStatus}
               onChange={e => setFilterStatus(e.target.value)}
-              className={`w-full rounded-xl bg-slate-800/90 border border-white/10 px-2.5 py-2 text-xs text-white focus:outline-none focus:border-violet-400/40 focus:ring-1 focus:ring-violet-400/20 ${
-                filterStatus ? 'border-violet-400/40 bg-violet-500/10 font-semibold text-white' : 'border-white/10 text-white/70'
+              className={`w-full rounded-xl bg-white border border-slate-200 px-2.5 py-2 text-xs text-slate-700 focus:outline-none focus:border-violet-400/40 focus:ring-1 focus:ring-violet-400/20 ${
+                filterStatus ? 'border-violet-300 bg-violet-50 font-semibold text-violet-700' : 'border-slate-200 text-slate-600'
               }`}
               disabled={!!urlStatus || urlFilter === 'open' || urlFilter === 'assigned' || urlFilter === 'completed'}
             >
@@ -492,8 +492,8 @@ export default function TasksPage() {
             <select
               value={filterSqlServer}
               onChange={e => setFilterSqlServer(e.target.value)}
-              className={`w-full rounded-xl bg-slate-800/90 border border-white/10 px-2.5 py-2 text-xs text-white focus:outline-none focus:border-violet-400/40 focus:ring-1 focus:ring-violet-400/20 ${
-                filterSqlServer ? 'border-violet-400/40 bg-violet-500/10 font-semibold text-white' : 'border-white/10 text-white/70'
+              className={`w-full rounded-xl bg-white border border-slate-200 px-2.5 py-2 text-xs text-slate-700 focus:outline-none focus:border-violet-400/40 focus:ring-1 focus:ring-violet-400/20 ${
+                filterSqlServer ? 'border-violet-300 bg-violet-50 font-semibold text-violet-700' : 'border-slate-200 text-slate-600'
               }`}
             >
               <option value="">SQL Server</option>
@@ -506,8 +506,8 @@ export default function TasksPage() {
             <select
               value={filterDatabase}
               onChange={e => setFilterDatabase(e.target.value)}
-              className={`w-full rounded-xl bg-slate-800/90 border border-white/10 px-2.5 py-2 text-xs text-white focus:outline-none focus:border-violet-400/40 focus:ring-1 focus:ring-violet-400/20 ${
-                filterDatabase ? 'border-violet-400/40 bg-violet-500/10 font-semibold text-white' : 'border-white/10 text-white/70'
+              className={`w-full rounded-xl bg-white border border-slate-200 px-2.5 py-2 text-xs text-slate-700 focus:outline-none focus:border-violet-400/40 focus:ring-1 focus:ring-violet-400/20 ${
+                filterDatabase ? 'border-violet-300 bg-violet-50 font-semibold text-violet-700' : 'border-slate-200 text-slate-600'
               }`}
             >
               <option value="">Database</option>
@@ -516,8 +516,8 @@ export default function TasksPage() {
               ))}
             </select>
           </div>
-          <div className={`flex items-center justify-center border rounded-xl p-1 glass-subtle border-white/10 ${
-            filterOverdueOnly ? 'border-violet-400/40 bg-violet-500/10 font-semibold text-white' : 'border-white/10 text-white/70'
+          <div className={`flex items-center justify-center border rounded-xl p-1 glass-subtle border-slate-200 ${
+            filterOverdueOnly ? 'border-violet-300 bg-violet-50 font-semibold text-violet-700' : 'border-slate-200 text-slate-600'
           }`}>
             <label className="flex items-center gap-1.5 cursor-pointer select-none">
               <input
@@ -535,7 +535,7 @@ export default function TasksPage() {
         {/* Tasks Table */}
         <div className="flex-1 glass rounded-2xl overflow-auto min-h-0 relative">
           {loading ? (
-            <div className="p-12 h-full flex flex-col items-center justify-center font-mono text-xs text-white/30">
+            <div className="p-12 h-full flex flex-col items-center justify-center font-mono text-xs text-slate-400">
               Loading database...
             </div>
           ) : sortedTasks.length === 0 ? (
@@ -549,10 +549,10 @@ export default function TasksPage() {
             </div>
           ) : (
             <table className="min-w-full divide-y divide-white/5 text-left text-[12px] font-sans table-fixed">
-              <thead className="bg-white/[0.04] backdrop-blur sticky top-0 z-10 font-mono text-[10px] text-white/40 uppercase tracking-wider">
+              <thead className="bg-white/[0.04] backdrop-blur sticky top-0 z-10 font-mono text-[10px] text-slate-400 uppercase tracking-wider">
                 <tr>
                   <th className="px-2 py-2 w-8">
-                    <input type="checkbox" checked={allFilteredSelected} onChange={toggleAllFiltered} className="rounded border-white/20 bg-slate-800 text-violet-500 focus:ring-violet-500" title={allFilteredSelected? 'Batal pilih semua (halaman filter)' : 'Pilih semua (hasil filter)'} />
+                    <input type="checkbox" checked={allFilteredSelected} onChange={toggleAllFiltered} className="rounded border-slate-300 bg-white text-violet-500 focus:ring-violet-500" title={allFilteredSelected? 'Batal pilih semua (halaman filter)' : 'Pilih semua (hasil filter)'} />
                   </th>
                   {[
                     { field: 'id', label: 'ID', width: 'w-24' },
@@ -573,7 +573,7 @@ export default function TasksPage() {
                       <div className="flex items-center gap-1.5">
                         <span>{col.label}</span>
                         {sortField === col.field && (
-                          <span className="text-[10px] text-white/30">{sortOrder === 'asc' ? '▲' : '▼'}</span>
+                          <span className="text-[10px] text-slate-400">{sortOrder === 'asc' ? '▲' : '▼'}</span>
                         )}
                       </div>
                     </th>
@@ -598,24 +598,24 @@ export default function TasksPage() {
                       }`}
                     >
                       <td className="px-2 py-2" onClick={e => e.stopPropagation()}>
-                        <input type="checkbox" checked={selectedIds.has(task.id)} onChange={() => toggleOne(task.id)} className="rounded border-white/20 bg-slate-800 text-violet-500 focus:ring-violet-500" />
+                        <input type="checkbox" checked={selectedIds.has(task.id)} onChange={() => toggleOne(task.id)} className="rounded border-slate-300 bg-white text-violet-500 focus:ring-violet-500" />
                       </td>
-                      <td className="whitespace-nowrap px-3 py-2 font-bold text-white font-mono">{task.id}</td>
-                      <td className="whitespace-nowrap px-3 py-2 text-white/60 truncate">{task.consultant}</td>
+                      <td className="whitespace-nowrap px-3 py-2 font-bold text-slate-800 font-mono">{task.id}</td>
+                      <td className="whitespace-nowrap px-3 py-2 text-slate-500 truncate">{task.consultant}</td>
                       <td className="whitespace-nowrap px-3 py-2">
                         <TaskTypeBadge type={task.type} />
                       </td>
-                      <td className="whitespace-nowrap px-3 py-2 text-white truncate font-semibold">
+                      <td className="whitespace-nowrap px-3 py-2 text-slate-800 truncate font-semibold">
                         {task.client}
                       </td>
-                      <td className="whitespace-nowrap px-3 py-2 text-white/60 truncate">{task.screenReport}</td>
+                      <td className="whitespace-nowrap px-3 py-2 text-slate-500 truncate">{task.screenReport}</td>
                       <td className="whitespace-nowrap px-3 py-2">
                         <StatusBadge status={task.status} />
                       </td>
-                      <td className="whitespace-nowrap px-3 py-2 text-white/60 truncate">
-                        {task.programmer || <span className="italic text-white/25">unassigned</span>}
+                      <td className="whitespace-nowrap px-3 py-2 text-slate-500 truncate">
+                        {task.programmer || <span className="italic text-slate-400">unassigned</span>}
                       </td>
-                      <td className="whitespace-nowrap px-3 py-2 text-white/40 font-mono">{task.targetDate || '-'}</td>
+                      <td className="whitespace-nowrap px-3 py-2 text-slate-400 font-mono">{task.targetDate || '-'}</td>
                       <td className="whitespace-nowrap px-3 py-2">
                         <DeadlineIndicator task={task} />
                       </td>
@@ -639,13 +639,13 @@ export default function TasksPage() {
         </div>
 
         <div className="flex sm:hidden gap-2 mt-3">
-          <button onClick={() => handleExport('selection')} disabled={selectedCount===0} className="flex-1 rounded-full glass border border-white/10 px-3 py-2 text-xs font-semibold text-white disabled:opacity-30">Export Pilihan{selectedCount? ` (${selectedCount})`:''}</button>
-          <button onClick={() => handleExport('filtered')} disabled={filteredTasks.length===0} className="flex-1 rounded-full glass border border-white/10 px-3 py-2 text-xs font-semibold text-white/70 disabled:opacity-30">Export Filter</button>
+          <button onClick={() => handleExport('selection')} disabled={selectedCount===0} className="flex-1 rounded-full bg-white border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 disabled:opacity-30">Export Pilihan{selectedCount? ` (${selectedCount})`:''}</button>
+          <button onClick={() => handleExport('filtered')} disabled={filteredTasks.length===0} className="flex-1 rounded-full bg-white border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-500 disabled:opacity-30">Export Filter</button>
         </div>
         {/* Pagination Footer */}
         {totalPages > 1 && (
-          <div className="flex justify-between items-center mt-3 pt-3 border-t border-white/5 font-sans text-xs">
-            <div className="text-white/35">
+          <div className="flex justify-between items-center mt-3 pt-3 border-t border-slate-100 font-sans text-xs">
+            <div className="text-slate-400">
               Showing {(currentPage - 1) * itemsPerPage + 1} -{' '}
               {Math.min(currentPage * itemsPerPage, sortedTasks.length)} of {sortedTasks.length} tasks
             </div>
@@ -653,17 +653,17 @@ export default function TasksPage() {
               <button
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
-                className="rounded-full glass-subtle border border-white/10 px-3 py-1 text-white/70 hover:bg-white/5 disabled:opacity-40"
+                className="rounded-full glass-subtle border border-slate-200 px-3 py-1 text-slate-500 hover:bg-white/5 disabled:opacity-40"
               >
                 [PREV]
               </button>
-              <span className="px-2 text-white/60">
+              <span className="px-2 text-slate-500">
                 Page {currentPage} of {totalPages}
               </span>
               <button
                 disabled={currentPage === totalPages}
                 onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
-                className="rounded-full glass-subtle border border-white/10 px-3 py-1 text-white/70 hover:bg-white/5 disabled:opacity-40"
+                className="rounded-full glass-subtle border border-slate-200 px-3 py-1 text-slate-500 hover:bg-white/5 disabled:opacity-40"
               >
                 [NEXT]
               </button>
@@ -674,7 +674,7 @@ export default function TasksPage() {
 
       {/* Side Panel Drawer (Overlay on small screens, split layout on large screen) */}
       {activePanel && (
-        <div className="absolute inset-y-0 right-0 z-40 w-full sm:w-[500px] lg:w-[600px] lg:relative lg:inset-auto lg:z-10 glass-strong border-l border-white/10 flex flex-col h-full shadow-2xl lg:shadow-none animate-in slide-in-from-right duration-150">
+        <div className="absolute inset-y-0 right-0 z-40 w-full sm:w-[500px] lg:w-[600px] lg:relative lg:inset-auto lg:z-10 glass-strong border-l border-slate-200 flex flex-col h-full shadow-2xl lg:shadow-none animate-in slide-in-from-right duration-150">
           {activePanel === 'detail' && selectedTaskId && (
             <TaskDetail
               taskId={selectedTaskId}

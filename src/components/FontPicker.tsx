@@ -23,11 +23,11 @@ export default function FontPicker({ compact = false }: { compact?: boolean }) {
   if (compact) {
     return (
       <div className="flex items-center gap-1.5">
-        <span className="hidden sm:inline text-[10px] font-mono text-white/30">FONT</span>
+        <span className="hidden sm:inline text-[10px] font-mono text-slate-400">FONT</span>
         <select
           value={selected}
           onChange={(e) => onChange(e.target.value)}
-          className="glass-subtle rounded-full px-2.5 py-1 text-[11px] font-mono text-white/80 border border-white/10 outline-none focus:border-white/20 max-w-[160px]"
+          className="glass-subtle rounded-full px-2.5 py-1 text-[11px] font-mono text-slate-700 border border-slate-200 outline-none focus:border-slate-300 max-w-[160px]"
           title="Pilih font — kesimpen di browser kamu aja"
         >
           <option value="">Default (Inter)</option>
@@ -44,17 +44,17 @@ export default function FontPicker({ compact = false }: { compact?: boolean }) {
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="text-xs font-semibold text-white font-mono">FONT_PREFERENCES</div>
-        <span className="text-[11px] font-mono text-white/40">Per-browser · localStorage</span>
+        <div className="text-xs font-semibold text-slate-800 font-mono">FONT_PREFERENCES</div>
+        <span className="text-[11px] font-mono text-slate-400">Per-browser · localStorage</span>
       </div>
 
       <div className="grid gap-3">
         <label className="block">
-          <div className="text-[11px] font-mono text-white/50 mb-1.5">Pilih Font</div>
+          <div className="text-[11px] font-mono text-slate-500 mb-1.5">Pilih Font</div>
           <select
             value={selected}
             onChange={(e) => onChange(e.target.value)}
-            className="w-full glass-subtle rounded-xl px-3 py-2.5 text-xs font-mono text-white/90 border border-white/10 outline-none focus:border-violet-400/30"
+            className="w-full glass-subtle rounded-xl px-3 py-2.5 text-xs font-mono text-slate-800/90 border border-slate-200 outline-none focus:border-violet-400/30"
           >
             <option value="">Default — Inter (bawaan)</option>
             {FONT_OPTIONS.map((f) => (
@@ -64,19 +64,19 @@ export default function FontPicker({ compact = false }: { compact?: boolean }) {
             ))}
           </select>
           <div className="mt-1.5 flex flex-wrap gap-1">
-            <span className="text-[10px] font-mono text-white/25">Source:</span>
-            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-white/50">G = Google Fonts (auto load)</span>
-            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-white/50">S = System (OS)</span>
-            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-white/50">L = Local (butuh install .otf)</span>
+            <span className="text-[10px] font-mono text-slate-400">Source:</span>
+            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-50 border border-slate-200 text-slate-500">G = Google Fonts (auto load)</span>
+            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-50 border border-slate-200 text-slate-500">S = System (OS)</span>
+            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-50 border border-slate-200 text-slate-500">L = Local (butuh install .otf)</span>
           </div>
         </label>
 
-        <div className="glass-subtle rounded-xl p-3 border border-white/10">
-          <div className="text-[11px] font-mono text-white/40 mb-1">Preview — {current ? current.label : 'Inter (Default)'} </div>
-          <div className="text-sm leading-6 text-white" style={{ fontFamily: current ? current.cssFamily : undefined }}>
+        <div className="glass-subtle rounded-xl p-3 border border-slate-200">
+          <div className="text-[11px] font-mono text-slate-400 mb-1">Preview — {current ? current.label : 'Inter (Default)'} </div>
+          <div className="text-sm leading-6 text-slate-800" style={{ fontFamily: current ? current.cssFamily : undefined }}>
             The quick brown fox jumps over the lazy dog — 0123456789
           </div>
-          <div className="text-xs leading-5 text-white/60 mt-1" style={{ fontFamily: current ? current.cssFamily : undefined }}>
+          <div className="text-xs leading-5 text-slate-500 mt-1" style={{ fontFamily: current ? current.cssFamily : undefined }}>
             Pack my box with five dozen liquor jugs. — Task Assignment System (Varian C · dark glass)
           </div>
           {current?.note && (
@@ -87,11 +87,11 @@ export default function FontPicker({ compact = false }: { compact?: boolean }) {
         </div>
 
         <div className="flex gap-2">
-          <button onClick={() => onChange('')} className="glass-subtle rounded-full px-3 py-1.5 text-xs font-mono text-white/60 border border-white/10 hover:text-white hover:bg-white/10">
+          <button onClick={() => onChange('')} className="glass-subtle rounded-full px-3 py-1.5 text-xs font-mono text-slate-500 border border-slate-200 hover:text-slate-800 hover:bg-slate-50">
             Reset ke Default
           </button>
-          <span className="text-[11px] font-mono text-white/25 self-center">
-            Aktif: <b className="text-white/60">{current ? current.label : 'Inter'}</b> · kesimpen di browser ini aja
+          <span className="text-[11px] font-mono text-slate-400 self-center">
+            Aktif: <b className="text-slate-500">{current ? current.label : 'Inter'}</b> · kesimpen di browser ini aja
           </span>
         </div>
       </div>
@@ -101,7 +101,7 @@ export default function FontPicker({ compact = false }: { compact?: boolean }) {
           <button
             key={f.id}
             onClick={() => onChange(f.id)}
-            className={`text-left rounded-xl px-3 py-2 border transition-colors ${selected === f.id ? 'bg-white text-slate-900 border-white shadow' : 'glass-subtle border-white/10 text-white/70 hover:bg-white/10 hover:text-white'}`}
+            className={`text-left rounded-xl px-3 py-2 border transition-colors ${selected === f.id ? 'bg-white text-slate-900 border-white shadow' : 'glass-subtle border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-800'}`}
           >
             <div className="text-xs font-semibold" style={{ fontFamily: f.cssFamily }}>{f.label}</div>
             <div className="text-[11px] opacity-60 truncate" style={{ fontFamily: f.cssFamily }}>Ag — {f.source === 'google' ? 'Google' : f.source === 'system' ? 'System' : 'Local'} · The quick brown fox</div>

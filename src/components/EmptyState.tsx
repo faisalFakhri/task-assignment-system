@@ -7,8 +7,8 @@ interface EmptyStateProps {
 export default function EmptyState({ title, description, actionLabel, onAction }: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center rounded-2xl glass p-8 text-center">
-      <h3 className="text-sm font-medium text-white font-mono">{title}</h3>
-      <p className="mt-1 text-sm text-white/50 max-w-sm">{description}</p>
+      <h3 className="text-sm font-medium text-slate-800 font-mono">{title}</h3>
+      <p className="mt-1 text-sm text-slate-500 max-w-sm">{description}</p>
       {actionLabel && onAction && (
         <div className="mt-4">
           <button

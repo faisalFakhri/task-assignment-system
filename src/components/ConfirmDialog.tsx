@@ -53,15 +53,15 @@ export default function ConfirmDialog({
         aria-labelledby="confirm-title"
         className="relative glass-strong rounded-2xl shadow-2xl max-w-sm w-full mx-4 p-5 space-y-4"
       >
-        <h3 id="confirm-title" className="text-sm font-semibold text-white font-mono">{title}</h3>
-        <p className="text-xs text-white/50 leading-relaxed">{message}</p>
+        <h3 id="confirm-title" className="text-sm font-semibold text-slate-800 font-mono">{title}</h3>
+        <p className="text-xs text-slate-500 leading-relaxed">{message}</p>
         <div className="flex justify-end gap-2 pt-2">
           <button
             ref={cancelRef}
             type="button"
             disabled={loading}
             onClick={onCancel}
-            className="rounded-full glass-subtle border border-white/10 px-4 py-1.5 text-xs text-white/60 hover:text-white disabled:opacity-40"
+            className="rounded-full bg-white border border-slate-200 px-4 py-1.5 text-xs text-slate-600 hover:text-slate-800 disabled:opacity-40"
           >
             {cancelLabel}
           </button>

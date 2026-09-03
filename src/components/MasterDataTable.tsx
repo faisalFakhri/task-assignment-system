@@ -70,15 +70,15 @@ export default function MasterDataTable({ entity, title, entityLabel }: Props) {
     }
   }
 
-  if (loading) return <div className="p-6 text-sm font-mono text-white/50">Loading {title}...</div>
+  if (loading) return <div className="p-6 text-sm font-mono text-slate-500">Loading {title}...</div>
   if (error) return <div className="p-6 text-sm font-mono text-red-300">Error: {error}</div>
 
   return (
     <div className="space-y-4 max-w-4xl">
       <div className="glass-strong rounded-2xl px-4 py-3 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2 className="text-sm font-semibold tracking-tight text-white font-mono">{title}</h2>
-          <p className="text-xs text-white/40 font-mono mt-0.5">
+          <h2 className="text-sm font-semibold tracking-tight text-slate-800 font-mono">{title}</h2>
+          <p className="text-xs text-slate-400 font-mono mt-0.5">
             {filtered.length} / {data.length} {entityLabel.toLowerCase()}s · termasuk non-aktif
           </p>
         </div>
@@ -95,14 +95,14 @@ export default function MasterDataTable({ entity, title, entityLabel }: Props) {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder={`Cari ID / nama ${entityLabel.toLowerCase()}...`}
-          className="w-full max-w-sm rounded-xl glass-subtle px-3 py-2 text-xs font-mono placeholder:text-white/25 text-white border border-white/5 focus:outline-none focus:border-white/15"
+          className="w-full max-w-sm rounded-xl glass-subtle px-3 py-2 text-xs font-mono placeholder:text-slate-400 text-slate-800 border border-slate-100 focus:outline-none focus:border-slate-200"
         />
       </div>
 
       <div className="glass rounded-2xl overflow-hidden">
         <table className="min-w-full divide-y divide-white/5 text-left text-xs font-mono">
-          <thead className="bg-white/[0.03] backdrop-blur">
-            <tr className="text-white/40">
+          <thead className="bg-slate-50 backdrop-blur">
+            <tr className="text-slate-400">
               <th className="px-4 py-2.5 font-medium">ID</th>
               <th className="px-4 py-2.5 font-medium">Name</th>
               <th className="px-4 py-2.5 font-medium">Status</th>
@@ -112,21 +112,21 @@ export default function MasterDataTable({ entity, title, entityLabel }: Props) {
           <tbody className="divide-y divide-white/5">
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-4 py-10 text-center text-white/30">
+                <td colSpan={4} className="px-4 py-10 text-center text-slate-400">
                   Tidak ada data{search ? ` untuk "${search}"` : ''}.
                 </td>
               </tr>
             ) : (
               filtered.map((row) => (
                 <tr key={row.id} className={`hover:bg-white/[0.04] ${!row.active ? 'opacity-55' : ''}`}>
-                  <td className="whitespace-nowrap px-4 py-2.5 text-white font-semibold">{row.id}</td>
-                  <td className="px-4 py-2.5 text-white/70">{row.name}</td>
+                  <td className="whitespace-nowrap px-4 py-2.5 text-slate-800 font-semibold">{row.id}</td>
+                  <td className="px-4 py-2.5 text-slate-600">{row.name}</td>
                   <td className="whitespace-nowrap px-4 py-2.5">
                     <span
                       className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium border ${
                         row.active
                           ? 'bg-emerald-400/15 text-emerald-300 border-emerald-400/20'
-                          : 'bg-white/5 text-white/40 border-white/10'
+                          : 'bg-slate-50 text-slate-400 border-slate-200'
                       }`}
                     >
                       {row.active ? 'Active' : 'Inactive'}
@@ -136,14 +136,14 @@ export default function MasterDataTable({ entity, title, entityLabel }: Props) {
                     <button
                       onClick={() => handleToggle(row)}
                       title={row.active ? 'Nonaktifkan' : 'Aktifkan'}
-                      className="rounded-full glass-subtle px-2.5 py-1 text-[11px] text-white/70 hover:text-white border border-white/10"
+                      className="rounded-full glass-subtle px-2.5 py-1 text-[11px] text-slate-600 hover:text-slate-800 border border-slate-200"
                     >
                       {row.active ? '⏸ Off' : '▶ On'}
                     </button>
                     <button
                       onClick={() => openEdit(row)}
                       title="Edit"
-                      className="rounded-full glass-subtle px-2.5 py-1 text-[11px] text-white/70 hover:text-white border border-white/10"
+                      className="rounded-full glass-subtle px-2.5 py-1 text-[11px] text-slate-600 hover:text-slate-800 border border-slate-200"
                     >
                       ✎ Edit
                     </button>
@@ -165,29 +165,29 @@ export default function MasterDataTable({ entity, title, entityLabel }: Props) {
       </div>
 
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-sm p-4">
           <div className="w-full max-w-md rounded-2xl glass-strong p-5 shadow-2xl">
-            <h3 className="text-sm font-semibold font-mono text-white">
+            <h3 className="text-sm font-semibold font-mono text-slate-800">
               {editing ? `Edit ${entityLabel}` : `Tambah ${entityLabel} Baru`}
             </h3>
-            <p className="mt-1 text-xs font-mono text-white/40">
+            <p className="mt-1 text-xs font-mono text-slate-400">
               {editing ? `ID: ${editing.id}` : 'ID akan digenerate otomatis (CLI-/CON-/PROG- prefix).'}
             </p>
             <label className="mt-4 block">
-              <span className="text-xs font-mono text-white/60">Nama *</span>
+              <span className="text-xs font-mono text-slate-500">Nama *</span>
               <input
                 autoFocus
                 value={formName}
                 onChange={(e) => setFormName(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
                 placeholder={`Nama ${entityLabel.toLowerCase()}`}
-                className="mt-1 w-full rounded-xl glass-subtle px-3 py-2.5 text-sm font-mono text-white placeholder:text-white/25 focus:outline-none focus:border-white/15 border border-white/10"
+                className="mt-1 w-full rounded-xl glass-subtle px-3 py-2.5 text-sm font-mono text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-slate-200 border border-slate-200"
               />
             </label>
             <div className="mt-5 flex justify-end gap-2">
               <button
                 onClick={() => setModalOpen(false)}
-                className="rounded-full glass-subtle px-4 py-1.5 text-xs font-mono text-white/70 hover:text-white border border-white/10"
+                className="rounded-full glass-subtle px-4 py-1.5 text-xs font-mono text-slate-600 hover:text-slate-800 border border-slate-200"
               >
                 Batal
               </button>

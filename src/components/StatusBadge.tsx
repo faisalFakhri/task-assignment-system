@@ -5,17 +5,17 @@ interface StatusBadgeProps {
 }
 export default function StatusBadge({ status }: StatusBadgeProps) {
   const styles: Record<string, string> = {
-    Open: 'bg-sky-400/15 text-sky-300 border-sky-400/20',
-    Assign: 'bg-amber-400/15 text-amber-300 border-amber-400/20',
-    Done: 'bg-emerald-400/15 text-emerald-300 border-emerald-400/20',
-    QC: 'bg-violet-400/15 text-violet-300 border-violet-400/20',
-    Reject: 'bg-red-400/15 text-red-300 border-red-400/20',
-    Reopen: 'bg-orange-400/15 text-orange-300 border-orange-400/20',
-    Hold: 'bg-slate-400/15 text-slate-300 border-slate-400/20',
-    'In Progress': 'bg-cyan-400/15 text-cyan-300 border-cyan-400/20',
+    Open: 'bg-sky-50 text-sky-700 border-sky-200',
+    Assign: 'bg-amber-50 text-amber-700 border-amber-200',
+    Done: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    QC: 'bg-violet-50 text-violet-700 border-violet-200',
+    Reject: 'bg-red-50 text-red-700 border-red-200',
+    Reopen: 'bg-orange-50 text-orange-700 border-orange-200',
+    Hold: 'bg-slate-100 text-slate-600 border-slate-200',
+    'In Progress': 'bg-cyan-50 text-cyan-700 border-cyan-200',
   }
   return (
-    <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium font-mono ${styles[status] || 'bg-white/10 text-white/60 border-white/10'}`}>
+    <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium font-mono ${styles[status] || 'bg-slate-50 text-slate-600 border-slate-200'}`}>
       {status}
     </span>
   )
