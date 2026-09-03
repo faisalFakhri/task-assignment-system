@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
+import { useEffect } from 'react'
 import AppLayout from './layouts/AppLayout'
 import DashboardPage from './pages/DashboardPage'
 import TasksPage from './pages/TasksPage'
@@ -7,8 +8,10 @@ import ConsultantsPage from './pages/ConsultantsPage'
 import ProgrammersPage from './pages/ProgrammersPage'
 import SettingsPage from './pages/SettingsPage'
 import ImportPage from './pages/ImportPage'
+import { flushSheetsQueue } from './lib/sheetSync'
 
 export default function App() {
+  useEffect(() => { flushSheetsQueue() }, [])
   return (
     <Routes>
       <Route element={<AppLayout />}>

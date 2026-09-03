@@ -1,4 +1,5 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
+import { notifySheets } from '../lib/sheetSync'
 import type {
   TaskReadModel,
   CreateTaskPayload,
@@ -121,6 +122,25 @@ export const taskService = {
 
     if (insertError) throw insertError
 
+    // Sheets mirror (fire-and-forget, 1 arah Web -> Sheets FULL API)
+    notifySheets({
+      action: 'create',
+      taskId,
+      row: {
+        consultant: payload.consultantId ? (await supabase.from('consultants').select('consultant_name').eq('consultant_id', payload.consultantId).single().then(r => (r.data as any)?.consultant_name).catch(() => '')) as string : '',
+        type: payload.type,
+        client: payload.clientId ? (await supabase.from('clients').select('client_name').eq('client_id', payload.clientId).single().then(r => (r.data as any)?.client_name).catch(() => '')) as string : '',
+        screenReport: payload.screenReport,
+        request: payload.request,
+        status: payload.status,
+        programmer: payload.programmerId ? (await supabase.from('programmers').select('programmer_name').eq('programmer_id', payload.programmerId).single().then(r => (r.data as any)?.programmer_name).catch(() => '')) as string : '',
+        sqlServer: payload.sqlServer,
+        database: payload.databaseName,
+        targetDate: payload.targetDate,
+        notes: payload.notes,
+      },
+    })
+
     // Write history
     await supabase.from('task_history').insert({
       history_id: await this._nextHistoryId(),
@@ -157,6 +177,28 @@ export const taskService = {
 
     const { error } = await supabase.from('tasks').update(fields).eq('task_id', taskId)
     if (error) throw error
+
+    // Sheets mirror (fire-and-forget) — build row from merged task
+    try {
+      const cur = await this.getTask(taskId)
+      notifySheets({
+        action: 'update',
+        taskId,
+        row: {
+          consultant: cur.consultant.name || (updatedFields.consultantId as string) || '',
+          type: (updatedFields.type as string) || cur.type,
+          client: cur.client.name || (updatedFields.clientId as string) || '',
+          screenReport: (updatedFields.screenReport as string) ?? cur.screenReport,
+          request: (updatedFields.request as string) ?? cur.request,
+          status: (updatedFields.status as string) || cur.status,
+          programmer: cur.programmer?.name || '',
+          sqlServer: (updatedFields.sqlServer as string) ?? cur.sqlServer,
+          database: (updatedFields.databaseName as string) ?? cur.databaseName,
+          targetDate: (updatedFields.targetDate !== undefined ? (updatedFields.targetDate as string | null) : cur.targetDate) as string | null,
+          notes: (updatedFields.notes as string) ?? cur.notes,
+        },
+      })
+    } catch {}
 
     // Track history
     const historyEntries: any[] = []
@@ -199,6 +241,8 @@ export const taskService = {
       .update({ is_archived: true, updated_at: now })
       .eq('task_id', taskId)
     if (error) throw error
+
+    notifySheets({ action: 'archive', taskId })
 
     await supabase.from('task_history').insert({
       history_id: await this._nextHistoryId(),
