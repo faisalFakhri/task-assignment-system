@@ -34,6 +34,9 @@ export default function TasksPage() {
   const [filterDatabase, setFilterDatabase] = useState('')
   const [filterOverdueOnly, setFilterOverdueOnly] = useState(false)
 
+  // Export selection — checkbox per row (so export tidak harus semua)
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+
   // Sorting State
   const [sortField, setSortField] = useState<SortField>('id')
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc')
@@ -75,6 +78,16 @@ export default function TasksPage() {
       setActivePanel('detail')
     }
   }, [urlId])
+
+  // Auto-prune selection if task removed/archived
+  useEffect(() => {
+    setSelectedIds(prev => {
+      const keep = new Set<string>()
+      const validIds = new Set(tasks.map(x => x.id))
+      prev.forEach(id => { if (validIds.has(id)) keep.add(id) })
+      return keep.size === prev.size ? prev : keep
+    })
+  }, [tasks])
 
   // Get distinct metadata for filter dropdowns directly from tasks
   const sqlServers = useMemo(() => {
@@ -228,12 +241,49 @@ export default function TasksPage() {
     setSearchParams(params)
   }
 
-  const handleExport = async () => {
+  const handleExport = async (mode: 'selection' | 'filtered' | 'all' = 'selection') => {
     try {
-      await exportTeamAri(filteredTasks.length ? filteredTasks : tasks)
+      if (mode === 'selection' && selectedIds.size > 0) {
+        const picked = filteredTasks.filter(x => selectedIds.has(x.id))
+        const list = picked.length ? picked : tasks.filter(x => selectedIds.has(x.id))
+        if (!list.length) { alert('Tidak ada task terpilih yang cocok dengan filter.'); return }
+        await exportTeamAri(list)
+        return
+      }
+      if (mode === 'filtered') {
+        if (!filteredTasks.length) { alert('Tidak ada data untuk di-export (filter kosong).'); return }
+        await exportTeamAri(filteredTasks)
+        return
+      }
+      // all = semua task aktif (atau filtered jika ada)
+      const list = filteredTasks.length ? filteredTasks : tasks.filter(x => !x.archived)
+      if (!list.length) { alert('Tidak ada data untuk di-export.'); return }
+      await exportTeamAri(list)
     } catch (err: any) {
       alert(err.message || 'Export gagal')
     }
+  }
+  const selectedCount = selectedIds.size
+  const filteredIds = new Set(filteredTasks.map(x => x.id))
+  const allFilteredSelected = filteredTasks.length > 0 && filteredTasks.every(x => selectedIds.has(x.id))
+  const toggleAllFiltered = () => {
+    setSelectedIds(prev => {
+      const next = new Set(prev)
+      if (allFilteredSelected) {
+        filteredTasks.forEach(x => next.delete(x.id))
+      } else {
+        filteredTasks.forEach(x => next.add(x.id))
+      }
+      return next
+    })
+  }
+  const toggleOne = (id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
   }
   const handleOpenCreate = () => {
     setActivePanel('create')
@@ -289,14 +339,24 @@ export default function TasksPage() {
                 className="w-full rounded-xl glass-subtle border border-white/10 px-3 py-1.5 focus:outline-none placeholder:text-white/25 text-white"
               />
             </div>
-            <button
-              onClick={handleExport}
-              disabled={filteredTasks.length===0}
-              className="rounded-full glass border border-white/10 text-white/80 px-4 py-1.5 font-semibold hover:bg-white/5 transition-colors shrink-0 disabled:opacity-40"
-              title="Export hasil filter ke TEAM ARI (.xlsx)"
-            >
-              Export Excel
-            </button>
+            <div className="hidden sm:flex items-center gap-1.5">
+              <button
+                onClick={() => handleExport('selection')}
+                disabled={selectedCount===0}
+                className="rounded-full glass border border-white/10 text-white px-3 py-1.5 text-xs font-semibold hover:bg-white/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                title={selectedCount? `Export ${selectedCount} terpilih ke TEAM ARI (.xlsx)` : 'Pilih task dulu (centang di tabel)'}
+              >
+                Export Pilihan{selectedCount? ` (${selectedCount})`:''}
+              </button>
+              <button
+                onClick={() => handleExport('filtered')}
+                disabled={filteredTasks.length===0}
+                className="rounded-full glass border border-white/10 text-white/70 px-3 py-1.5 text-xs font-semibold hover:bg-white/5 transition-colors disabled:opacity-30"
+                title="Export hasil filter saat ini"
+              >
+                Export Filter ({filteredTasks.length})
+              </button>
+            </div>
             <button
               onClick={handleOpenCreate}
               className="rounded-full bg-white text-slate-900 px-4 py-1.5 font-semibold hover:bg-white/90 transition-colors shrink-0"
@@ -314,6 +374,13 @@ export default function TasksPage() {
           </div>
         </div>
 
+        {selectedCount > 0 && (
+          <div className="flex items-center gap-2 text-xs font-mono">
+            <span className="text-white/50">{selectedCount} terpilih</span>
+            <button onClick={() => setSelectedIds(new Set())} className="rounded-full glass-subtle border border-white/10 px-2.5 py-1 text-white/60 hover:text-white">Clear pilihan</button>
+            <button onClick={() => handleExport('selection')} className="rounded-full bg-white text-slate-900 px-3 py-1 font-semibold">Export Pilihan</button>
+          </div>
+        )}
         {/* Filter Dropdowns Grid */}
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-8 mb-4 text-xs glass rounded-2xl p-3 font-mono">
           <div>
@@ -454,6 +521,9 @@ export default function TasksPage() {
             <table className="min-w-full divide-y divide-white/5 text-left text-[12px] font-sans table-fixed">
               <thead className="bg-white/[0.04] backdrop-blur sticky top-0 z-10 font-mono text-[10px] text-white/40 uppercase tracking-wider">
                 <tr>
+                  <th className="px-2 py-2 w-8">
+                    <input type="checkbox" checked={allFilteredSelected} onChange={toggleAllFiltered} className="rounded border-white/20 bg-slate-800 text-violet-500 focus:ring-violet-500" title={allFilteredSelected? 'Batal pilih semua (halaman filter)' : 'Pilih semua (hasil filter)'} />
+                  </th>
                   {[
                     { field: 'id', label: 'ID', width: 'w-24' },
                     { field: 'consultant', label: 'Consultant', width: 'w-28' },
@@ -497,6 +567,9 @@ export default function TasksPage() {
                         isSelected ? 'bg-white/5' : ''
                       }`}
                     >
+                      <td className="px-2 py-2" onClick={e => e.stopPropagation()}>
+                        <input type="checkbox" checked={selectedIds.has(task.id)} onChange={() => toggleOne(task.id)} className="rounded border-white/20 bg-slate-800 text-violet-500 focus:ring-violet-500" />
+                      </td>
                       <td className="whitespace-nowrap px-3 py-2 font-bold text-white font-mono">{task.id}</td>
                       <td className="whitespace-nowrap px-3 py-2 text-white/60 truncate">{task.consultant}</td>
                       <td className="whitespace-nowrap px-3 py-2">
@@ -535,6 +608,10 @@ export default function TasksPage() {
           )}
         </div>
 
+        <div className="flex sm:hidden gap-2 mt-3">
+          <button onClick={() => handleExport('selection')} disabled={selectedCount===0} className="flex-1 rounded-full glass border border-white/10 px-3 py-2 text-xs font-semibold text-white disabled:opacity-30">Export Pilihan{selectedCount? ` (${selectedCount})`:''}</button>
+          <button onClick={() => handleExport('filtered')} disabled={filteredTasks.length===0} className="flex-1 rounded-full glass border border-white/10 px-3 py-2 text-xs font-semibold text-white/70 disabled:opacity-30">Export Filter</button>
+        </div>
         {/* Pagination Footer */}
         {totalPages > 1 && (
           <div className="flex justify-between items-center mt-3 pt-3 border-t border-white/5 font-sans text-xs">
