@@ -1,9 +1,9 @@
 /* eslint-disable react/set-state-in-effect */
-import { useMemo, useEffect } from 'react'
+import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTasks } from '../context/TaskContext'
 import type { TaskHistory, TaskStatus } from '../types/task.types'
-import { getRemainingDays, TODAY_STR, isInDateRange } from '../lib/dateUtils'
+import { getRemainingDays, TODAY_STR } from '../lib/dateUtils'
 import StatusBadge from '../components/StatusBadge'
 import TaskTypeBadge from '../components/TaskTypeBadge'
 import DeadlineIndicator from '../components/DeadlineIndicator'
@@ -24,20 +24,11 @@ const STATUS_CONFIG: Record<TaskStatus, { tint: string; accent: string; dot: str
   Done:        { tint: 'glass-tint-done',     accent: 'from-emerald-400 to-teal-400', dot: 'bg-emerald-400' },
 }
 
-function addDays(dateStr: string, delta: number): string {
-  const d = new Date(dateStr + 'T00:00:00')
-  d.setDate(d.getDate() + delta)
-  return d.toISOString().slice(0, 10)
-}
-function firstDayOfMonth(dateStr: string): string {
-  return dateStr.slice(0, 7) + '-01'
-}
-
 export default function DashboardPage() {
-  const { tasks, consultants, clients, programmers, loading, error, fetchRecentHistory } = useTasks()
-  const [recentActivity, setRecentActivity] = useState<TaskHistory[]>([])
-  const [loadingActivity, setLoadingActivity] = useState(true)
-  const [activityError, setActivityError] = useState<string | null>(null)
+  const { tasks, consultants, clients, programmers, loading, error } = useTasks()
+  const [recentActivity] = useState<TaskHistory[]>([])
+  const [loadingActivity] = useState(true)
+  const [activityError] = useState<string | null>(null)
   const masters = useMemo(() => ({ consultants, clients, programmers }), [consultants, clients, programmers])
   const activeTasksList = useMemo(() => tasks.filter(t => !t.archived), [tasks])
   // Tanpa filter tanggal, gunakan semua tugas aktif

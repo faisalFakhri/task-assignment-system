@@ -2,7 +2,7 @@
 import { useState, useRef } from 'react'
 import { useTasks } from '../context/TaskContext'
 import { taskService } from '../services/taskService'
-import { parseTeamAriFile, exportTeamAri, downloadTemplate, type ImportParseResult } from '../lib/excelTeamAri'
+import { parseTeamAriFile, downloadTemplate, type ImportParseResult } from '../lib/excelTeamAri'
 import type { TaskType, TaskStatus } from '../types/task.types'
 
 export default function ImportPage() {

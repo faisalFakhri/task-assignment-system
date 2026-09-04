@@ -20,6 +20,13 @@ import ExcelJS from 'exceljs'
 import { saveAs } from 'file-saver'
 import type { Task, TaskStatus, TaskType } from '../types/task.types'
 
+// ExcelJS types may not expose dataValidations — cast to any for validation APIs
+interface WorksheetWithValidations extends ExcelJS.Worksheet {
+  dataValidations: {
+    add: (range: string, options: any) => void
+  }
+}
+
 // ---------- column spec ----------
 export const TEAM_ARI_HEADERS = [
   'No',
@@ -44,7 +51,6 @@ export const TEAM_ARI_COL_WIDTHS: Record<string, number> = {
 export const TEAM_ARI_STATUS_LIST = ['QC', 'Open', 'Done', 'Reject', 'Reopen', 'Hold', 'Assign', 'In Progress'] as const
 export const TEAM_ARI_TYPE_LIST = ['Bugs', 'Improvements'] as const
 
-const STATUS_SET = new Set<string>(TEAM_ARI_STATUS_LIST.map(s => s.toLowerCase()))
 const TYPE_MAP: Record<string, TaskType> = { bugs: 'Bugs', improvements: 'Improvements' }
 const STATUS_CANON: Record<string, TaskStatus> = {
   qc: 'QC', open: 'Open', done: 'Done', reject: 'Reject', reopen: 'Reopen', hold: 'Hold', assign: 'Assign', 'in progress': 'In Progress', 'inprogress': 'In Progress',
@@ -201,8 +207,9 @@ export async function exportTeamAri(tasks: Task[], fileName?: string): Promise<v
 
   // validations (exceljs expects ranges like 'C2:C998')
   const lastRow = Math.max(2, sorted.length + 1)
+  const wsVal = ws as WorksheetWithValidations
   // C
-  ws.dataValidations.add(`C2:C${Math.max(lastRow, 998)}`, {
+  wsVal.dataValidations.add(`C2:C${Math.max(lastRow, 998)}`, {
     type: 'list',
     allowBlank: true,
     formulae: ['"Bugs,Improvements"'],
@@ -212,7 +219,7 @@ export async function exportTeamAri(tasks: Task[], fileName?: string): Promise<v
     showDropDown: false,
   })
   // G
-  ws.dataValidations.add(`G2:G${Math.max(lastRow, 998)}`, {
+  wsVal.dataValidations.add(`G2:G${Math.max(lastRow, 998)}`, {
     type: 'list',
     allowBlank: true,
     formulae: ['"QC,Open,Done,Reject,Reopen,Hold,Assign,In Progress"'],
@@ -223,7 +230,7 @@ export async function exportTeamAri(tasks: Task[], fileName?: string): Promise<v
   })
   if (progList.length) {
     const listStr = `"${progList.join(',')}"`
-    ws.dataValidations.add(`H2:H${Math.max(lastRow, 998)}`, {
+    wsVal.dataValidations.add(`H2:H${Math.max(lastRow, 998)}`, {
       type: 'list',
       allowBlank: true,
       formulae: [listStr],

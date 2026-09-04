@@ -99,7 +99,7 @@ export const taskService = {
 
   async createTask(payload: CreateTaskPayload): Promise<string> {
     const now = new Date().toISOString()
-    const { data, error } = await supabase.rpc('generate_task_id').select().single()
+    const { data } = await supabase.rpc('generate_task_id').select().single()
     const taskId = (data as any)?.generate_task_id || `TASK-${Date.now()}`
 
     const { error: insertError } = await supabase.from('tasks').insert({
@@ -127,13 +127,25 @@ export const taskService = {
       action: 'create',
       taskId,
       row: {
-        consultant: payload.consultantId ? (await supabase.from('consultants').select('consultant_name').eq('consultant_id', payload.consultantId).single().then(r => (r.data as any)?.consultant_name).catch(() => '')) as string : '',
+        consultant: payload.consultantId
+          ? await Promise.resolve(supabase.from('consultants').select('consultant_name').eq('consultant_id', payload.consultantId).single())
+              .then(r => (r.data as any)?.consultant_name ?? '')
+              .catch(() => '')
+          : '',
         type: payload.type,
-        client: payload.clientId ? (await supabase.from('clients').select('client_name').eq('client_id', payload.clientId).single().then(r => (r.data as any)?.client_name).catch(() => '')) as string : '',
+        client: payload.clientId
+          ? await Promise.resolve(supabase.from('clients').select('client_name').eq('client_id', payload.clientId).single())
+              .then(r => (r.data as any)?.client_name ?? '')
+              .catch(() => '')
+          : '',
         screenReport: payload.screenReport,
         request: payload.request,
         status: payload.status,
-        programmer: payload.programmerId ? (await supabase.from('programmers').select('programmer_name').eq('programmer_id', payload.programmerId).single().then(r => (r.data as any)?.programmer_name).catch(() => '')) as string : '',
+        programmer: payload.programmerId
+          ? await Promise.resolve(supabase.from('programmers').select('programmer_name').eq('programmer_id', payload.programmerId).single())
+              .then(r => (r.data as any)?.programmer_name ?? '')
+              .catch(() => '')
+          : '',
         sqlServer: payload.sqlServer,
         database: payload.databaseName,
         targetDate: payload.targetDate,
@@ -420,7 +432,7 @@ export const taskService = {
     // Decode base64 → binary Uint8Array
     const binaryData = Uint8Array.from(atob(payload.contentBase64), c => c.charCodeAt(0))
 
-    const { data: uploadRes, error: uploadError } = await supabase.storage
+    const { error: uploadError } = await supabase.storage
       .from('attachments')
       .upload(storageKey, binaryData, {
         contentType: payload.mimeType,
