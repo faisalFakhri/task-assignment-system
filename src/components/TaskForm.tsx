@@ -237,15 +237,16 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
   return (
     <form onSubmit={handleSubmit} onPaste={handlePaste} className="flex flex-col h-full text-sm">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-slate-200 p-4 shrink-0 glass-subtle">
-        <span className="font-semibold text-sm text-slate-800 font-mono">
-          {isEditMode ? `Edit Task: ${taskId}` : 'Create New Task'}
+      <div className="flex items-center justify-between border-b p-3 sm:p-4 shrink-0" style={{ borderColor: 'var(--border-light)' }}>
+        <span className="font-semibold text-sm font-mono" style={{ color: 'var(--text-primary)' }}>
+          {isEditMode ? `Edit ${taskId}` : 'New Task'}
         </span>
         <div className="flex gap-2">
           <button
             type="submit"
             disabled={submitting}
-            className="rounded-full bg-white px-4 py-1.5 text-xs font-semibold text-slate-900 hover:bg-white/90 disabled:opacity-50 min-w-[70px] text-center shadow-lg shadow-black/20"
+            className="rounded-full px-4 py-1.5 text-xs font-semibold disabled:opacity-50 min-w-[70px] text-center shadow-lg shadow-black/20 transition-colors"
+            style={{ background: 'var(--accent)', color: 'var(--text-on-accent, white)' }}
           >
             {submitting ? (isEditMode ? 'Updating...' : 'Saving...') : 'Save'}
           </button>
@@ -253,7 +254,8 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
             type="button"
             disabled={submitting}
             onClick={onClose}
-            className="rounded-full glass-subtle border border-slate-200 px-3 py-1 text-xs text-slate-500 hover:text-slate-800 disabled:opacity-50"
+            className="rounded-full glass-subtle border px-3 py-1 text-xs disabled:opacity-50 transition-colors"
+            style={{ borderColor: 'var(--border-light)', color: 'var(--text-secondary)' }}
           >
             Cancel
           </button>
@@ -261,9 +263,9 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
       </div>
 
       {/* Body Scroll */}
-      <div className="flex-1 overflow-y-auto p-5 space-y-6">
+      <div className="flex-1 overflow-y-auto min-h-0 p-4 sm:p-5 space-y-5 sm:space-y-6 overscroll-contain">
         {submitError && (
-          <div className="glass rounded-2xl border-red-400/20 bg-red-500/10 p-3 text-xs font-mono text-red-300">
+          <div className="glass rounded-2xl p-3 text-xs font-mono" style={{ background: 'var(--status-error-bg)', color: 'var(--status-error-text)' }}>
             Error: {submitError}
           </div>
         )}
@@ -273,17 +275,16 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
             Assignment
           </h3>
           
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
-              <label className="block text-[11px] font-semibold text-slate-500 mb-1">
+              <label className="block text-[11px] font-semibold mb-1" style={{ color: 'var(--text-muted)' }}>
                 Consultant *
               </label>
               <select
                 value={consultant}
                 onChange={e => setConsultant(e.target.value)}
-                className={`w-full rounded-xl bg-white border px-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-violet-400/50 focus:ring-1 focus:ring-violet-400/20 ${
-                  errors.consultant ? 'border-red-400/40 bg-red-500/10' : 'border-slate-200'
-                }`}
+                className="w-full rounded-xl border px-3 py-2.5 text-sm focus:outline-none focus:border-violet-400/50 focus:ring-1 focus:ring-violet-400/20"
+                style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)', borderColor: errors.consultant ? 'rgba(239,68,68,0.4)' : 'var(--border-light)' }}
               >
                 <option value="">Choose Consultant</option>
                 {consultants.filter(c => c.active || c.name === consultant).map(c => (
@@ -292,19 +293,18 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
                   </option>
                 ))}
               </select>
-              {errors.consultant && <p className="text-[10px] text-red-300 mt-1 font-mono">{errors.consultant}</p>}
+              {errors.consultant && <p className="text-[10px] text-red-400 mt-1 font-mono">{errors.consultant}</p>}
             </div>
 
             <div>
-              <label className="block text-[11px] font-semibold text-slate-500 mb-1">
+              <label className="block text-[11px] font-semibold mb-1" style={{ color: 'var(--text-muted)' }}>
                 Client *
               </label>
               <select
                 value={client}
                 onChange={e => setClient(e.target.value)}
-                className={`w-full rounded-xl bg-white border px-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-violet-400/50 focus:ring-1 focus:ring-violet-400/20 ${
-                  errors.client ? 'border-red-400/40 bg-red-500/10' : 'border-slate-200'
-                }`}
+                className="w-full rounded-xl border px-3 py-2.5 text-sm focus:outline-none focus:border-violet-400/50 focus:ring-1 focus:ring-violet-400/20"
+                style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)', borderColor: errors.client ? 'rgba(239,68,68,0.4)' : 'var(--border-light)' }}
               >
                 <option value="">Choose Client</option>
                 {clients.map(c => (
@@ -313,32 +313,34 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
                   </option>
                 ))}
               </select>
-              {errors.client && <p className="text-[10px] text-red-300 mt-1 font-mono">{errors.client}</p>}
+              {errors.client && <p className="text-[10px] text-red-400 mt-1 font-mono">{errors.client}</p>}
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
-              <label className="block text-[11px] font-semibold text-slate-500 mb-1">
+              <label className="block text-[11px] font-semibold mb-1" style={{ color: 'var(--text-muted)' }}>
                 Type *
               </label>
               <select
                 value={type}
                 onChange={e => setType(e.target.value as TaskType)}
-                className="w-full rounded-xl bg-white border border-slate-200 px-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-violet-400/50 focus:ring-1 focus:ring-violet-400/20"
+                className="w-full rounded-xl border px-3 py-2.5 text-sm focus:outline-none focus:border-violet-400/50 focus:ring-1 focus:ring-violet-400/20"
+                style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)', borderColor: 'var(--border-light)' }}
               >
                 <option value="Bugs">Bugs</option>
                 <option value="Improvements">Improvements</option>
               </select>
             </div>
             <div>
-              <label className="block text-[11px] font-semibold text-slate-500 mb-1">
+              <label className="block text-[11px] font-semibold mb-1" style={{ color: 'var(--text-muted)' }}>
                 Status *
               </label>
               <select
                 value={status}
                 onChange={e => setStatus(e.target.value as TaskStatus)}
-                className="w-full rounded-xl bg-white border border-slate-200 px-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-violet-400/50 focus:ring-1 focus:ring-violet-400/20"
+                className="w-full rounded-xl border px-3 py-2.5 text-sm focus:outline-none focus:border-violet-400/50 focus:ring-1 focus:ring-violet-400/20"
+                style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)', borderColor: 'var(--border-light)' }}
               >
                 <option value="QC">QC</option>
                 <option value="Open">Open</option>
@@ -353,7 +355,7 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
           </div>
 
           <div>
-            <label className="block text-[11px] font-semibold text-slate-500 mb-1">
+            <label className="block text-[11px] font-semibold mb-1" style={{ color: 'var(--text-muted)' }}>
               Screen / Report Name *
             </label>
             <input
@@ -361,50 +363,49 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
               value={screenReport}
               onChange={e => setScreenReport(e.target.value)}
               placeholder="e.g. Sales Invoice Screen"
-              className={`w-full rounded-xl bg-white border px-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-violet-400/50 focus:ring-1 focus:ring-violet-400/20 ${
-                errors.screenReport ? 'border-red-400/40 bg-red-500/10' : 'border-slate-200'
-              }`}
+              className="w-full rounded-xl border px-3 py-2.5 text-sm focus:outline-none focus:border-violet-400/50 focus:ring-1 focus:ring-violet-400/20"
+              style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)', borderColor: errors.screenReport ? 'rgba(239,68,68,0.4)' : 'var(--border-light)' }}
             />
-            {errors.screenReport && <p className="text-[10px] text-red-300 mt-1 font-mono">{errors.screenReport}</p>}
+            {errors.screenReport && <p className="text-[10px] text-red-400 mt-1 font-mono">{errors.screenReport}</p>}
           </div>
         </div>
 
         {/* Section: Request */}
-        <div className="space-y-4">
-          <h3 className="text-xs font-bold text-slate-400 font-mono tracking-wider uppercase border-b border-slate-100 pb-1">
+        <div className="space-y-3 sm:space-y-4">
+          <h3 className="text-xs font-bold font-mono tracking-wider uppercase border-b pb-1" style={{ color: 'var(--text-muted)', borderColor: 'var(--border-light)' }}>
             Request
           </h3>
           <div>
-            <label className="block text-[11px] font-semibold text-slate-500 mb-1">
+            <label className="block text-[11px] font-semibold mb-1" style={{ color: 'var(--text-muted)' }}>
               Request Description *
             </label>
             <textarea
               value={request}
               onChange={e => setRequest(e.target.value)}
               placeholder="Provide detail requirement description..."
-              rows={4}
-              className={`w-full rounded-xl bg-white border px-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-violet-400/50 focus:ring-1 focus:ring-violet-400/20 leading-relaxed ${
-                errors.request ? 'border-red-400/40 bg-red-500/10' : 'border-slate-200'
-              }`}
+              rows={3}
+              className="w-full rounded-xl border px-3 py-2.5 text-sm focus:outline-none focus:border-violet-400/50 focus:ring-1 focus:ring-violet-400/20 leading-relaxed"
+              style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)', borderColor: errors.request ? 'rgba(239,68,68,0.4)' : 'var(--border-light)' }}
             />
-            {errors.request && <p className="text-[10px] text-red-300 mt-1 font-mono">{errors.request}</p>}
+            {errors.request && <p className="text-[10px] text-red-400 mt-1 font-mono">{errors.request}</p>}
           </div>
         </div>
 
         {/* Section: Technical */}
-        <div className="space-y-4">
-          <h3 className="text-xs font-bold text-slate-400 font-mono tracking-wider uppercase border-b border-slate-100 pb-1">
+        <div className="space-y-3 sm:space-y-4">
+          <h3 className="text-xs font-bold font-mono tracking-wider uppercase border-b pb-1" style={{ color: 'var(--text-muted)', borderColor: 'var(--border-light)' }}>
             Technical
           </h3>
           
           <div>
-            <label className="block text-[11px] font-semibold text-slate-500 mb-1">
+            <label className="block text-[11px] font-semibold mb-1" style={{ color: 'var(--text-muted)' }}>
               Assigned Programmer
             </label>
             <select
               value={programmer}
               onChange={e => setProgrammer(e.target.value)}
-              className="w-full rounded-xl bg-white border border-slate-200 px-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-violet-400/50 focus:ring-1 focus:ring-violet-400/20"
+              className="w-full rounded-xl border px-3 py-2.5 text-sm focus:outline-none focus:border-violet-400/50 focus:ring-1 focus:ring-violet-400/20"
+              style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)', borderColor: 'var(--border-light)' }}
             >
             <option value="">Unassigned</option>
             {programmers.filter(p => p.active || p.name === programmer).map(p => (
@@ -415,9 +416,9 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
             </select>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
-              <label className="block text-[11px] font-semibold text-slate-500 mb-1">
+              <label className="block text-[11px] font-semibold mb-1" style={{ color: 'var(--text-muted)' }}>
                 SQL Server
               </label>
               <input
@@ -425,11 +426,12 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
                 value={sqlServer}
                 onChange={e => setSqlServer(e.target.value)}
                 placeholder="SRV-SAP-DB01"
-                className="w-full rounded-xl bg-white border border-slate-200 px-3 py-2.5 text-sm text-slate-800 font-mono placeholder:text-slate-400 focus:outline-none focus:border-violet-400/50 focus:ring-1 focus:ring-violet-400/20"
+                className="w-full rounded-xl border px-3 py-2.5 text-sm font-mono focus:outline-none focus:border-violet-400/50 focus:ring-1 focus:ring-violet-400/20"
+                style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)', borderColor: 'var(--border-light)' }}
               />
             </div>
             <div>
-              <label className="block text-[11px] font-semibold text-slate-500 mb-1">
+              <label className="block text-[11px] font-semibold mb-1" style={{ color: 'var(--text-muted)' }}>
                 Database Name
               </label>
               <input
@@ -437,38 +439,40 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
                 value={database}
                 onChange={e => setDatabase(e.target.value)}
                 placeholder="DB_PROD"
-                className="w-full rounded-xl bg-white border border-slate-200 px-3 py-2.5 text-sm text-slate-800 font-mono placeholder:text-slate-400 focus:outline-none focus:border-violet-400/50 focus:ring-1 focus:ring-violet-400/20"
+                className="w-full rounded-xl border px-3 py-2.5 text-sm font-mono focus:outline-none focus:border-violet-400/50 focus:ring-1 focus:ring-violet-400/20"
+                style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)', borderColor: 'var(--border-light)' }}
               />
             </div>
           </div>
         </div>
 
         {/* Section: Schedule */}
-        <div className="space-y-4">
-          <h3 className="text-xs font-bold text-slate-400 font-mono tracking-wider uppercase border-b border-slate-100 pb-1">
+        <div className="space-y-3 sm:space-y-4">
+          <h3 className="text-xs font-bold font-mono tracking-wider uppercase border-b pb-1" style={{ color: 'var(--text-muted)', borderColor: 'var(--border-light)' }}>
             Schedule
           </h3>
           <div>
-            <label className="block text-[11px] font-semibold text-slate-500 mb-1">
+            <label className="block text-[11px] font-semibold mb-1" style={{ color: 'var(--text-muted)' }}>
               Target Date (Deadline)
             </label>
             <input
               type="date"
               value={targetDate}
               onChange={e => setTargetDate(e.target.value)}
-              className="w-full rounded-xl bg-white border border-slate-200 px-3 py-2.5 text-sm text-slate-800 font-mono placeholder:text-slate-400 focus:outline-none focus:border-violet-400/50 focus:ring-1 focus:ring-violet-400/20"
+              className="w-full rounded-xl border px-3 py-2.5 text-sm font-mono focus:outline-none focus:border-violet-400/50 focus:ring-1 focus:ring-violet-400/20"
+              style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)', borderColor: 'var(--border-light)' }}
             />
           </div>
         </div>
 
         {/* Section: Additional Information */}
-        <div className="space-y-4">
-          <h3 className="text-xs font-bold text-slate-400 font-mono tracking-wider uppercase border-b border-slate-100 pb-1">
+        <div className="space-y-3 sm:space-y-4">
+          <h3 className="text-xs font-bold font-mono tracking-wider uppercase border-b pb-1" style={{ color: 'var(--text-muted)', borderColor: 'var(--border-light)' }}>
             Additional Information
           </h3>
           
           <div>
-            <label className="block text-[11px] font-semibold text-slate-500 mb-1">
+            <label className="block text-[11px] font-semibold mb-1" style={{ color: 'var(--text-muted)' }}>
               Notes
             </label>
             <textarea
@@ -476,41 +480,44 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
               onChange={e => setNotes(e.target.value)}
               placeholder="Internal notes..."
               rows={2}
-              className="w-full rounded-xl glass-subtle border border-slate-200 p-2.5 focus:outline-none focus:border-violet-400/50 glass-subtle text-xs leading-relaxed"
+              className="w-full rounded-xl glass-subtle border p-2.5 focus:outline-none focus:border-violet-400/50 text-xs leading-relaxed"
+              style={{ borderColor: 'var(--border-light)' }}
             />
           </div>
 
           {/* Local Attachments Section (Create Mode Only) */}
           {!isEditMode && (
             <div className="space-y-3 pt-2">
-              <label className="block text-[11px] font-semibold text-slate-500">
+              <label className="block text-[11px] font-semibold" style={{ color: 'var(--text-muted)' }}>
                 Attachments ({pendingFiles.length})
               </label>
 
               {pendingFiles.length > 0 && (
-                <div className="space-y-2 glass-subtle p-2.5 border border-slate-200 rounded">
+                <div className="space-y-2 glass-subtle p-2.5 border rounded-xl" style={{ borderColor: 'var(--border-light)' }}>
                   {pendingFiles.map((att, idx) => (
                     <div key={idx} className="flex items-center gap-2 text-xs">
                       <img
                         src={att.previewUrl}
                         alt={att.file.name}
-                        className="h-10 w-14 object-cover rounded border border-slate-200 glass-subtle shrink-0"
+                        className="h-10 w-14 object-cover rounded border glass-subtle shrink-0"
+                        style={{ borderColor: 'var(--border-light)' }}
                       />
                       <div className="flex-1 min-w-0">
-                        <div className="text-slate-500 font-semibold truncate">{att.file.name}</div>
-                        <div className="text-[10px] text-slate-400 font-mono">{formatFileSize(att.file.size)}</div>
+                        <div className="font-semibold truncate" style={{ color: 'var(--text-secondary)' }}>{att.file.name}</div>
+                        <div className="text-[10px] font-mono" style={{ color: 'var(--text-muted)' }}>{formatFileSize(att.file.size)}</div>
                         <input
                           type="text"
                           placeholder="Description (Optional)"
                           value={att.description}
                           onChange={e => updateFileDescription(idx, e.target.value)}
-                          className="mt-1 w-full rounded border border-slate-200 p-1 focus:outline-none focus:border-violet-400/50 glass-subtle text-[11px]"
+                          className="mt-1 w-full rounded-lg border p-1 focus:outline-none focus:border-violet-400/50 glass-subtle text-[11px]"
+                          style={{ borderColor: 'var(--border-light)' }}
                         />
                       </div>
                       <button
                         type="button"
                         onClick={() => removePendingFile(idx)}
-                        className="text-red-500 hover:underline text-[10px] shrink-0"
+                        className="text-red-400 hover:text-red-300 text-[10px] shrink-0"
                       >
                         Remove
                       </button>
@@ -519,8 +526,11 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
                 </div>
               )}
 
-              <div className="space-y-2 border border-slate-200 rounded p-3 glass-subtle">
-                <div className="flex items-center justify-between"><span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider font-mono">Add Attachment</span><span className="text-[9px] font-mono text-slate-400">Ctrl+V untuk paste</span></div>
+              <div className="space-y-2 border rounded-xl p-3 glass-subtle" style={{ borderColor: 'var(--border-light)' }}>
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold uppercase tracking-wider font-mono" style={{ color: 'var(--text-muted)' }}>Add Attachment</span>
+                  <span className="text-[9px] font-mono" style={{ color: 'var(--text-muted)' }}>Ctrl+V paste</span>
+                </div>
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -532,11 +542,12 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="rounded-full bg-slate-50 border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-800 hover:bg-white/15"
+                  className="rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors"
+                  style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-light)', color: 'var(--text-primary)' }}
                 >
                   Choose images...
                 </button>
-                <p className="text-[10px] text-slate-400 font-mono">PNG, JPEG, or WebP. Max 5 MB. Paste screenshot langsung Ctrl+V atau klik Choose.</p>
+                <p className="text-[10px] font-mono" style={{ color: 'var(--text-muted)' }}>PNG, JPEG, or WebP. Max 5 MB. Paste screenshot Ctrl+V.</p>
               </div>
             </div>
           )}

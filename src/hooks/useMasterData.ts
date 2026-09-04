@@ -7,6 +7,7 @@ export type MasterEntityType = 'clients' | 'consultants' | 'programmers'
 export interface MasterRecord {
   id: string
   name: string
+  email?: string
   active: boolean
 }
 
@@ -33,19 +34,19 @@ export function useMasterData(entity: MasterEntityType) {
     }
   }, [entity])
 
-  const create = useCallback(async (name: string) => {
+  const create = useCallback(async (name: string, email?: string) => {
     if (entity === 'clients') await taskService.createClient({ name })
-    else if (entity === 'consultants') await taskService.createConsultant({ name })
-    else await taskService.createProgrammer({ name })
+    else if (entity === 'consultants') await taskService.createConsultant({ name, email })
+    else await taskService.createProgrammer({ name, email })
     await fetchData()
     // sync ke TaskContext biar dropdown di TaskForm langsung kebaca
     await refreshData()
   }, [entity, fetchData, refreshData])
 
-  const update = useCallback(async (id: string, name: string, active?: boolean) => {
+  const update = useCallback(async (id: string, name: string, email?: string, active?: boolean) => {
     if (entity === 'clients') await taskService.updateClient(id, { name, active })
-    else if (entity === 'consultants') await taskService.updateConsultant(id, { name, active })
-    else await taskService.updateProgrammer(id, { name, active })
+    else if (entity === 'consultants') await taskService.updateConsultant(id, { name, email, active })
+    else await taskService.updateProgrammer(id, { name, email, active })
     await fetchData()
     await refreshData()
   }, [entity, fetchData, refreshData])

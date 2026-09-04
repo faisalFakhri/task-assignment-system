@@ -125,12 +125,14 @@ export interface UploadAttachmentResult {
 export interface Consultant {
   id: string
   name: string
+  email: string
   active: boolean
 }
 
 export interface Programmer {
   id: string
   name: string
+  email: string
   active: boolean
 }
 

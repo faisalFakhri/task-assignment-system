@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react'
+import { IconX } from '@tabler/icons-react'
 
 type ToastType = 'success' | 'error' | 'info'
 interface Toast { id: number; type: ToastType; message: string }
@@ -28,7 +29,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         {toasts.map(toast => (
           <div key={toast.id} role="status" className={`rounded-2xl border px-3 py-2.5 text-xs font-mono shadow-xl backdrop-blur-xl flex justify-between items-start gap-3 ${styles[toast.type]}`}>
             <span className="leading-relaxed">{toast.message}</span>
-            <button onClick={() => removeToast(toast.id)} className="shrink-0 text-[14px] opacity-60 hover:opacity-100 leading-none">×</button>
+            <button onClick={() => removeToast(toast.id)} className="shrink-0 opacity-60 hover:opacity-100 leading-none p-0.5" aria-label="Dismiss notification"><IconX size={14} stroke={2} /></button>
           </div>
         ))}
       </div>

@@ -10,6 +10,7 @@ import EmptyState from '../components/EmptyState'
 import TaskDetail from '../components/TaskDetail'
 import { exportTeamAri } from '../lib/excelTeamAri'
 import TaskForm from '../components/TaskForm'
+import { IconSearch, IconChevronDown, IconPlus, IconChevronLeft, IconChevronRight, IconArrowUp, IconArrowDown, IconX, IconAdjustmentsHorizontal, IconMenu2 } from '@tabler/icons-react'
 
 type SortField = 'id' | 'consultant' | 'type' | 'client' | 'screenReport' | 'status' | 'programmer' | 'targetDate'
 type SortOrder = 'asc' | 'desc'
@@ -371,7 +372,7 @@ export default function TasksPage() {
             </h2>
             <div className="flex items-center gap-1.5 w-full sm:w-auto">
               <div className="relative flex-1 sm:w-64">
-                <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs">⌕</span>
+                <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400"><IconSearch size={15} stroke={1.75} /></span>
                 <input
                   type="text"
                   placeholder="Search tasks..."
@@ -387,16 +388,16 @@ export default function TasksPage() {
                 className={`shrink-0 inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-xs font-semibold font-mono transition-colors ${activeFiltersCount > 0 ? 'bg-slate-900 text-white border-slate-900 shadow' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'} ${showFilters ? 'ring-1 ring-violet-300' : ''}`}
               >
                 <span className="hidden sm:inline">Filter</span>
-                <span className="sm:hidden">☰</span>
+                <span className="sm:hidden"><IconAdjustmentsHorizontal size={15} stroke={1.75} /></span>
                 {activeFiltersCount > 0 && <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${activeFiltersCount > 0 && !showFilters ? 'bg-white text-slate-900' : 'bg-white/20 text-white'}`}>{activeFiltersCount}</span>}
-                <span className={`text-[10px] transition-transform ${showFilters ? 'rotate-180' : ''}`}>▾</span>
+                <span className={`transition-transform ${showFilters ? 'rotate-180' : ''}`}><IconChevronDown size={14} stroke={1.75} /></span>
               </button>
               <button
                 onClick={handleOpenCreate}
                 className="shrink-0 rounded-full bg-slate-900 text-white px-4 py-2 text-xs font-semibold hover:bg-slate-800 transition-colors shadow"
               >
                 <span className="hidden sm:inline">New Task</span>
-                <span className="sm:hidden">＋</span>
+                <span className="sm:hidden"><IconPlus size={16} stroke={2} /></span>
               </button>
             </div>
           </div>
@@ -443,7 +444,7 @@ export default function TasksPage() {
             {filterChips.map(chip => (
               <span key={chip.label} className="inline-flex items-center gap-1 rounded-full bg-violet-50 border border-violet-200 text-violet-700 px-2.5 py-1 text-[11px] font-mono">
                 {chip.label}
-                <button onClick={chip.onClear} className="ml-0.5 rounded-full hover:bg-violet-100 w-4 h-4 grid place-items-center leading-none" aria-label={`Clear ${chip.label}`}>×</button>
+                <button onClick={chip.onClear} className="ml-0.5 rounded-full hover:bg-violet-100 w-4 h-4 grid place-items-center leading-none" aria-label={`Clear ${chip.label}`}><IconX size={12} stroke={2} /></button>
               </span>
             ))}
             <button onClick={clearAllFilters} className="text-[11px] font-mono text-slate-400 hover:text-slate-600 underline">Clear all</button>
@@ -565,8 +566,21 @@ export default function TasksPage() {
         {/* Tasks Table */}
         <div className="flex-1 glass rounded-2xl overflow-auto min-h-0 relative">
           {loading ? (
-            <div className="p-12 h-full flex flex-col items-center justify-center font-mono text-xs text-slate-400">
-              Loading database...
+            <div className="p-6" role="status" aria-label="Loading tasks">
+              <div className="space-y-3">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <div className="skeleton h-4 w-4 shrink-0" />
+                    <div className="skeleton h-4 w-20 shrink-0" />
+                    <div className="skeleton h-4 w-24 shrink-0" />
+                    <div className="skeleton h-4 w-24 shrink-0" />
+                    <div className="skeleton h-4 w-40 shrink-0" />
+                    <div className="skeleton h-4 min-w-0 flex-1" />
+                    <div className="skeleton h-5 w-20 shrink-0 rounded-full" />
+                    <div className="skeleton h-4 w-24 shrink-0" />
+                  </div>
+                ))}
+              </div>
             </div>
           ) : sortedTasks.length === 0 ? (
             <div className="p-12 h-full flex items-center justify-center">
@@ -603,7 +617,7 @@ export default function TasksPage() {
                       <div className="flex items-center gap-1.5">
                         <span>{col.label}</span>
                         {sortField === col.field && (
-                          <span className="text-[10px] text-slate-400">{sortOrder === 'asc' ? '▲' : '▼'}</span>
+                          <span className="text-[10px] text-slate-400">{sortOrder === 'asc' ? <IconArrowDown size={11} stroke={2} /> : <IconArrowUp size={11} stroke={2} />}</span>
                         )}
                       </div>
                     </th>
@@ -645,7 +659,7 @@ export default function TasksPage() {
                       <td className="whitespace-nowrap px-3 py-2 text-slate-500 truncate">
                         {task.programmer || <span className="italic text-slate-400">unassigned</span>}
                       </td>
-                      <td className="whitespace-nowrap px-3 py-2 text-slate-400 font-mono">{task.targetDate || '-'}</td>
+                      <td className="whitespace-nowrap px-3 py-2 text-slate-500 font-mono">{task.targetDate || '-'}</td>
                       <td className="whitespace-nowrap px-3 py-2">
                         <DeadlineIndicator task={task} />
                       </td>
@@ -680,9 +694,10 @@ export default function TasksPage() {
               <button
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
-                className="rounded-full glass-subtle border border-slate-200 px-3 py-1 text-slate-500 hover:bg-white/5 disabled:opacity-40"
+                className="rounded-full glass-subtle border border-slate-200 px-2.5 py-1 text-slate-500 hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed"
+                aria-label="Previous page"
               >
-                [PREV]
+                <IconChevronLeft size={14} stroke={2} />
               </button>
               <span className="px-2 text-slate-500">
                 Page {currentPage} of {totalPages}
@@ -690,40 +705,56 @@ export default function TasksPage() {
               <button
                 disabled={currentPage === totalPages}
                 onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
-                className="rounded-full glass-subtle border border-slate-200 px-3 py-1 text-slate-500 hover:bg-white/5 disabled:opacity-40"
+                className="rounded-full glass-subtle border border-slate-200 px-2.5 py-1 text-slate-500 hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed"
+                aria-label="Next page"
               >
-                [NEXT]
+                <IconChevronRight size={14} stroke={2} />
               </button>
             </div>
           </div>
         )}
       </div>
 
-      {/* Side Panel Drawer (Overlay on small screens, split layout on large screen) */}
-      {activePanel && (
+      {/* Side Panel Drawer (Detail only) */}
+      {activePanel === 'detail' && selectedTaskId && (
         <div className="absolute inset-y-0 right-0 z-40 w-full sm:w-[500px] lg:w-[600px] lg:relative lg:inset-auto lg:z-10 glass-strong border-l border-slate-200 flex flex-col h-full shadow-2xl lg:shadow-none animate-in slide-in-from-right duration-150">
-          {activePanel === 'detail' && selectedTaskId && (
-            <TaskDetail
-              taskId={selectedTaskId}
-              onClose={handleClosePanel}
-              onEdit={handleEditClick}
-            />
-          )}
+          <TaskDetail
+            taskId={selectedTaskId}
+            onClose={handleClosePanel}
+            onEdit={handleEditClick}
+          />
+        </div>
+      )}
 
-          {activePanel === 'create' && (
-            <TaskForm
-              onClose={handleClosePanel}
-              onSubmitSuccess={handleClosePanel}
-            />
-          )}
-
-          {activePanel === 'edit' && selectedTaskId && (
-            <TaskForm
-              taskId={selectedTaskId}
-              onClose={() => setActivePanel('detail')}
-              onSubmitSuccess={() => setActivePanel('detail')}
-            />
-          )}
+      {/* Task Form Modal (Create / Edit) */}
+      {(activePanel === 'create' || activePanel === 'edit') && (
+        <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-0 sm:p-4" role="dialog" aria-modal="true">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={handleClosePanel}
+          />
+          {/* Dialog */}
+          <div className="relative w-full sm:max-w-[600px] h-[100dvh] sm:h-[90dvh] sm:max-h-[90dvh] flex flex-col rounded-t-2xl sm:rounded-2xl overflow-hidden animate-in slide-in-from-bottom sm:zoom-in-95 duration-200"
+            style={{ background: 'var(--bg-primary)', border: '1px solid var(--border-light)', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.35)' }}
+          >
+            {/* Mobile drag handle */}
+            <div className="sm:hidden flex justify-center pt-3 pb-1">
+              <div className="w-10 h-1 rounded-full bg-slate-300" />
+            </div>
+            {activePanel === 'create' ? (
+              <TaskForm
+                onClose={handleClosePanel}
+                onSubmitSuccess={handleClosePanel}
+              />
+            ) : selectedTaskId ? (
+              <TaskForm
+                taskId={selectedTaskId}
+                onClose={() => setActivePanel('detail')}
+                onSubmitSuccess={() => setActivePanel('detail')}
+              />
+            ) : null}
+          </div>
         </div>
       )}
     </div>

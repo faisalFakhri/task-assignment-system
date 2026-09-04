@@ -1,151 +1,283 @@
 /* eslint-disable react/set-state-in-effect */
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { TODAY_STR } from '../lib/dateUtils'
-import FontPicker from '../components/FontPicker'
+import { useTheme } from '../context/ThemeContext'
+import {
+  IconMenu2, IconMoon, IconSun, IconX, IconDashboard, IconListCheck,
+  IconClipboardCheck, IconFolderOpen, IconUserPlus, IconProgress, IconPlayerPause,
+  IconRotateClockwise, IconBan, IconCircleCheck, IconAlarm, IconHistory, IconArchive,
+  IconBriefcase, IconUserCog, IconCode, IconUpload, IconBook2, IconSettings,
+  IconChevronRight, IconChevronsLeft, IconChevronsRight, type Icon,
+} from '@tabler/icons-react'
+
 interface NavItem {
   to: string
   label: string
-  exact?: boolean
+  icon: Icon
 }
 interface NavSection {
   title: string
   items: NavItem[]
 }
 const SECTIONS: NavSection[] = [
-  { title: 'Overview', items: [{ to: '/dashboard', label: 'Dashboard', exact: true }] },
-  { title: 'Tasks', items: [
-    { to: '/tasks?filter=all', label: 'All Tasks' },
-    { to: '/tasks?status=QC', label: 'QC' },
-    { to: '/tasks?status=Open', label: 'Open' },
-    { to: '/tasks?status=Assign', label: 'Assign' },
-    { to: '/tasks?status=In%20Progress', label: 'In Progress' },
-    { to: '/tasks?status=Hold', label: 'Hold' },
-    { to: '/tasks?status=Reopen', label: 'Reopen' },
-    { to: '/tasks?status=Reject', label: 'Reject' },
-    { to: '/tasks?status=Done', label: 'Done' },
-    { to: '/tasks?filter=overdue', label: 'Overdue' },
-  ]},
-  { title: 'History', items: [
-    { to: '/tasks?filter=completed', label: 'Completed' },
-    { to: '/tasks?filter=archived', label: 'Archived' },
-  ]},
-  { title: 'Master Data', items: [
-    { to: '/master/clients', label: 'Clients' },
-    { to: '/master/consultants', label: 'Consultants' },
-    { to: '/master/programmers', label: 'Programmers' },
-  ]},
-  { title: 'Data', items: [{ to: '/import', label: 'Import (TEAM ARI)' }, { to: '/guide', label: 'Manual Book' }] },
-  { title: 'Configuration', items: [{ to: '/settings', label: 'Settings' }] },
+  { title: 'Overview', items: [{ to: '/dashboard', label: 'Dashboard', icon: IconDashboard }] },
+  {
+    title: 'Tasks',
+    items: [
+      { to: '/tasks?filter=all', label: 'All Tasks', icon: IconListCheck },
+      { to: '/tasks?status=QC', label: 'QC', icon: IconClipboardCheck },
+      { to: '/tasks?status=Open', label: 'Open', icon: IconFolderOpen },
+      { to: '/tasks?status=Assign', label: 'Assign', icon: IconUserPlus },
+      { to: '/tasks?status=In%20Progress', label: 'In Progress', icon: IconProgress },
+      { to: '/tasks?status=Hold', label: 'Hold', icon: IconPlayerPause },
+      { to: '/tasks?status=Reopen', label: 'Reopen', icon: IconRotateClockwise },
+      { to: '/tasks?status=Reject', label: 'Reject', icon: IconBan },
+      { to: '/tasks?status=Done', label: 'Done', icon: IconCircleCheck },
+      { to: '/tasks?filter=overdue', label: 'Overdue', icon: IconAlarm },
+    ],
+  },
+  {
+    title: 'History',
+    items: [
+      { to: '/tasks?filter=completed', label: 'Completed', icon: IconHistory },
+      { to: '/tasks?filter=archived', label: 'Archived', icon: IconArchive },
+    ],
+  },
+  {
+    title: 'Master Data',
+    items: [
+      { to: '/master/clients', label: 'Clients', icon: IconBriefcase },
+      { to: '/master/consultants', label: 'Consultants', icon: IconUserCog },
+      { to: '/master/programmers', label: 'Programmers', icon: IconCode },
+    ],
+  },
+  { title: 'Data', items: [
+    { to: '/import', label: 'Import', icon: IconUpload },
+    { to: '/guide', label: 'Manual Book', icon: IconBook2 },
+  ] },
+  { title: 'Configuration', items: [{ to: '/settings', label: 'Settings', icon: IconSettings }] },
 ]
+
+function readLocalValue(key: string, fallback?: string): string | null {
+  try { return localStorage.getItem(key) ?? fallback ?? null } catch { return fallback ?? null }
+}
+function writeLocalValue(key: string, value: string) {
+  try { localStorage.setItem(key, value) } catch { /* storage unavailable */ }
+}
 
 export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const { theme, toggleTheme } = useTheme()
   const location = useLocation()
+
   const isLinkActive = (to: string) => {
-    const currentPath = location.pathname + location.search
-    if (to.includes('?')) return currentPath === to
+    if (to.includes('?')) return location.pathname + location.search === to
     return location.pathname === to
   }
-  const renderNavItems = (items: NavItem[]) => (
-    <div className="space-y-0.5">
+
+  const activeSection = useMemo(() => {
+    for (const s of SECTIONS) {
+      if (s.items.some(it => isLinkActive(it.to))) return s.title
+    }
+    return SECTIONS[0].title
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location])
+
+  const [collapsed, setCollapsed] = useState<boolean>(() => readLocalValue('sidebar-collapsed') === '1')
+  const [openSection, setOpenSection] = useState<string | null>(() => {
+    const saved = readLocalValue('sidebar-open-section')
+    if (saved && SECTIONS.some(s => s.title === saved)) return saved
+    return activeSection
+  })
+
+  useEffect(() => { setOpenSection(activeSection) }, [activeSection])
+
+  const toggleCollapsed = () => {
+    setCollapsed(c => {
+      writeLocalValue('sidebar-collapsed', c ? '0' : '1')
+      return !c
+    })
+  }
+  const toggleSection = (title: string) => {
+    setOpenSection(prev => {
+      const next = prev === title ? null : title
+      writeLocalValue('sidebar-open-section', next ?? '')
+      return next
+    })
+  }
+
+  const renderNavHeader = (section: NavSection) => (
+    <button
+      type="button"
+      onClick={() => toggleSection(section.title)}
+      aria-expanded={openSection === section.title}
+      className="w-full flex items-center justify-between px-3 py-1 text-[10px] font-bold tracking-widest uppercase font-mono"
+      style={{ color: 'var(--text-muted)' }}
+    >
+      <span>{section.title}</span>
+      <span className={`transition-transform duration-200 ${openSection === section.title ? 'rotate-90' : ''}`}>
+        <IconChevronRight size={12} stroke={2} />
+      </span>
+    </button>
+  )
+
+  const navItemClass = (active: boolean) =>
+    active
+      ? 'bg-slate-900 text-white font-semibold shadow dark:bg-slate-100 dark:text-slate-900'
+      : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100'
+
+  const renderNavItems = (items: NavItem[], rail: boolean) => (
+    <div className={`${rail ? 'space-y-1' : 'space-y-0.5'}`}>
       {items.map((item) => {
         const active = isLinkActive(item.to)
+        const Icon = item.icon
+        if (rail) {
+          return (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              onClick={() => setSidebarOpen(false)}
+              title={item.label}
+              aria-label={item.label}
+              className={`flex items-center justify-center p-2 rounded-xl transition-colors ${navItemClass(active)}`}
+            >
+              <Icon size={18} stroke={1.75} />
+            </NavLink>
+          )
+        }
         return (
           <NavLink
             key={item.to}
             to={item.to}
             onClick={() => setSidebarOpen(false)}
-            className={`block px-3 py-1.5 text-xs font-mono rounded-xl transition-colors ${
-              active ? 'bg-slate-900 text-white font-semibold shadow' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
-            }`}
+            className={`flex items-center gap-2.5 px-3 py-1.5 text-xs font-mono rounded-xl transition-colors ${navItemClass(active)}`}
           >
-            {item.label}
+            <Icon size={14} stroke={1.75} className="shrink-0" />
+            <span className="truncate">{item.label}</span>
           </NavLink>
         )
       })}
     </div>
   )
 
+  const renderNav = (rail: boolean) => (
+    <nav className={`mt-4 ${rail ? 'space-y-2' : 'space-y-3'}`}>
+      {SECTIONS.map((section) => {
+        if (rail) {
+          return (
+            <div key={section.title} className="flex flex-col items-center gap-1" title={section.title}>
+              {renderNavItems(section.items, true)}
+            </div>
+          )
+        }
+        return (
+          <div key={section.title} className="space-y-1">
+            {renderNavHeader(section)}
+            {openSection === section.title && renderNavItems(section.items, false)}
+          </div>
+        )
+      })}
+    </nav>
+  )
+
   return (
-    <div className="flex h-screen overflow-hidden bg-[#f8fafc] text-slate-700 font-sans relative">
-      {/* Ambient mesh — light soft pastel */}
+    <div className="flex h-screen overflow-hidden font-sans relative" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+      {/* Ambient mesh — adaptive */}
       <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute inset-0 bg-[#f8fafc]" />
+        <div className="absolute inset-0" style={{ background: 'var(--bg-primary)' }} />
         <div className="absolute -top-[28%] -left-[16%] w-[78%] h-[68%] rounded-full opacity-[0.55]" style={{ background: 'radial-gradient(ellipse at center, #e9d5ff 0%, #ddd6fe 30%, transparent 70%)', filter: 'blur(44px)' }} />
         <div className="absolute -top-[8%] -right-[12%] w-[68%] h-[56%] rounded-full opacity-[0.40]" style={{ background: 'radial-gradient(ellipse at center, #bae6fd 0%, #93c5fd 32%, transparent 70%)', filter: 'blur(44px)' }} />
         <div className="absolute top-[30%] left-[20%] w-[52%] h-[46%] rounded-full opacity-[0.28]" style={{ background: 'radial-gradient(ellipse at center, #ddd6fe 0%, transparent 70%)', filter: 'blur(50px)' }} />
         <div className="absolute bottom-[-6%] right-[-4%] w-[58%] h-[44%] rounded-full opacity-[0.32]" style={{ background: 'radial-gradient(ellipse at center, #a7f3d0 0%, #6ee7b7 32%, transparent 70%)', filter: 'blur(52px)' }} />
         <div className="absolute bottom-[8%] left-[8%] w-[46%] h-[38%] rounded-full opacity-[0.30]" style={{ background: 'radial-gradient(ellipse at center, #fed7aa 0%, #fecaca 30%, transparent 70%)', filter: 'blur(48px)' }} />
-        <div className="absolute inset-0 opacity-[0.035]" style={{ backgroundImage: 'linear-gradient(rgba(15,23,42,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,0.07) 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
+        <div className="absolute inset-0 opacity-[0.035]" style={{ backgroundImage: 'linear-gradient(var(--border-light) 1px, transparent 1px), linear-gradient(90deg, var(--border-light) 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
       </div>
 
       {/* Sidebar Desktop — glass light */}
-      <aside className="hidden w-[248px] shrink-0 flex-col gap-4 p-4 md:flex">
-        <div className="glass-strong rounded-2xl p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500 to-cyan-400 flex items-center justify-center text-white font-bold text-xs font-mono shadow-lg">TA</div>
-            <div>
-              <div className="text-[11px] font-semibold tracking-widest text-slate-800 font-mono">TASK ASSIGNMENT</div>
-              <div className="text-[10px] text-slate-400 font-mono -mt-0.5">soft pastel · light</div>
-            </div>
-          </div>
-          <nav className="mt-4 space-y-3">
-            {SECTIONS.map((section) => (
-              <div key={section.title} className="space-y-1">
-                <div className="px-3 text-[10px] font-bold tracking-widest text-slate-400 uppercase font-mono">{section.title}</div>
-                {renderNavItems(section.items)}
+      <aside className={`hidden shrink-0 flex-col gap-4 p-4 md:flex transition-[width] duration-200 ${collapsed ? 'w-[68px]' : 'w-[248px]'}`}>
+        <div className="glass-strong rounded-2xl p-4 flex flex-col flex-1 min-h-0">
+          <div className={`flex items-center gap-3 ${collapsed ? 'justify-center' : ''}`}>
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500 to-cyan-400 flex items-center justify-center text-white font-bold text-xs font-mono shadow-lg shrink-0">TA</div>
+            {!collapsed && (
+              <div className="min-w-0 flex-1">
+                <div className="text-[11px] font-semibold tracking-widest font-mono truncate" style={{ color: 'var(--text-primary)' }}>TASK ASSIGNMENT</div>
+                <div className="text-[10px] font-mono -mt-0.5 truncate" style={{ color: 'var(--text-muted)' }}>soft pastel · {theme === 'light' ? 'light' : 'dark'}</div>
               </div>
-            ))}
-          </nav>
-        </div>
-        <div className="glass rounded-2xl p-3 flex items-center gap-3">
-          <img src="https://i.pravatar.cc/100?img=12" alt="user" className="w-8 h-8 rounded-full object-cover ring-1 ring-slate-200" />
-          <div className="min-w-0">
-            <div className="text-xs font-medium text-slate-700 font-mono truncate">Internal</div>
-            <div className="text-[10px] text-slate-400 font-mono truncate">System · {TODAY_STR}</div>
+            )}
           </div>
-          <span className="ml-auto w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)] shrink-0" />
+          <div className="flex-1 overflow-y-auto min-h-0">
+            {renderNav(collapsed)}
+          </div>
+          <div className={`mt-2 ${collapsed ? 'flex justify-center' : ''}`}>
+            <button
+              onClick={toggleCollapsed}
+              className="rounded-xl glass-subtle p-2 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
+              style={{ color: 'var(--text-secondary)' }}
+              aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            >
+              {collapsed ? <IconChevronsRight size={16} stroke={1.75} /> : <IconChevronsLeft size={16} stroke={1.75} />}
+            </button>
+          </div>
         </div>
+        {!collapsed && (
+          <div className="glass rounded-2xl p-3 flex items-center gap-3">
+            <img src="https://i.pravatar.cc/100?img=12" alt="user" className="w-8 h-8 rounded-full object-cover ring-1" style={{ borderColor: 'var(--border-light)' }} />
+            <div className="min-w-0">
+              <div className="text-xs font-medium font-mono truncate" style={{ color: 'var(--text-primary)' }}>Internal</div>
+              <div className="text-[10px] font-mono truncate" style={{ color: 'var(--text-muted)' }}>System · {TODAY_STR}</div>
+            </div>
+            <span className="ml-auto w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)] shrink-0" />
+          </div>
+        )}
       </aside>
 
       {/* Mobile overlay */}
-      {sidebarOpen && <div className="fixed inset-0 z-40 bg-slate-900/10 backdrop-blur-sm md:hidden" onClick={() => setSidebarOpen(false)} />}
+      {sidebarOpen && <div className="fixed inset-0 z-40 md:hidden" style={{ background: 'rgba(15, 23, 42, 0.5)' }} onClick={() => setSidebarOpen(false)} />}
       {/* Mobile drawer — glass light */}
       <aside className={`fixed inset-y-0 left-0 z-50 w-[280px] transform p-4 transition-transform duration-200 ease-in-out md:hidden ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="glass-strong rounded-2xl p-4 h-full flex flex-col">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500 to-cyan-400 flex items-center justify-center text-white font-bold text-xs font-mono">TA</div>
-              <span className="text-xs font-semibold tracking-widest text-slate-800 font-mono">TASK ASSIGNMENT</span>
+              <span className="text-xs font-semibold tracking-widest font-mono" style={{ color: 'var(--text-primary)' }}>TASK ASSIGNMENT</span>
             </div>
-            <button onClick={() => setSidebarOpen(false)} className="rounded-xl glass-subtle px-2 py-1 text-xs font-mono text-slate-500">[close]</button>
+            <button onClick={() => setSidebarOpen(false)} className="rounded-xl glass-subtle p-1.5" style={{ color: 'var(--text-secondary)' }} aria-label="Close menu">
+              <IconX size={16} stroke={1.75} />
+            </button>
           </div>
-          <nav className="mt-4 space-y-3 overflow-y-auto flex-1">
-            {SECTIONS.map((section) => (
-              <div key={section.title} className="space-y-1">
-                <div className="px-3 text-[10px] font-bold tracking-widest text-slate-400 uppercase font-mono">{section.title}</div>
-                {renderNavItems(section.items)}
-              </div>
-            ))}
-          </nav>
+          <div className="flex-1 overflow-y-auto min-h-0">
+            {renderNav(false)}
+          </div>
         </div>
       </aside>
 
       {/* Main */}
       <div className="flex flex-1 flex-col overflow-hidden min-w-0">
-        <header className="flex h-12 items-center justify-between gap-3 px-4 md:px-6 shrink-0">
+        <header className="flex h-12 items-center justify-between gap-3 px-4 md:px-6 shrink-0" style={{ borderBottom: '1px solid var(--border-light)' }}>
           <div className="flex items-center gap-3 min-w-0">
-            <button onClick={() => setSidebarOpen(true)} className="rounded-xl glass px-3 py-1.5 text-xs font-mono text-slate-600 md:hidden">MENU</button>
-            <div className="hidden md:block text-xs text-slate-400 font-mono truncate">Internal Task &amp; Assignment Management</div>
+            <button onClick={() => setSidebarOpen(true)} className="rounded-xl glass p-2 md:hidden" style={{ color: 'var(--text-secondary)' }} aria-label="Open menu">
+              <IconMenu2 size={18} stroke={1.75} />
+            </button>
+            <div className="hidden md:block text-xs font-mono truncate" style={{ color: 'var(--text-muted)' }}>Internal Task & Assignment Management</div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <div className="hidden lg:flex"><FontPicker compact /></div>
+            <button
+              onClick={toggleTheme}
+              className="rounded-xl glass p-2 transition-colors"
+              aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+              title={theme === 'light' ? 'Dark mode' : 'Light mode'}
+            >
+              {theme === 'light'
+                ? <IconMoon size={18} stroke={1.75} />
+                : <IconSun size={18} stroke={1.75} />}
+            </button>
             <span className="hidden sm:inline-flex items-center gap-2 glass-subtle rounded-full px-3 py-1">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-[11px] font-mono text-slate-600">Supabase</span>
+              <span className="text-[11px] font-mono" style={{ color: 'var(--text-secondary)' }}>Supabase</span>
             </span>
-            <span className="text-xs font-mono text-slate-400 hidden lg:inline">System Date: <span className="font-semibold text-slate-700">{TODAY_STR}</span></span>
+            <span className="text-xs font-mono hidden lg:inline" style={{ color: 'var(--text-muted)' }}>System Date: <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>{TODAY_STR}</span></span>
           </div>
         </header>
         <main className="flex-1 overflow-auto p-4 md:p-6">

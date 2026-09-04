@@ -55,7 +55,26 @@ export default function DashboardPage() {
         </div>
       )}
       {loading ? (
-        <div className="glass rounded-2xl p-12 text-center font-mono text-xs text-slate-400">Loading dashboard metrics...</div>
+        <div role="status" aria-label="Loading dashboard" className="space-y-4">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-9">
+            {Array.from({ length: 9 }).map((_, i) => (
+              <div key={i} className="glass rounded-2xl p-4 space-y-3">
+                <div className="skeleton h-2.5 w-14" />
+                <div className="skeleton h-6 w-10" />
+                <div className="skeleton h-3 w-16" />
+                <div className="skeleton h-1.5 w-full rounded-full" />
+              </div>
+            ))}
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="glass rounded-2xl p-3.5 flex items-center justify-between">
+                <div className="skeleton h-3 w-20" />
+                <div className="skeleton h-6 w-8" />
+              </div>
+            ))}
+          </div>
+        </div>
       ) : (
         <>
           <div className="glass-strong rounded-2xl px-5 py-4 flex flex-wrap items-end justify-between gap-3">
@@ -116,7 +135,7 @@ export default function DashboardPage() {
               </div>
               <span className="text-[11px] font-mono px-2.5 py-1 rounded-full glass-subtle border border-slate-200 text-slate-500">{stats.dueToday > 0 ? 'due today' : '—'}</span>
             </div>
-            <div className="glass rounded-2xl p-3.5 flex items-center justify-between" style={{ background: 'rgba(236,254,255,0.9)', borderColor: 'rgba(125,211,252,0.35)' }}>
+            <div className="glass glass-tint-progress rounded-2xl p-3.5 flex items-center justify-between">
               <div>
                 <div className="text-[10px] font-bold tracking-widest text-slate-400 uppercase font-mono">Due in 3 Days</div>
                 <div className="text-lg font-semibold font-mono text-slate-800">{stats.dueSoon}</div>

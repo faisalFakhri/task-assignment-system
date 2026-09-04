@@ -1,17 +1,17 @@
 import type { Task, TaskHistory, Attachment, Consultant, Programmer, Client } from '../types/task.types'
 
 export const mockConsultants: Consultant[] = [
-  { id: 'CON-1', name: 'Andi', active: true },
-  { id: 'CON-2', name: 'Budi', active: true },
-  { id: 'CON-3', name: 'Citra', active: true },
-  { id: 'CON-4', name: 'Dewi', active: false },
+  { id: 'CON-1', name: 'Andi', email: 'andi@company.com', active: true },
+  { id: 'CON-2', name: 'Budi', email: 'budi@company.com', active: true },
+  { id: 'CON-3', name: 'Citra', email: 'citra@company.com', active: true },
+  { id: 'CON-4', name: 'Dewi', email: 'dewi@company.com', active: false },
 ]
 
 export const mockProgrammers: Programmer[] = [
-  { id: 'PROG-1', name: 'Faisal', active: true },
-  { id: 'PROG-2', name: 'Gunawan', active: true },
-  { id: 'PROG-3', name: 'Hendra', active: true },
-  { id: 'PROG-4', name: 'Irwan', active: false },
+  { id: 'PROG-1', name: 'Faisal', email: 'faisal@company.com', active: true },
+  { id: 'PROG-2', name: 'Gunawan', email: 'gunawan@company.com', active: true },
+  { id: 'PROG-3', name: 'Hendra', email: 'hendra@company.com', active: true },
+  { id: 'PROG-4', name: 'Irwan', email: 'irwan@company.com', active: false },
 ]
 
 export const mockClients: Client[] = [

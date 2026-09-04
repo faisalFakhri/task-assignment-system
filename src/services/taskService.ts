@@ -307,22 +307,25 @@ export const taskService = {
     return (data || []).map((c: any) => ({
       id: c.consultant_id,
       name: c.consultant_name,
+      email: c.consultant_email || '',
       active: c.active,
     }))
   },
 
-  async createConsultant(payload: { name: string }): Promise<void> {
+  async createConsultant(payload: { name: string; email?: string }): Promise<void> {
     const consultantId = await this._nextConsultantId()
     const { error } = await supabase.from('consultants').insert({
       consultant_id: consultantId,
       consultant_name: payload.name,
+      consultant_email: payload.email || '',
       active: true,
     })
     if (error) throw error
   },
 
-  async updateConsultant(id: string, payload: { name: string; active?: boolean }): Promise<void> {
+  async updateConsultant(id: string, payload: { name: string; email?: string; active?: boolean }): Promise<void> {
     const fields: any = { consultant_name: payload.name }
+    if (payload.email !== undefined) fields.consultant_email = payload.email
     if (payload.active !== undefined) fields.active = payload.active
     const { error } = await supabase.from('consultants').update(fields).eq('consultant_id', id)
     if (error) throw error
@@ -339,22 +342,25 @@ export const taskService = {
     return (data || []).map((p: any) => ({
       id: p.programmer_id,
       name: p.programmer_name,
+      email: p.programmer_email || '',
       active: p.active,
     }))
   },
 
-  async createProgrammer(payload: { name: string }): Promise<void> {
+  async createProgrammer(payload: { name: string; email?: string }): Promise<void> {
     const programmerId = await this._nextProgrammerId()
     const { error } = await supabase.from('programmers').insert({
       programmer_id: programmerId,
       programmer_name: payload.name,
+      programmer_email: payload.email || '',
       active: true,
     })
     if (error) throw error
   },
 
-  async updateProgrammer(id: string, payload: { name: string; active?: boolean }): Promise<void> {
+  async updateProgrammer(id: string, payload: { name: string; email?: string; active?: boolean }): Promise<void> {
     const fields: any = { programmer_name: payload.name }
+    if (payload.email !== undefined) fields.programmer_email = payload.email
     if (payload.active !== undefined) fields.active = payload.active
     const { error } = await supabase.from('programmers').update(fields).eq('programmer_id', id)
     if (error) throw error
