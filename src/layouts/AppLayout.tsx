@@ -3,7 +3,6 @@ import { useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { TODAY_STR } from '../lib/dateUtils'
 import FontPicker from '../components/FontPicker'
-import FooterWalker from '../components/FooterWalker'
 interface NavItem {
   to: string
   label: string
@@ -152,7 +151,6 @@ export default function AppLayout() {
         <main className="flex-1 overflow-auto p-4 md:p-6">
           <Outlet />
         </main>
-        <FooterWalker />
       </div>
     </div>
   )
