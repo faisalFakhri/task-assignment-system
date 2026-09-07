@@ -637,7 +637,7 @@ export default function TasksPage() {
                     <tr
                       key={task.id}
                       onClick={() => handleRowClick(task.id)}
-                      className={`cursor-pointer hover:bg-white/[0.04] transition-colors ${
+                      className={`cursor-pointer hover:bg-white/[0.04] transition-colors align-top ${
                         isSelected ? 'bg-white/5' : ''
                       }`}
                     >
@@ -645,18 +645,18 @@ export default function TasksPage() {
                         <input type="checkbox" checked={selectedIds.has(task.id)} onChange={() => toggleOne(task.id)} className="rounded border-slate-300 bg-white text-violet-500 focus:ring-violet-500" />
                       </td>
                       <td className="whitespace-nowrap px-3 py-2 font-bold text-slate-800 font-mono">{task.id}</td>
-                      <td className="whitespace-nowrap px-3 py-2 text-slate-500 truncate">{task.consultant}</td>
+                      <td className="px-3 py-2 text-slate-500 break-words">{task.consultant}</td>
                       <td className="whitespace-nowrap px-3 py-2">
                         <TaskTypeBadge type={task.type} />
                       </td>
-                      <td className="whitespace-nowrap px-3 py-2 text-slate-800 truncate font-semibold">
+                      <td className="px-3 py-2 text-slate-800 break-words font-semibold">
                         {task.client}
                       </td>
-                      <td className="whitespace-nowrap px-3 py-2 text-slate-500 truncate">{task.screenReport}</td>
+                      <td className="px-3 py-2 text-slate-500 break-words">{task.screenReport}</td>
                       <td className="whitespace-nowrap px-3 py-2">
                         <StatusBadge status={task.status} />
                       </td>
-                      <td className="whitespace-nowrap px-3 py-2 text-slate-500 truncate">
+                      <td className="px-3 py-2 text-slate-500 break-words">
                         {task.programmer || <span className="italic text-slate-400">unassigned</span>}
                       </td>
                       <td className="whitespace-nowrap px-3 py-2 text-slate-500 font-mono">{task.targetDate || '-'}</td>
