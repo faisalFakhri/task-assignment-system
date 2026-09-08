@@ -69,10 +69,10 @@ export default function ConfirmDialog({
             type="button"
             disabled={loading}
             onClick={onConfirm}
-            className={`rounded border px-3 py-1.5 text-xs font-semibold min-w-[100px] text-center disabled:opacity-70 ${
+            className={`rounded-lg border px-3 py-1.5 text-xs font-semibold min-w-[100px] text-center disabled:opacity-70 ${
               destructive
                 ? 'border-red-600 bg-red-600 text-white hover:bg-red-700'
-                : 'border-blue-600 bg-blue-600 text-white hover:bg-blue-700'
+                : 'border-transparent bg-violet-600 text-white hover:bg-violet-700'
             }`}
           >
             {loading ? (loadingLabel ?? (destructive ? 'Archiving...' : 'Processing...')) : confirmLabel}

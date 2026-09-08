@@ -10,11 +10,21 @@ import ImageViewer from './ImageViewer'
 import ConfirmDialog from './ConfirmDialog'
 import { fieldLabel, resolveDisplayValue } from '../lib/historyDisplay'
 import { uploadFilesSequentially, validateAttachmentFile } from '../lib/attachments'
+import { IconPencil, IconArchive, IconX, IconTrash, IconUpload, IconClipboardText, IconHistory } from '@tabler/icons-react'
 
 interface TaskDetailProps {
   taskId: string
   onClose: () => void
   onEdit: (taskId: string) => void
+}
+
+function Field({ label, value, className = '' }: { label: string; value: React.ReactNode; className?: string }) {
+  return (
+    <div className={className}>
+      <div className="text-[11px] text-slate-400 mb-0.5">{label}</div>
+      <div className="text-[13px] text-slate-800">{value}</div>
+    </div>
+  )
 }
 
 export default function TaskDetail({ taskId, onClose, onEdit }: TaskDetailProps) {
@@ -93,74 +103,134 @@ export default function TaskDetail({ taskId, onClose, onEdit }: TaskDetailProps)
   }
   return (
     <div className="flex flex-col h-full text-sm" onPaste={handlePasteUpload}>
-      <div className="flex items-center justify-between border-b border-slate-200 p-4 shrink-0 glass-subtle">
-        <div className="flex items-center gap-2">
-          <span className="font-mono font-bold text-sm text-slate-800">{task.id}</span>
-          <StatusBadge status={task.status} />
-          <TaskTypeBadge type={task.type} />
+      {/* Header */}
+      <div className="px-5 py-4 border-b border-slate-200 flex items-start justify-between gap-3 shrink-0">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="font-mono text-xs font-bold text-slate-600">{task.id}</span>
+            <StatusBadge status={task.status} />
+            <TaskTypeBadge type={task.type} />
+          </div>
+          <h2 className="mt-1.5 text-lg font-semibold text-slate-900 leading-tight truncate">{task.client}</h2>
+          <p className="text-xs text-slate-500 font-mono truncate">{task.screenReport}</p>
         </div>
-        <div className="flex items-center gap-2">
-          <button onClick={() => onEdit(task.id)} className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-900 hover:bg-white/90">Edit</button>
-          {!task.archived && <button onClick={() => setShowArchiveConfirm(true)} className="rounded-full bg-red-500/15 border border-red-400/20 px-3 py-1 text-xs font-medium text-red-300 hover:bg-red-500/20">Archive</button>}
-          <button onClick={onClose} className="rounded-full glass-subtle border border-slate-200 px-3 py-1 text-xs text-slate-500 hover:text-slate-800">Close</button>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <button
+            onClick={() => onEdit(task.id)}
+            className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-white transition-colors"
+            style={{ background: 'var(--accent)' }}
+          >
+            <IconPencil size={13} stroke={2} /> Edit
+          </button>
+          {!task.archived && (
+            <button
+              onClick={() => setShowArchiveConfirm(true)}
+              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-red-600 border border-red-200 hover:bg-red-50"
+            >
+              <IconArchive size={13} stroke={2} /> Archive
+            </button>
+          )}
+          <button
+            onClick={onClose}
+            aria-label="Close task detail"
+            className="rounded-lg p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+          >
+            <IconX size={18} stroke={1.75} />
+          </button>
         </div>
       </div>
-      <div className="flex-1 overflow-y-auto p-5 space-y-5">
-        <div className="glass rounded-2xl p-4">
-          <div className="text-[10px] font-bold tracking-widest text-slate-400 font-mono uppercase">Client &amp; Screen</div>
-          <div className="text-base font-bold text-slate-800 leading-tight mt-1">{task.client}</div>
-          <div className="text-xs text-slate-500 font-mono">{task.screenReport}</div>
+
+      {/* Body */}
+      <div className="flex-1 overflow-y-auto px-5 py-5 space-y-6 divide-y divide-slate-100">
+        {/* Key facts */}
+        <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+          <Field label="Consultant" value={task.consultant} />
+          <Field label="Programmer" value={task.programmer || <span className="italic text-slate-400">Unassigned</span>} />
+          <Field label="Target date" value={<span className="font-mono">{task.targetDate || 'No target'}</span>} />
+          <div>
+            <div className="text-[11px] text-slate-400 mb-1">Deadline</div>
+            <DeadlineIndicator task={task} />
+          </div>
+          <Field label="SQL Server" value={<span className="font-mono text-slate-600">{task.sqlServer || '—'}</span>} />
+          <Field label="Database" value={<span className="font-mono text-slate-600">{task.database || '—'}</span>} />
         </div>
-        <div className="glass rounded-2xl p-4 grid grid-cols-2 gap-4 text-xs">
-          <div><span className="block text-[10px] font-bold tracking-widest text-slate-400 font-mono uppercase mb-1">Consultant</span><span className="text-slate-800 font-medium">{task.consultant}</span></div>
-          <div><span className="block text-[10px] font-bold tracking-widest text-slate-400 font-mono uppercase mb-1">Programmer</span><span className={`font-medium ${!task.programmer ? 'italic text-slate-400' : 'text-slate-800'}`}>{task.programmer || 'Unassigned'}</span></div>
-          <div><span className="block text-[10px] font-bold tracking-widest text-slate-400 font-mono uppercase mb-1">Target Date</span><span className="text-slate-700 font-mono">{task.targetDate || 'No Target'}</span></div>
-          <div><span className="block text-[10px] font-bold tracking-widest text-slate-400 font-mono uppercase mb-1">Deadline</span><DeadlineIndicator task={task} /></div>
-          <div><span className="block text-[10px] font-bold tracking-widest text-slate-400 font-mono uppercase mb-1">SQL Server</span><span className="text-slate-500 font-mono">{task.sqlServer || '-'}</span></div>
-          <div><span className="block text-[10px] font-bold tracking-widest text-slate-400 font-mono uppercase mb-1">Database</span><span className="text-slate-500 font-mono">{task.database || '-'}</span></div>
+
+        {/* Request */}
+        <div className="pt-5">
+          <div className="flex items-center gap-1.5 mb-2 text-[13px] font-semibold text-slate-700">
+            <IconClipboardText size={14} stroke={1.75} /> Request details
+          </div>
+          <div className="rounded-xl bg-slate-50 px-4 py-3 text-[13px] text-slate-700 whitespace-pre-wrap leading-relaxed border border-slate-100">{task.request}</div>
         </div>
-        <div className="glass rounded-2xl p-4 space-y-2">
-          <div className="text-[10px] font-bold tracking-widest text-slate-400 font-mono uppercase">Request Details</div>
-          <div className="glass-subtle rounded-xl p-3 text-xs text-slate-700 whitespace-pre-wrap leading-relaxed border border-slate-100">{task.request}</div>
-        </div>
-        <div className="glass rounded-2xl p-4 space-y-2">
-          <div className="text-[10px] font-bold tracking-widest text-slate-400 font-mono uppercase">Additional Notes</div>
-          <div className="glass-subtle rounded-xl p-3 text-xs text-slate-500 leading-relaxed whitespace-pre-wrap border border-slate-100">{task.notes || <span className="italic text-slate-400 font-mono">No notes logged.</span>}</div>
-        </div>
-        <div className="glass rounded-2xl p-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="text-[10px] font-bold tracking-widest text-slate-400 font-mono uppercase">Attachments ({loadingAttachments ? '...' : taskAttachments.length})</div>
-            <span className="text-[9px] font-mono text-slate-400 hidden sm:inline">Ctrl+V paste</span>
-            <button type="button" onClick={() => addFilesRef.current?.click()} disabled={uploading} className="rounded-full glass-subtle border border-slate-200 px-3 py-1 text-[10px] font-semibold text-slate-500 hover:text-slate-800 disabled:opacity-40">{uploading ? 'Uploading...' : '+ Add'}</button>
+
+        {/* Notes */}
+        {task.notes && (
+          <div className="pt-5">
+            <div className="text-[13px] font-semibold text-slate-700 mb-2">Additional notes</div>
+            <div className="rounded-xl bg-slate-50 px-4 py-3 text-[13px] text-slate-600 leading-relaxed whitespace-pre-wrap border border-slate-100">{task.notes}</div>
+          </div>
+        )}
+
+        {/* Attachments */}
+        <div className="pt-5">
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-[13px] font-semibold text-slate-700">
+              Attachments {!loadingAttachments && `(${taskAttachments.length})`}
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-mono text-slate-400 hidden sm:inline">Ctrl+V paste</span>
+              <button
+                type="button"
+                onClick={() => addFilesRef.current?.click()}
+                disabled={uploading}
+                className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-white transition-colors disabled:opacity-50"
+                style={{ background: 'var(--accent)' }}
+              >
+                <IconUpload size={13} stroke={2} /> {uploading ? 'Uploading…' : 'Upload'}
+              </button>
+            </div>
           </div>
           <input ref={addFilesRef} type="file" accept="image/png,image/jpeg,image/webp" multiple className="hidden" onChange={handleAddFiles} />
-          {loadingAttachments ? <div className="text-xs text-slate-400 font-mono">Loading attachments...</div>
-          : attachmentsError ? <div className="text-xs text-red-300 font-mono">Failed to load attachments.</div>
-          : taskAttachments.length === 0 ? <div className="text-xs text-slate-400 italic font-mono">No attachments yet.</div>
+          {loadingAttachments ? <div className="text-xs text-slate-400 italic">Loading attachments…</div>
+          : attachmentsError ? <div className="text-xs text-red-500 italic">Failed to load attachments.</div>
+          : taskAttachments.length === 0 ? <div className="text-xs text-slate-400 italic">No attachments yet.</div>
           : (
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {taskAttachments.map((att, idx) => (
-                <div key={att.id} onClick={() => setActiveImageIndex(idx)} className="group relative cursor-pointer rounded-xl overflow-hidden border border-slate-200 glass-subtle hover:border-violet-400/30">
-                  {brokenImages.has(att.id) ? <div className="h-20 grid place-items-center bg-slate-50 text-[10px] text-slate-400 font-mono">Image unavailable</div>
-                  : <img src={att.fileUrl} alt={att.description || att.fileName} onError={() => setBrokenImages(s => new Set(s).add(att.id))} className="h-20 w-full object-cover" />}
-                  <div className="p-1.5 text-[9px] font-mono text-slate-400 truncate border-t border-slate-100">{att.fileName}</div>
-                  <button type="button" onClick={e => { e.stopPropagation(); setDeleteTarget(att) }} className="absolute top-1 right-1 rounded-full bg-slate-900/70 backdrop-blur px-2 py-0.5 text-[9px] font-semibold text-slate-800 opacity-0 group-hover:opacity-100 hover:bg-red-600">Delete</button>
+                <div key={att.id} onClick={() => setActiveImageIndex(idx)} className="group relative cursor-pointer rounded-xl overflow-hidden border border-slate-200 hover:border-slate-300">
+                  {brokenImages.has(att.id) ? <div className="h-24 grid place-items-center bg-slate-50 text-[11px] text-slate-400 font-mono">Image unavailable</div>
+                  : <img src={att.fileUrl} alt={att.description || att.fileName} onError={() => setBrokenImages(s => new Set(s).add(att.id))} className="h-24 w-full object-cover" />}
+                  <div className="px-2 py-1 text-[10px] font-mono text-slate-500 truncate border-t border-slate-100">{att.fileName}</div>
+                  <button
+                    type="button"
+                    onClick={e => { e.stopPropagation(); setDeleteTarget(att) }}
+                    aria-label={`Delete ${att.fileName}`}
+                    className="absolute top-1.5 right-1.5 rounded-lg bg-black/60 p-1 text-white opacity-0 group-hover:opacity-100 hover:bg-red-600 transition-opacity"
+                  >
+                    <IconTrash size={12} stroke={2} />
+                  </button>
                 </div>
               ))}
             </div>
           )}
         </div>
-        <div className="glass rounded-2xl p-4 space-y-3">
-          <div className="text-[10px] font-bold tracking-widest text-slate-400 font-mono uppercase">Activity History</div>
-          {loadingHistory ? <div className="text-xs text-slate-400 font-mono">Loading activity...</div>
-          : historyError ? <div className="text-xs text-red-300 font-mono">Failed to load activity.</div>
+
+        {/* Activity */}
+        <div className="pt-5">
+          <div className="flex items-center gap-1.5 mb-3 text-[13px] font-semibold text-slate-700">
+            <IconHistory size={14} stroke={1.75} /> Activity
+          </div>
+          {loadingHistory ? <div className="text-xs text-slate-400 italic">Loading activity…</div>
+          : historyError ? <div className="text-xs text-red-500 italic">Failed to load activity.</div>
           : (
-            <div className="space-y-3 font-mono text-[11px] relative pl-4 border-l border-slate-200">
+            <div className="space-y-4">
               {taskHistory.map(log => (
-                <div key={log.id} className="relative">
-                  <span className="absolute -left-[21px] top-1 h-2 w-2 rounded-full bg-white/20 border border-slate-300 shadow-[0_0_8px_rgba(255,255,255,0.15)]" />
-                  <div className="flex justify-between text-[9px] text-slate-400"><span className="font-semibold tracking-wide">{log.action}</span><span>{log.timestamp}</span></div>
-                  <div className="text-slate-500 text-xs font-sans mt-0.5">
+                <div key={log.id} className="relative pl-4 border-l border-slate-200">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <span className="text-[11px] font-mono font-bold text-slate-500">{log.action}</span>
+                    <span className="text-[10px] font-mono text-slate-400 shrink-0">{log.timestamp}</span>
+                  </div>
+                  <div className="text-[12px] text-slate-600 mt-0.5">
                     {log.action === 'CREATE' && 'Task created'}
                     {log.action === 'COMPLETE' && 'Task marked Done'}
                     {log.action === 'ARCHIVE' && 'Task archived'}
@@ -173,6 +243,7 @@ export default function TaskDetail({ taskId, onClose, onEdit }: TaskDetailProps)
           )}
         </div>
       </div>
+
       {activeImageIndex >= 0 && <ImageViewer key={activeImageIndex} images={taskAttachments} currentIndex={activeImageIndex} onIndexChange={setActiveImageIndex} onClose={() => setActiveImageIndex(-1)} />}
       <ConfirmDialog open={showArchiveConfirm} title="Archive task?" message={`Task ${task.id} will be moved to Archived.`} confirmLabel="Archive Task" destructive loading={archiving} onConfirm={handleArchive} onCancel={() => setShowArchiveConfirm(false)} />
       <ConfirmDialog open={deleteTarget !== null} title="Delete attachment?" message="This attachment will be removed." confirmLabel="Delete Attachment" destructive loadingLabel="Deleting..." loading={deleting} onConfirm={handleDeleteConfirm} onCancel={() => setDeleteTarget(null)} />

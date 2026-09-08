@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { IconArrowLeft, IconArrowRight, IconX } from '@tabler/icons-react'
 
 interface MockImage {
   id: string
@@ -21,48 +22,43 @@ export default function ImageViewer({ images, currentIndex, onClose, onIndexChan
   const current = images[currentIndex]
 
   const next = () => {
-    if (currentIndex < images.length - 1) {
-      onIndexChange(currentIndex + 1)
-    }
+    if (currentIndex < images.length - 1) onIndexChange(currentIndex + 1)
   }
-
   const prev = () => {
-    if (currentIndex > 0) {
-      onIndexChange(currentIndex - 1)
-    }
+    if (currentIndex > 0) onIndexChange(currentIndex - 1)
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex flex-col bg-black/80 backdrop-blur-md text-white font-mono text-xs">
+    <div className="fixed inset-0 z-[100] flex flex-col bg-black/85 text-white">
       {/* Top Bar */}
-      <div className="flex h-12 items-center justify-between border-b border-white/10 glass-subtle px-4">
-        <div>
-          <span className="font-semibold text-white">{current.fileName}</span>
-          <span className="ml-2 text-white/30">
-            ({currentIndex + 1} of {images.length})
-          </span>
+      <div className="flex h-12 items-center justify-between px-4 shrink-0">
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="text-xs font-medium truncate">{current.fileName}</span>
+          <span className="text-xs text-white/40">({currentIndex + 1} of {images.length})</span>
         </div>
         <button
           onClick={onClose}
-          className="rounded-full glass-subtle border border-white/10 px-3 py-1 hover:bg-white/10"
+          aria-label="Close image viewer"
+          className="rounded-lg p-2 text-white/70 hover:text-white hover:bg-white/10"
         >
-          [CLOSE]
+          <IconX size={18} stroke={1.75} />
         </button>
       </div>
 
-      {/* Main Preview Container */}
-      <div className="flex flex-1 items-center justify-between p-4 relative">
+      {/* Main Preview */}
+      <div className="flex flex-1 items-center justify-between px-3 pb-4 min-h-0 gap-3">
         <button
           onClick={prev}
           disabled={currentIndex === 0}
-          className="z-10 rounded border border-white/10 glass-subtle p-3 text-lg hover:bg-gray-800 disabled:opacity-30 disabled:hover:glass-subtle"
+          aria-label="Previous image"
+          className="rounded-lg border border-white/15 p-2.5 text-white/70 hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed shrink-0"
         >
-          &larr;
+          <IconArrowLeft size={20} stroke={1.75} />
         </button>
 
-        <div className="flex max-h-[70vh] max-w-[80vw] flex-col items-center justify-center">
+        <div className="flex max-h-full min-w-0 flex-col items-center justify-center">
           {imageError ? (
-            <div className="flex max-h-[60vh] min-h-[200px] items-center justify-center border border-white/10 glass-subtle px-6 text-sm text-white/30">
+            <div className="flex min-h-[200px] items-center justify-center border border-white/10 px-6 text-sm text-white/40">
               Image unavailable
             </div>
           ) : (
@@ -70,22 +66,21 @@ export default function ImageViewer({ images, currentIndex, onClose, onIndexChan
               src={current.fileUrl}
               alt={current.description || current.fileName}
               onError={() => setImageError(true)}
-              className="max-h-[60vh] object-contain border border-white/10"
+              className="max-h-[75vh] max-w-full object-contain"
             />
           )}
           {current.description && (
-            <p className="mt-4 text-center text-sm text-white/70 max-w-xl glass-subtle/40 p-2 rounded">
-              {current.description}
-            </p>
+            <p className="mt-3 text-sm text-white/70 max-w-xl text-center">{current.description}</p>
           )}
         </div>
 
         <button
           onClick={next}
           disabled={currentIndex === images.length - 1}
-          className="z-10 rounded border border-white/10 glass-subtle p-3 text-lg hover:bg-gray-800 disabled:opacity-30 disabled:hover:glass-subtle"
+          aria-label="Next image"
+          className="rounded-lg border border-white/15 p-2.5 text-white/70 hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed shrink-0"
         >
-          &rarr;
+          <IconArrowRight size={20} stroke={1.75} />
         </button>
       </div>
     </div>

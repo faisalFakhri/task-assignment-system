@@ -715,14 +715,25 @@ export default function TasksPage() {
         )}
       </div>
 
-      {/* Side Panel Drawer (Detail only) */}
+      {/* Task Detail Modal */}
       {activePanel === 'detail' && selectedTaskId && (
-        <div className="absolute inset-y-0 right-0 z-40 w-full sm:w-[500px] lg:w-[600px] lg:relative lg:inset-auto lg:z-10 glass-strong border-l border-slate-200 flex flex-col h-full shadow-2xl lg:shadow-none animate-in slide-in-from-right duration-150">
-          <TaskDetail
-            taskId={selectedTaskId}
-            onClose={handleClosePanel}
-            onEdit={handleEditClick}
+        <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-0 sm:p-4" role="dialog" aria-modal="true">
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={handleClosePanel}
           />
+          <div className="relative w-full sm:max-w-[680px] h-[100dvh] sm:h-[90dvh] sm:max-h-[90dvh] flex flex-col rounded-t-2xl sm:rounded-2xl overflow-hidden animate-in slide-in-from-bottom sm:zoom-in-95 duration-200"
+            style={{ background: 'var(--bg-primary)', border: '1px solid var(--border-light)', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.35)' }}
+          >
+            <div className="sm:hidden flex justify-center pt-3 pb-1 shrink-0">
+              <div className="w-10 h-1 rounded-full bg-slate-300" />
+            </div>
+            <TaskDetail
+              taskId={selectedTaskId}
+              onClose={handleClosePanel}
+              onEdit={handleEditClick}
+            />
+          </div>
         </div>
       )}
 
