@@ -18,7 +18,7 @@ const corsHeaders = {
 
 interface EmailPayload {
   task_id: string
-  action: 'create' | 'update'
+  action: 'create' | 'update' | 'reopen'
   old_status?: string
   new_status?: string
 }
@@ -50,6 +50,15 @@ function formatDate(iso: string) {
   })
 }
 
+function escapeHtml(value: unknown) {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;')
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -61,6 +70,15 @@ serve(async (req) => {
 
     if (!task_id) {
       return new Response(JSON.stringify({ error: 'task_id required' }), {
+        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    if (
+      action === 'reopen' &&
+      (!['Done', 'QC'].includes(old_status || '') || !['Open', 'Reopen'].includes(new_status || ''))
+    ) {
+      return new Response(JSON.stringify({ error: 'Invalid reopen status transition' }), {
         status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
@@ -92,6 +110,56 @@ serve(async (req) => {
     const consultantName = task.consultant?.consultant_name || 'Consultant'
     const programmerName = task.programmer?.programmer_name || 'Programmer'
     const clientName = task.client?.client_name || 'Client'
+
+    if (action === 'reopen') {
+      if (!programmerEmail) {
+        return new Response(JSON.stringify({ sent: false, reason: 'No programmer email' }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
+      const safeTaskId = escapeHtml(task.task_id)
+      const safeProgrammerName = escapeHtml(programmerName)
+      const safeConsultantName = escapeHtml(consultantName)
+      const safeClientName = escapeHtml(clientName)
+      const safeScreenReport = escapeHtml(task.screen_report)
+      const safeType = escapeHtml(task.type)
+      const safeRequest = escapeHtml(task.request)
+      const safeOldStatus = escapeHtml(old_status || 'Done/QC')
+      const safeNewStatus = escapeHtml(new_status || task.status)
+
+      await sendEmail(programmerEmail, `🔁 Task Reopened: ${task.task_id} - ${task.screen_report}`, `
+        <div style="font-family: system-ui, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #f97316;">Task Dibuka Ulang</h2>
+          <p>Hi <b>${safeProgrammerName}</b>,</p>
+          <p>Pekerjaan ini dibuka ulang. Mohon direview dan dilanjutkan kembali.</p>
+
+          <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
+            <tr><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;"><b>Task ID</b></td><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${safeTaskId}</td></tr>
+            <tr><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;"><b>Client</b></td><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${safeClientName}</td></tr>
+            <tr><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;"><b>Type</b></td><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${safeType}</td></tr>
+            <tr><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;"><b>Screen/Report</b></td><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${safeScreenReport}</td></tr>
+            <tr><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;"><b>Request</b></td><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${safeRequest}</td></tr>
+            <tr><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;"><b>Status</b></td><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${safeOldStatus} → ${safeNewStatus}</td></tr>
+            <tr><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;"><b>Consultant</b></td><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${safeConsultantName}</td></tr>
+          </table>
+
+          <p style="margin-top: 24px;">
+            <a href="https://faisalfakhri.github.io/task-assignment-system/#/tasks?id=${encodeURIComponent(task.task_id)}"
+               style="background: #f97316; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; display: inline-block;">
+              Buka Task
+            </a>
+          </p>
+
+          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;">
+          <p style="color: #6b7280; font-size: 12px;">Task Assignment System — Auto-generated email</p>
+        </div>
+      `)
+
+      return new Response(JSON.stringify({ sent: true, to: programmerEmail }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
 
     if (action === 'create') {
       if (!programmerEmail) {

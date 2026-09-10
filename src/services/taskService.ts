@@ -1,5 +1,6 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { notifySheets } from '../lib/sheetSync'
+import { isTaskReopened, notifyTaskReopened } from '../lib/emailNotifications'
 import type {
   TaskReadModel,
   CreateTaskPayload,
@@ -189,6 +190,16 @@ export const taskService = {
 
     const { error } = await supabase.from('tasks').update(fields).eq('task_id', taskId)
     if (error) throw error
+
+    // Re-notify the assigned programmer when a completed/reviewed task is opened again.
+    if (updatedFields.status && isTaskReopened(oldTask.status, updatedFields.status)) {
+      try {
+        await notifyTaskReopened(supabase, taskId, oldTask.status, updatedFields.status)
+      } catch (emailError) {
+        // The task update already succeeded. Keep that result, but leave a diagnostic for retry/ops.
+        console.error(`[taskService] Failed to send reopen email for ${taskId}:`, emailError)
+      }
+    }
 
     // Sheets mirror (fire-and-forget) — build row from merged task
     try {
