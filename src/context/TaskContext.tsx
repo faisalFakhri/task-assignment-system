@@ -1,5 +1,5 @@
 /* eslint-disable react/only-export-components */
-import { createContext, useContext, useState, useEffect, type ReactNode, useCallback } from 'react'
+import { createContext, useContext, useState, useEffect, type ReactNode, useCallback, useRef } from 'react'
 import type {
   Task,
   TaskHistory,
@@ -22,6 +22,7 @@ interface TaskContextType {
   programmers: Programmer[]
   clients: Client[]
   loading: boolean
+  refreshing: boolean
   error: string | null
   createTask: (
     taskData: Omit<Task, 'id' | 'createdAt' | 'updatedAt' | 'completedAt' | 'archived'>
@@ -56,7 +57,9 @@ export function TaskProvider({ children }: { children: ReactNode }) {
   const [clients, setClients] = useState<Client[]>([])
 
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const refreshInFlight = useRef(false)
 
   const isApi = taskService.isApiMode()
 
@@ -119,6 +122,58 @@ export function TaskProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     refreshData()
   }, [refreshData])
+
+  const refreshTasks = useCallback(async () => {
+    if (!isApi || refreshInFlight.current) return
+
+    refreshInFlight.current = true
+    setRefreshing(true)
+    try {
+      const apiTasks = await taskService.getTasks(true)
+      setTasks(previousTasks => {
+        const previousById = new Map(previousTasks.map(task => [task.id, task]))
+        return apiTasks.map(nextTask => {
+          const previousTask = previousById.get(nextTask.taskId)
+          const mappedTask = mapTaskReadToTask(nextTask)
+
+          // Keep object references for unchanged tasks so an open edit form does not reset.
+          if (
+            previousTask &&
+            JSON.stringify(previousTask) === JSON.stringify(mappedTask)
+          ) {
+            return previousTask
+          }
+          return mappedTask
+        })
+      })
+      setError(null)
+    } catch (err: any) {
+      console.error('Background task refresh failed:', err)
+      setError(err.message || 'Could not refresh tasks. Showing the last available data.')
+    } finally {
+      refreshInFlight.current = false
+      setRefreshing(false)
+    }
+  }, [isApi, mapTaskReadToTask])
+
+  useEffect(() => {
+    if (!isApi) return
+
+    const intervalId = window.setInterval(() => { void refreshTasks() }, 15000)
+    const handleWindowFocus = () => { void refreshTasks() }
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') void refreshTasks()
+    }
+
+    window.addEventListener('focus', handleWindowFocus)
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    return () => {
+      window.clearInterval(intervalId)
+      window.removeEventListener('focus', handleWindowFocus)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [isApi, refreshTasks])
 
   // Get task history on demand
   const fetchTaskHistory = async (taskId: string): Promise<TaskHistory[]> => {
@@ -425,6 +480,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
         programmers,
         clients,
         loading,
+        refreshing,
         error,
         createTask,
         updateTask,

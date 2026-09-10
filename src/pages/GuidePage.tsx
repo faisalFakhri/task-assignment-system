@@ -158,7 +158,7 @@ export default function GuidePage() {
         <div className="mt-4 space-y-3 text-sm text-slate-600 font-mono">
           <div className="glass-subtle rounded-xl p-3 border border-slate-200">
             <div className="font-semibold text-slate-700">Task baru nggak muncul?</div>
-            <div className="text-xs text-slate-500 mt-1">Tunggu 1-2 detik (auto-refresh). Kalau masih nggak: tekan <kbd className="px-1.5 py-0.5 bg-slate-100 rounded text-xs border">Ctrl+Shift+R</kbd></div>
+            <div className="text-xs text-slate-500 mt-1">Data diperbarui otomatis tiap 15 detik dan saat tab aktif lagi. Kalau masih nggak: tekan <kbd className="px-1.5 py-0.5 bg-slate-100 rounded text-xs border">Ctrl+Shift+R</kbd></div>
           </div>
           <div className="glass-subtle rounded-xl p-3 border border-slate-200">
             <div className="font-semibold text-slate-700">Error "violates check constraint tasks_status_check"?</div>

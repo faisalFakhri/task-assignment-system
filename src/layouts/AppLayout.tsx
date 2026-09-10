@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { TODAY_STR } from '../lib/dateUtils'
 import { useTheme } from '../context/ThemeContext'
+import { useTasks } from '../context/TaskContext'
 import {
   IconMenu2, IconMoon, IconSun, IconX, IconDashboard, IconListCheck,
   IconClipboardCheck, IconFolderOpen, IconUserPlus, IconProgress, IconPlayerPause,
@@ -69,6 +70,7 @@ function writeLocalValue(key: string, value: string) {
 export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { theme, toggleTheme } = useTheme()
+  const { refreshing } = useTasks()
   const location = useLocation()
 
   const isLinkActive = (to: string) => {
@@ -274,8 +276,8 @@ export default function AppLayout() {
                 : <IconSun size={18} stroke={1.75} />}
             </button>
             <span className="hidden sm:inline-flex items-center gap-2 glass-subtle rounded-full px-3 py-1">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-[11px] font-mono" style={{ color: 'var(--text-secondary)' }}>Supabase</span>
+              <span className={`w-2 h-2 rounded-full ${refreshing ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400'}`} />
+              <span className="text-[11px] font-mono" style={{ color: 'var(--text-secondary)' }}>{refreshing ? 'Updating...' : 'Supabase'}</span>
             </span>
             <span className="text-xs font-mono hidden lg:inline" style={{ color: 'var(--text-muted)' }}>System Date: <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>{TODAY_STR}</span></span>
           </div>

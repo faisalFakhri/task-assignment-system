@@ -44,6 +44,7 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
   const [pendingFiles, setPendingFiles] = useState<PendingAttachmentFile[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
   const pendingFilesRef = useRef<PendingAttachmentFile[]>([])
+  const initializedTaskRef = useRef<string | null>(null)
 
   // Validation Error State
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -51,6 +52,8 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
   // Initialize fields in edit/create modes
   useEffect(() => {
     if (isEditMode && taskToEdit) {
+      if (initializedTaskRef.current === taskId) return
+      initializedTaskRef.current = taskId ?? null
       setConsultant(taskToEdit.consultant)
       setType(taskToEdit.type)
       setClient(taskToEdit.client)
@@ -63,6 +66,7 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
       setTargetDate(taskToEdit.targetDate || '')
       setNotes(taskToEdit.notes)
     } else {
+      initializedTaskRef.current = null
       setConsultant('')
       setType('Bugs')
       setClient('')
@@ -75,7 +79,7 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
       setTargetDate('')
       setNotes('')
     }
-  }, [isEditMode, taskToEdit])
+  }, [isEditMode, taskId, taskToEdit])
 
   useEffect(() => {
     pendingFilesRef.current = pendingFiles
@@ -358,12 +362,12 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
             <label className="block text-[11px] font-semibold mb-1" style={{ color: 'var(--text-muted)' }}>
               Screen / Report Name *
             </label>
-            <input
-              type="text"
+            <textarea
               value={screenReport}
               onChange={e => setScreenReport(e.target.value)}
               placeholder="e.g. Sales Invoice Screen"
-              className="w-full rounded-xl border px-3 py-2.5 text-sm focus:outline-none focus:border-violet-400/50 focus:ring-1 focus:ring-violet-400/20"
+              rows={2}
+              className="w-full resize-y rounded-xl border px-3 py-2.5 text-sm leading-relaxed focus:outline-none focus:border-violet-400/50 focus:ring-1 focus:ring-violet-400/20"
               style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)', borderColor: errors.screenReport ? 'rgba(239,68,68,0.4)' : 'var(--border-light)' }}
             />
             {errors.screenReport && <p className="text-[10px] text-red-400 mt-1 font-mono">{errors.screenReport}</p>}
@@ -383,8 +387,8 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
               value={request}
               onChange={e => setRequest(e.target.value)}
               placeholder="Provide detail requirement description..."
-              rows={3}
-              className="w-full rounded-xl border px-3 py-2.5 text-sm focus:outline-none focus:border-violet-400/50 focus:ring-1 focus:ring-violet-400/20 leading-relaxed"
+              rows={6}
+              className="w-full resize-y rounded-xl border px-3 py-2.5 text-sm focus:outline-none focus:border-violet-400/50 focus:ring-1 focus:ring-violet-400/20 leading-relaxed"
               style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)', borderColor: errors.request ? 'rgba(239,68,68,0.4)' : 'var(--border-light)' }}
             />
             {errors.request && <p className="text-[10px] text-red-400 mt-1 font-mono">{errors.request}</p>}
@@ -479,8 +483,8 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
               value={notes}
               onChange={e => setNotes(e.target.value)}
               placeholder="Internal notes..."
-              rows={2}
-              className="w-full rounded-xl glass-subtle border p-2.5 focus:outline-none focus:border-violet-400/50 text-xs leading-relaxed"
+              rows={4}
+              className="w-full resize-y rounded-xl glass-subtle border p-2.5 focus:outline-none focus:border-violet-400/50 text-xs leading-relaxed"
               style={{ borderColor: 'var(--border-light)' }}
             />
           </div>
