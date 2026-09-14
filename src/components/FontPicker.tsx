@@ -30,7 +30,7 @@ export default function FontPicker({ compact = false }: { compact?: boolean }) {
           className="glass-subtle rounded-full px-2.5 py-1 text-[11px] font-mono text-slate-700 border border-slate-200 outline-none focus:border-slate-300 max-w-[160px]"
           title="Pilih font — kesimpen di browser kamu aja"
         >
-          <option value="">Default (Inter)</option>
+          <option value="">Default (Manrope)</option>
           {FONT_OPTIONS.map((f) => (
             <option key={f.id} value={f.id}>{f.label} {f.source === 'google' ? '· G' : f.source === 'system' ? '· S' : '· L'}</option>
           ))}
@@ -56,7 +56,7 @@ export default function FontPicker({ compact = false }: { compact?: boolean }) {
             onChange={(e) => onChange(e.target.value)}
             className="w-full glass-subtle rounded-xl px-3 py-2.5 text-xs font-mono text-slate-800/90 border border-slate-200 outline-none focus:border-violet-400/30"
           >
-            <option value="">Default — Inter (bawaan)</option>
+            <option value="">Default — Manrope (bawaan)</option>
             {FONT_OPTIONS.map((f) => (
               <option key={f.id} value={f.id} style={{ fontFamily: f.cssFamily }}>
                 {f.label} {f.source === 'google' ? '(Google)' : f.source === 'system' ? '(System)' : '(Local)'}
@@ -72,12 +72,12 @@ export default function FontPicker({ compact = false }: { compact?: boolean }) {
         </label>
 
         <div className="glass-subtle rounded-xl p-3 border border-slate-200">
-          <div className="text-[11px] font-mono text-slate-400 mb-1">Preview — {current ? current.label : 'Inter (Default)'} </div>
+          <div className="text-[11px] font-mono text-slate-400 mb-1">Preview — {current ? current.label : 'Manrope (Default)'} </div>
           <div className="text-sm leading-6 text-slate-800" style={{ fontFamily: current ? current.cssFamily : undefined }}>
             The quick brown fox jumps over the lazy dog — 0123456789
           </div>
           <div className="text-xs leading-5 text-slate-500 mt-1" style={{ fontFamily: current ? current.cssFamily : undefined }}>
-            Pack my box with five dozen liquor jugs. — Task Assignment System (Varian C · dark glass)
+            Pack my box with five dozen liquor jugs. — Task Assignment System (Soft Utility · blue workspace)
           </div>
           {current?.note && (
             <div className="mt-2 text-[11px] font-mono text-amber-200/70 bg-amber-500/10 border border-amber-500/20 rounded-lg px-2.5 py-1.5">
@@ -91,7 +91,7 @@ export default function FontPicker({ compact = false }: { compact?: boolean }) {
             Reset ke Default
           </button>
           <span className="text-[11px] font-mono text-slate-400 self-center">
-            Aktif: <b className="text-slate-500">{current ? current.label : 'Inter'}</b> · kesimpen di browser ini aja
+            Aktif: <b className="text-slate-500">{current ? current.label : 'Manrope'}</b> · kesimpen di browser ini aja
           </span>
         </div>
       </div>

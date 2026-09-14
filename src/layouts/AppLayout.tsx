@@ -126,8 +126,8 @@ export default function AppLayout() {
 
   const navItemClass = (active: boolean) =>
     active
-      ? 'bg-slate-900 text-white font-semibold shadow dark:bg-slate-100 dark:text-slate-900'
-      : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100'
+      ? 'bg-blue-50 text-blue-700 font-semibold shadow-sm ring-1 ring-blue-100 dark:bg-blue-500/15 dark:text-blue-200 dark:ring-blue-400/20'
+      : 'text-slate-500 hover:bg-blue-50/70 hover:text-blue-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100'
 
   const renderNavItems = (items: NavItem[], rail: boolean) => (
     <div className={`${rail ? 'space-y-1' : 'space-y-0.5'}`}>
@@ -188,23 +188,21 @@ export default function AppLayout() {
       {/* Ambient mesh — adaptive */}
       <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
         <div className="absolute inset-0" style={{ background: 'var(--bg-primary)' }} />
-        <div className="absolute -top-[28%] -left-[16%] w-[78%] h-[68%] rounded-full opacity-[0.55]" style={{ background: 'radial-gradient(ellipse at center, #e9d5ff 0%, #ddd6fe 30%, transparent 70%)', filter: 'blur(44px)' }} />
-        <div className="absolute -top-[8%] -right-[12%] w-[68%] h-[56%] rounded-full opacity-[0.40]" style={{ background: 'radial-gradient(ellipse at center, #bae6fd 0%, #93c5fd 32%, transparent 70%)', filter: 'blur(44px)' }} />
-        <div className="absolute top-[30%] left-[20%] w-[52%] h-[46%] rounded-full opacity-[0.28]" style={{ background: 'radial-gradient(ellipse at center, #ddd6fe 0%, transparent 70%)', filter: 'blur(50px)' }} />
-        <div className="absolute bottom-[-6%] right-[-4%] w-[58%] h-[44%] rounded-full opacity-[0.32]" style={{ background: 'radial-gradient(ellipse at center, #a7f3d0 0%, #6ee7b7 32%, transparent 70%)', filter: 'blur(52px)' }} />
-        <div className="absolute bottom-[8%] left-[8%] w-[46%] h-[38%] rounded-full opacity-[0.30]" style={{ background: 'radial-gradient(ellipse at center, #fed7aa 0%, #fecaca 30%, transparent 70%)', filter: 'blur(48px)' }} />
-        <div className="absolute inset-0 opacity-[0.035]" style={{ backgroundImage: 'linear-gradient(var(--border-light) 1px, transparent 1px), linear-gradient(90deg, var(--border-light) 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
+        <div className="absolute -top-[30%] -left-[12%] w-[72%] h-[60%] rounded-full opacity-[0.55]" style={{ background: 'radial-gradient(ellipse at center, #dbeafe 0%, #e0f2fe 36%, transparent 70%)', filter: 'blur(50px)' }} />
+        <div className="absolute -top-[12%] -right-[14%] w-[62%] h-[52%] rounded-full opacity-[0.48]" style={{ background: 'radial-gradient(ellipse at center, #e0e7ff 0%, #dbeafe 38%, transparent 70%)', filter: 'blur(48px)' }} />
+        <div className="absolute bottom-[-10%] right-[12%] w-[50%] h-[42%] rounded-full opacity-[0.24]" style={{ background: 'radial-gradient(ellipse at center, #ccfbf1 0%, transparent 72%)', filter: 'blur(56px)' }} />
+        <div className="absolute inset-0 opacity-[0.025]" style={{ backgroundImage: 'linear-gradient(var(--border-light) 1px, transparent 1px), linear-gradient(90deg, var(--border-light) 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
       </div>
 
       {/* Sidebar Desktop — glass light */}
       <aside className={`hidden shrink-0 flex-col gap-4 p-4 md:flex transition-[width] duration-200 ${collapsed ? 'w-[68px]' : 'w-[248px]'}`}>
         <div className="glass-strong rounded-2xl p-4 flex flex-col flex-1 min-h-0">
           <div className={`flex items-center gap-3 ${collapsed ? 'justify-center' : ''}`}>
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500 to-cyan-400 flex items-center justify-center text-white font-bold text-xs font-mono shadow-lg shrink-0">TA</div>
+            <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold text-xs font-mono shadow-lg shadow-blue-600/20 shrink-0">TA</div>
             {!collapsed && (
               <div className="min-w-0 flex-1">
-                <div className="text-[11px] font-semibold tracking-widest font-mono truncate" style={{ color: 'var(--text-primary)' }}>TASK ASSIGNMENT</div>
-                <div className="text-[10px] font-mono -mt-0.5 truncate" style={{ color: 'var(--text-muted)' }}>soft pastel · {theme === 'light' ? 'light' : 'dark'}</div>
+                <div className="text-[13px] font-bold tracking-tight truncate" style={{ color: 'var(--text-primary)' }}>Task Assignment</div>
+                <div className="text-[10px] font-medium -mt-0.5 truncate" style={{ color: 'var(--text-muted)' }}>Work together, better.</div>
               </div>
             )}
           </div>
@@ -242,8 +240,8 @@ export default function AppLayout() {
         <div className="glass-strong rounded-2xl p-4 h-full flex flex-col">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500 to-cyan-400 flex items-center justify-center text-white font-bold text-xs font-mono">TA</div>
-              <span className="text-xs font-semibold tracking-widest font-mono" style={{ color: 'var(--text-primary)' }}>TASK ASSIGNMENT</span>
+              <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold text-xs font-mono shadow-lg shadow-blue-600/20">TA</div>
+              <span className="text-[13px] font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>Task Assignment</span>
             </div>
             <button onClick={() => setSidebarOpen(false)} className="rounded-xl glass-subtle p-1.5" style={{ color: 'var(--text-secondary)' }} aria-label="Close menu">
               <IconX size={16} stroke={1.75} />

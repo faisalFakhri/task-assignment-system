@@ -5,7 +5,7 @@ export default function SettingsPage() {
     <div className="space-y-4 max-w-3xl">
       <div className="glass-strong rounded-2xl px-5 py-4">
         <h2 className="text-sm font-semibold tracking-tight text-slate-800 font-mono">SYSTEM_SETTINGS</h2>
-        <p className="text-xs text-slate-400 font-mono mt-0.5">Thresholds &amp; constants · dark glass Varian C · Supabase backend</p>
+        <p className="text-xs text-slate-400 font-mono mt-0.5">Thresholds &amp; constants · soft utility workspace · Supabase backend</p>
       </div>
       <div className="glass rounded-2xl p-5">
         <FontPicker />
@@ -33,7 +33,7 @@ export default function SettingsPage() {
         </div>
         <div className="flex justify-between items-center py-2 pt-3">
           <span className="font-semibold text-slate-400 text-[11px]">UI_VARIANT</span>
-          <span className="glass-subtle rounded-full px-2.5 py-1 text-[11px] text-slate-500 border border-slate-200">Varian C · dark glass · blur 16-20</span>
+          <span className="glass-subtle rounded-full px-2.5 py-1 text-[11px] text-slate-500 border border-slate-200">Soft Utility · blue workspace</span>
         </div>
       </div>
     </div>
