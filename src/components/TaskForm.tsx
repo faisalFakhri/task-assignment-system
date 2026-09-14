@@ -51,6 +51,7 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
   const fileInputRef = useRef<HTMLInputElement>(null)
   const pendingFilesRef = useRef<PendingAttachmentFile[]>([])
   const initializedTaskRef = useRef<string | null>(null)
+  const commentsTaskIdRef = useRef<string | null>(null)
 
   // Validation Error State
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -62,7 +63,9 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
 
   const loadComments = useCallback(async () => {
     if (!isEditMode || !taskId) return
-    setLoadingComments(true)
+    const isFirstLoadForTask = commentsTaskIdRef.current !== taskId
+    commentsTaskIdRef.current = taskId
+    if (isFirstLoadForTask) setLoadingComments(true)
     setCommentsError(false)
     try { setTaskComments(await fetchTaskComments(taskId)) } catch { setCommentsError(true) } finally { setLoadingComments(false) }
   }, [fetchTaskComments, isEditMode, taskId])
@@ -320,47 +323,6 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
         {submitError && (
           <div className="glass rounded-2xl p-3 text-xs font-mono" style={{ background: 'var(--status-error-bg)', color: 'var(--status-error-text)' }}>
             Error: {submitError}
-          </div>
-        )}
-        {isEditMode && taskId && (
-          <div className="space-y-3 rounded-2xl border p-4" style={{ borderColor: 'var(--border-light)', background: 'var(--bg-secondary)' }}>
-            <div className="flex items-center justify-between gap-3">
-              <h3 className="text-xs font-bold font-mono tracking-wider uppercase" style={{ color: 'var(--text-muted)' }}>
-                Comments {!loadingComments && `(${taskComments.length})`}
-              </h3>
-              <span className="text-[10px] font-mono" style={{ color: 'var(--text-muted)' }}>Supabase only</span>
-            </div>
-            {loadingComments ? <div className="text-xs italic" style={{ color: 'var(--text-muted)' }}>Loading comments…</div>
-            : commentsError ? <div className="text-xs italic text-red-500">Failed to load comments. It will retry automatically.</div>
-            : (
-              <>
-                <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
-                  {taskComments.map(comment => (
-                    <div key={comment.id} className="rounded-xl border px-3 py-2.5" style={{ borderColor: 'var(--border-light)', background: 'var(--bg-primary)' }}>
-                      <div className="flex items-baseline justify-between gap-2">
-                        <span className="text-xs font-semibold" style={{ color: 'var(--text-primary)' }}>{comment.authorName}</span>
-                        <span className="text-[10px] font-mono" style={{ color: 'var(--text-muted)' }}>{new Date(comment.createdAt).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}</span>
-                      </div>
-                      <div className="mt-1 text-xs whitespace-pre-wrap leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{comment.body}</div>
-                      <div className="mt-1.5 text-[10px] font-mono" style={{ color: 'var(--text-muted)' }}>{comment.authorType}</div>
-                    </div>
-                  ))}
-                  {taskComments.length === 0 && <div className="rounded-xl border border-dashed px-3 py-3 text-xs" style={{ borderColor: 'var(--border-light)', color: 'var(--text-muted)' }}>Belum ada komentar.</div>}
-                </div>
-                <div className="border-t pt-3" style={{ borderColor: 'var(--border-light)' }}>
-                  <label htmlFor="edit-comment-author" className="block text-[11px] font-semibold mb-1" style={{ color: 'var(--text-muted)' }}>Comment as</label>
-                  <select id="edit-comment-author" value={commentAuthorKey} onChange={e => setCommentAuthorKey(e.target.value)} className="w-full rounded-xl border px-3 py-2 text-xs" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)', borderColor: 'var(--border-light)' }}>
-                    <option value="">Choose a name…</option>
-                    {authorOptions.map(person => <option key={`${person.type}:${person.id}`} value={`${person.type}:${person.id}`}>{person.name} · {person.type}</option>)}
-                  </select>
-                  <label htmlFor="edit-task-comment" className="block text-[11px] font-semibold mt-2 mb-1" style={{ color: 'var(--text-muted)' }}>Comment</label>
-                  <textarea id="edit-task-comment" rows={3} value={commentText} onChange={e => setCommentText(e.target.value)} placeholder="Tulis update atau revisi…" className="w-full resize-y rounded-xl border px-3 py-2 text-xs leading-relaxed" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)', borderColor: 'var(--border-light)' }} />
-                  <div className="mt-2 flex justify-end">
-                    <button type="button" onClick={handleSendComment} disabled={sendingComment || !commentText.trim() || !commentAuthorKey} className="rounded-full px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-40" style={{ background: 'var(--accent)' }}>{sendingComment ? 'Sending…' : 'Send comment'}</button>
-                  </div>
-                </div>
-              </>
-            )}
           </div>
         )}
         {/* Section: Assignment */}
@@ -646,6 +608,48 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
             </div>
           )}
         </div>
+
+        {isEditMode && taskId && (
+          <div className="min-h-[180px] space-y-3 rounded-2xl border p-4" style={{ borderColor: 'var(--border-light)', background: 'var(--bg-secondary)' }}>
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="text-xs font-bold font-mono tracking-wider uppercase" style={{ color: 'var(--text-muted)' }}>
+                Comments {!loadingComments && `(${taskComments.length})`}
+              </h3>
+              <span className="text-[10px] font-mono" style={{ color: 'var(--text-muted)' }}>Supabase only</span>
+            </div>
+            {loadingComments ? <div className="text-xs italic" style={{ color: 'var(--text-muted)' }}>Loading comments…</div>
+            : commentsError ? <div className="text-xs italic text-red-500">Failed to load comments. It will retry automatically.</div>
+            : (
+              <>
+                <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                  {taskComments.map(comment => (
+                    <div key={comment.id} className="rounded-xl border px-3 py-2.5" style={{ borderColor: 'var(--border-light)', background: 'var(--bg-primary)' }}>
+                      <div className="flex items-baseline justify-between gap-2">
+                        <span className="text-xs font-semibold" style={{ color: 'var(--text-primary)' }}>{comment.authorName}</span>
+                        <span className="text-[10px] font-mono" style={{ color: 'var(--text-muted)' }}>{new Date(comment.createdAt).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}</span>
+                      </div>
+                      <div className="mt-1 text-xs whitespace-pre-wrap leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{comment.body}</div>
+                      <div className="mt-1.5 text-[10px] font-mono" style={{ color: 'var(--text-muted)' }}>{comment.authorType}</div>
+                    </div>
+                  ))}
+                  {taskComments.length === 0 && <div className="rounded-xl border border-dashed px-3 py-3 text-xs" style={{ borderColor: 'var(--border-light)', color: 'var(--text-muted)' }}>Belum ada komentar.</div>}
+                </div>
+                <div className="border-t pt-3" style={{ borderColor: 'var(--border-light)' }}>
+                  <label htmlFor="edit-comment-author" className="block text-[11px] font-semibold mb-1" style={{ color: 'var(--text-muted)' }}>Comment as</label>
+                  <select id="edit-comment-author" value={commentAuthorKey} onChange={e => setCommentAuthorKey(e.target.value)} className="w-full rounded-xl border px-3 py-2 text-xs" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)', borderColor: 'var(--border-light)' }}>
+                    <option value="">Choose a name…</option>
+                    {authorOptions.map(person => <option key={`${person.type}:${person.id}`} value={`${person.type}:${person.id}`}>{person.name} · {person.type}</option>)}
+                  </select>
+                  <label htmlFor="edit-task-comment" className="block text-[11px] font-semibold mt-2 mb-1" style={{ color: 'var(--text-muted)' }}>Comment</label>
+                  <textarea id="edit-task-comment" rows={3} value={commentText} onChange={e => setCommentText(e.target.value)} placeholder="Tulis update atau revisi…" className="w-full resize-y rounded-xl border px-3 py-2 text-xs leading-relaxed" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)', borderColor: 'var(--border-light)' }} />
+                  <div className="mt-2 flex justify-end">
+                    <button type="button" onClick={handleSendComment} disabled={sendingComment || !commentText.trim() || !commentAuthorKey} className="rounded-full px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-40" style={{ background: 'var(--accent)' }}>{sendingComment ? 'Sending…' : 'Send comment'}</button>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        )}
       </div>
     </form>
   )
