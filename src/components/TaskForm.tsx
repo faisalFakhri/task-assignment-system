@@ -1,8 +1,8 @@
 /* eslint-disable react/set-state-in-effect */
-import { useState, useEffect, useMemo, useRef } from 'react'
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { useTasks } from '../context/TaskContext'
 import { useToast } from '../context/ToastContext'
-import type { TaskStatus, TaskType } from '../types/task.types'
+import type { TaskStatus, TaskType, TaskComment, CommentAuthorType } from '../types/task.types'
 import {
   formatFileSize,
   type PendingAttachmentFile,
@@ -17,7 +17,7 @@ interface TaskFormProps {
 }
 
 export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormProps) {
-  const { tasks, consultants, programmers, clients, createTask, updateTask, uploadAttachment } = useTasks()
+  const { tasks, consultants, programmers, clients, createTask, updateTask, fetchTaskComments, createTaskComment, uploadAttachment } = useTasks()
   const { addToast } = useToast()
 
   const isEditMode = !!taskId
@@ -35,6 +35,12 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
   const [database, setDatabase] = useState('')
   const [targetDate, setTargetDate] = useState('')
   const [notes, setNotes] = useState('')
+  const [taskComments, setTaskComments] = useState<TaskComment[]>([])
+  const [loadingComments, setLoadingComments] = useState(false)
+  const [commentsError, setCommentsError] = useState(false)
+  const [commentText, setCommentText] = useState('')
+  const [commentAuthorKey, setCommentAuthorKey] = useState('')
+  const [sendingComment, setSendingComment] = useState(false)
 
   // Submitting and form error states
   const [submitting, setSubmitting] = useState(false)
@@ -48,6 +54,33 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
 
   // Validation Error State
   const [errors, setErrors] = useState<Record<string, string>>({})
+
+  const authorOptions = useMemo(() => [
+    ...consultants.filter(person => person.active).map(person => ({ type: 'Consultant' as const, id: person.id, name: person.name })),
+    ...programmers.filter(person => person.active).map(person => ({ type: 'Programmer' as const, id: person.id, name: person.name })),
+  ], [consultants, programmers])
+
+  const loadComments = useCallback(async () => {
+    if (!isEditMode || !taskId) return
+    setLoadingComments(true)
+    setCommentsError(false)
+    try { setTaskComments(await fetchTaskComments(taskId)) } catch { setCommentsError(true) } finally { setLoadingComments(false) }
+  }, [fetchTaskComments, isEditMode, taskId])
+
+  useEffect(() => { void loadComments() }, [loadComments])
+
+  useEffect(() => {
+    if (!isEditMode || commentAuthorKey) return
+    const preferred = authorOptions.find(person => person.name === taskToEdit?.programmer)
+      || authorOptions.find(person => person.name === taskToEdit?.consultant)
+    if (preferred) setCommentAuthorKey(`${preferred.type}:${preferred.id}`)
+  }, [authorOptions, commentAuthorKey, isEditMode, taskToEdit?.consultant, taskToEdit?.programmer])
+
+  useEffect(() => {
+    if (!isEditMode) return
+    const intervalId = window.setInterval(() => { void loadComments() }, 15000)
+    return () => window.clearInterval(intervalId)
+  }, [isEditMode, loadComments])
 
   // Initialize fields in edit/create modes
   useEffect(() => {
@@ -165,6 +198,22 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
     }
   }
 
+  const handleSendComment = async () => {
+    if (!taskId || sendingComment) return
+    const body = commentText.trim()
+    const [authorType, authorId] = commentAuthorKey.split(':') as [CommentAuthorType, string]
+    if (!body || !authorType || !authorId) return
+    setSendingComment(true)
+    try {
+      const comment = await createTaskComment({ taskId, authorType, authorId, body })
+      setTaskComments(previous => [...previous, comment])
+      setCommentText('')
+      addToast('success', 'Comment added.')
+    } catch (err: any) {
+      addToast('error', err.message || 'Failed to add comment.')
+    } finally { setSendingComment(false) }
+  }
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = Array.from(e.target.files || [])
     e.target.value = ''
@@ -271,6 +320,47 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
         {submitError && (
           <div className="glass rounded-2xl p-3 text-xs font-mono" style={{ background: 'var(--status-error-bg)', color: 'var(--status-error-text)' }}>
             Error: {submitError}
+          </div>
+        )}
+        {isEditMode && taskId && (
+          <div className="space-y-3 rounded-2xl border p-4" style={{ borderColor: 'var(--border-light)', background: 'var(--bg-secondary)' }}>
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="text-xs font-bold font-mono tracking-wider uppercase" style={{ color: 'var(--text-muted)' }}>
+                Comments {!loadingComments && `(${taskComments.length})`}
+              </h3>
+              <span className="text-[10px] font-mono" style={{ color: 'var(--text-muted)' }}>Supabase only</span>
+            </div>
+            {loadingComments ? <div className="text-xs italic" style={{ color: 'var(--text-muted)' }}>Loading comments…</div>
+            : commentsError ? <div className="text-xs italic text-red-500">Failed to load comments. It will retry automatically.</div>
+            : (
+              <>
+                <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                  {taskComments.map(comment => (
+                    <div key={comment.id} className="rounded-xl border px-3 py-2.5" style={{ borderColor: 'var(--border-light)', background: 'var(--bg-primary)' }}>
+                      <div className="flex items-baseline justify-between gap-2">
+                        <span className="text-xs font-semibold" style={{ color: 'var(--text-primary)' }}>{comment.authorName}</span>
+                        <span className="text-[10px] font-mono" style={{ color: 'var(--text-muted)' }}>{new Date(comment.createdAt).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}</span>
+                      </div>
+                      <div className="mt-1 text-xs whitespace-pre-wrap leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{comment.body}</div>
+                      <div className="mt-1.5 text-[10px] font-mono" style={{ color: 'var(--text-muted)' }}>{comment.authorType}</div>
+                    </div>
+                  ))}
+                  {taskComments.length === 0 && <div className="rounded-xl border border-dashed px-3 py-3 text-xs" style={{ borderColor: 'var(--border-light)', color: 'var(--text-muted)' }}>Belum ada komentar.</div>}
+                </div>
+                <div className="border-t pt-3" style={{ borderColor: 'var(--border-light)' }}>
+                  <label htmlFor="edit-comment-author" className="block text-[11px] font-semibold mb-1" style={{ color: 'var(--text-muted)' }}>Comment as</label>
+                  <select id="edit-comment-author" value={commentAuthorKey} onChange={e => setCommentAuthorKey(e.target.value)} className="w-full rounded-xl border px-3 py-2 text-xs" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)', borderColor: 'var(--border-light)' }}>
+                    <option value="">Choose a name…</option>
+                    {authorOptions.map(person => <option key={`${person.type}:${person.id}`} value={`${person.type}:${person.id}`}>{person.name} · {person.type}</option>)}
+                  </select>
+                  <label htmlFor="edit-task-comment" className="block text-[11px] font-semibold mt-2 mb-1" style={{ color: 'var(--text-muted)' }}>Comment</label>
+                  <textarea id="edit-task-comment" rows={3} value={commentText} onChange={e => setCommentText(e.target.value)} placeholder="Tulis update atau revisi…" className="w-full resize-y rounded-xl border px-3 py-2 text-xs leading-relaxed" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)', borderColor: 'var(--border-light)' }} />
+                  <div className="mt-2 flex justify-end">
+                    <button type="button" onClick={handleSendComment} disabled={sendingComment || !commentText.trim() || !commentAuthorKey} className="rounded-full px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-40" style={{ background: 'var(--accent)' }}>{sendingComment ? 'Sending…' : 'Send comment'}</button>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         )}
         {/* Section: Assignment */}
