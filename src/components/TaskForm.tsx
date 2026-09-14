@@ -56,9 +56,9 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
   const [errors, setErrors] = useState<Record<string, string>>({})
 
   const authorOptions = useMemo(() => [
-    ...consultants.filter(person => person.active).map(person => ({ type: 'Consultant' as const, id: person.id, name: person.name })),
-    ...programmers.filter(person => person.active).map(person => ({ type: 'Programmer' as const, id: person.id, name: person.name })),
-  ], [consultants, programmers])
+    ...consultants.filter(person => person.name === taskToEdit?.consultant).map(person => ({ type: 'Consultant' as const, id: person.id, name: person.name })),
+    ...programmers.filter(person => person.name === taskToEdit?.programmer).map(person => ({ type: 'Programmer' as const, id: person.id, name: person.name })),
+  ], [consultants, programmers, taskToEdit?.consultant, taskToEdit?.programmer])
 
   const loadComments = useCallback(async () => {
     if (!isEditMode || !taskId) return

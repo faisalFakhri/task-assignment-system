@@ -53,9 +53,9 @@ export default function TaskDetail({ taskId, onClose, onEdit }: TaskDetailProps)
   const task = useMemo(() => tasks.find(t => t.id === taskId), [tasks, taskId])
   const masters = useMemo(() => ({ consultants, clients, programmers }), [consultants, clients, programmers])
   const authorOptions = useMemo(() => [
-    ...consultants.filter(person => person.active).map(person => ({ type: 'Consultant' as const, id: person.id, name: person.name })),
-    ...programmers.filter(person => person.active).map(person => ({ type: 'Programmer' as const, id: person.id, name: person.name })),
-  ], [consultants, programmers])
+    ...consultants.filter(person => person.name === task?.consultant).map(person => ({ type: 'Consultant' as const, id: person.id, name: person.name })),
+    ...programmers.filter(person => person.name === task?.programmer).map(person => ({ type: 'Programmer' as const, id: person.id, name: person.name })),
+  ], [consultants, programmers, task?.consultant, task?.programmer])
   const loadComments = useCallback(async () => {
     setLoadingComments(true); setCommentsError(false)
     try { setTaskComments(await fetchTaskComments(taskId)) } catch { setCommentsError(true) } finally { setLoadingComments(false) }
