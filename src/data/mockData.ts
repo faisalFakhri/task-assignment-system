@@ -1,4 +1,4 @@
-import type { Task, TaskHistory, Attachment, Consultant, Programmer, Client } from '../types/task.types'
+import type { Task, TaskHistory, Attachment, Consultant, Programmer, Client, TaskComment } from '../types/task.types'
 
 export const mockConsultants: Consultant[] = [
   { id: 'CON-1', name: 'Andi', email: 'andi@company.com', active: true },
@@ -269,5 +269,16 @@ export const mockHistory: TaskHistory[] = [
     oldValue: 'Assign',
     newValue: 'Done',
     timestamp: '2026-08-18 16:00:00',
+  },
+]
+
+export const mockComments: TaskComment[] = [
+  {
+    id: 'CMT-001', taskId: 'TASK-000001', authorType: 'Consultant', authorId: 'CON-1', authorName: 'Andi',
+    body: 'Mohon dicek juga kemungkinan timeout dari koneksi VPN client.', createdAt: '2026-08-12T11:00:00Z',
+  },
+  {
+    id: 'CMT-002', taskId: 'TASK-000001', authorType: 'Programmer', authorId: 'PROG-1', authorName: 'Faisal',
+    body: 'Siap, saya cek dari sisi query dan koneksi. Update lagi setelah ada hasil.', createdAt: '2026-08-12T11:18:00Z',
   },
 ]

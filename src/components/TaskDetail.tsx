@@ -2,7 +2,7 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react'
 import { useTasks } from '../context/TaskContext'
 import { useToast } from '../context/ToastContext'
-import type { TaskHistory, Attachment } from '../types/task.types'
+import type { TaskHistory, Attachment, TaskComment, CommentAuthorType } from '../types/task.types'
 import StatusBadge from './StatusBadge'
 import TaskTypeBadge from './TaskTypeBadge'
 import DeadlineIndicator from './DeadlineIndicator'
@@ -10,7 +10,7 @@ import ImageViewer from './ImageViewer'
 import ConfirmDialog from './ConfirmDialog'
 import { fieldLabel, resolveDisplayValue } from '../lib/historyDisplay'
 import { uploadFilesSequentially, validateAttachmentFile } from '../lib/attachments'
-import { IconPencil, IconArchive, IconX, IconTrash, IconUpload, IconClipboardText, IconHistory } from '@tabler/icons-react'
+import { IconPencil, IconArchive, IconX, IconTrash, IconUpload, IconClipboardText, IconHistory, IconMessageCircle, IconSend } from '@tabler/icons-react'
 
 interface TaskDetailProps {
   taskId: string
@@ -28,7 +28,7 @@ function Field({ label, value, className = '' }: { label: string; value: React.R
 }
 
 export default function TaskDetail({ taskId, onClose, onEdit }: TaskDetailProps) {
-  const { tasks, consultants, clients, programmers, archiveTask, fetchTaskHistory, fetchTaskAttachments, uploadAttachment, deleteAttachment } = useTasks()
+  const { tasks, consultants, clients, programmers, archiveTask, fetchTaskHistory, fetchTaskAttachments, fetchTaskComments, createTaskComment, uploadAttachment, deleteAttachment } = useTasks()
   const { addToast } = useToast()
   const [activeImageIndex, setActiveImageIndex] = useState<number>(-1)
   const [taskHistory, setTaskHistory] = useState<TaskHistory[]>([])
@@ -37,6 +37,12 @@ export default function TaskDetail({ taskId, onClose, onEdit }: TaskDetailProps)
   const [loadingAttachments, setLoadingAttachments] = useState(true)
   const [historyError, setHistoryError] = useState(false)
   const [attachmentsError, setAttachmentsError] = useState(false)
+  const [taskComments, setTaskComments] = useState<TaskComment[]>([])
+  const [loadingComments, setLoadingComments] = useState(true)
+  const [commentsError, setCommentsError] = useState(false)
+  const [commentText, setCommentText] = useState('')
+  const [commentAuthorKey, setCommentAuthorKey] = useState('')
+  const [sendingComment, setSendingComment] = useState(false)
   const [brokenImages, setBrokenImages] = useState<Set<string>>(new Set())
   const [showArchiveConfirm, setShowArchiveConfirm] = useState(false)
   const [archiving, setArchiving] = useState(false)
@@ -46,17 +52,52 @@ export default function TaskDetail({ taskId, onClose, onEdit }: TaskDetailProps)
   const [deleting, setDeleting] = useState(false)
   const task = useMemo(() => tasks.find(t => t.id === taskId), [tasks, taskId])
   const masters = useMemo(() => ({ consultants, clients, programmers }), [consultants, clients, programmers])
+  const authorOptions = useMemo(() => [
+    ...consultants.filter(person => person.active).map(person => ({ type: 'Consultant' as const, id: person.id, name: person.name })),
+    ...programmers.filter(person => person.active).map(person => ({ type: 'Programmer' as const, id: person.id, name: person.name })),
+  ], [consultants, programmers])
+  const loadComments = useCallback(async () => {
+    setLoadingComments(true); setCommentsError(false)
+    try { setTaskComments(await fetchTaskComments(taskId)) } catch { setCommentsError(true) } finally { setLoadingComments(false) }
+  }, [taskId, fetchTaskComments])
   const loadDetails = useCallback(async () => {
     setLoadingHistory(true); setLoadingAttachments(true); setHistoryError(false); setAttachmentsError(false); setBrokenImages(new Set())
     try { const hist = await fetchTaskHistory(taskId); setTaskHistory(hist) } catch { setHistoryError(true) } finally { setLoadingHistory(false) }
     try { const atts = await fetchTaskAttachments(taskId); setTaskAttachments(atts) } catch { setAttachmentsError(true) } finally { setLoadingAttachments(false) }
-  }, [taskId, fetchTaskHistory, fetchTaskAttachments])
+    await loadComments()
+  }, [taskId, fetchTaskHistory, fetchTaskAttachments, loadComments])
   useEffect(() => { loadDetails() }, [loadDetails])
+  useEffect(() => {
+    if (!commentAuthorKey) {
+      const preferred = authorOptions.find(person => person.name === task?.programmer)
+        || authorOptions.find(person => person.name === task?.consultant)
+      if (preferred) setCommentAuthorKey(`${preferred.type}:${preferred.id}`)
+    }
+  }, [authorOptions, commentAuthorKey, task?.consultant, task?.programmer])
+  useEffect(() => {
+    const intervalId = window.setInterval(() => { void loadComments() }, 15000)
+    return () => window.clearInterval(intervalId)
+  }, [loadComments])
   if (!task) return <div className="p-4 font-mono text-xs text-slate-400">Task not found: {taskId}</div>
   const handleArchive = async () => {
     setArchiving(true)
     try { await archiveTask(task.id); addToast('success', `Task ${task.id} archived.`); setShowArchiveConfirm(false); onClose() }
     catch (err: any) { addToast('error', err.message || 'Archive failed'); setArchiving(false) }
+  }
+  const handleSendComment = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const body = commentText.trim()
+    const [authorType, authorId] = commentAuthorKey.split(':') as [CommentAuthorType, string]
+    if (!body || !authorType || !authorId || sendingComment) return
+    setSendingComment(true)
+    try {
+      const comment = await createTaskComment({ taskId, authorType, authorId, body })
+      setTaskComments(previous => [...previous, comment])
+      setCommentText('')
+      addToast('success', 'Comment added.')
+    } catch (err: any) {
+      addToast('error', err.message || 'Failed to add comment.')
+    } finally { setSendingComment(false) }
   }
   const handleAddFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = Array.from(e.target.files || []); e.target.value = ''; if (!selected.length) return
@@ -212,6 +253,49 @@ export default function TaskDetail({ taskId, onClose, onEdit }: TaskDetailProps)
                 </div>
               ))}
             </div>
+          )}
+        </div>
+
+        {/* Comments */}
+        <div className="pt-5">
+          <div className="flex items-center justify-between gap-3 mb-3">
+            <div className="flex items-center gap-1.5 text-[13px] font-semibold text-slate-700">
+              <IconMessageCircle size={14} stroke={1.75} /> Comments {!loadingComments && `(${taskComments.length})`}
+            </div>
+            <span className="text-[10px] font-mono text-slate-400">Supabase only</span>
+          </div>
+          {loadingComments ? <div className="text-xs text-slate-400 italic">Loading comments…</div>
+          : commentsError ? <div className="text-xs text-red-500 italic">Failed to load comments. It will retry automatically.</div>
+          : (
+            <>
+              <div className="space-y-3 max-h-[360px] overflow-y-auto pr-1">
+                {taskComments.map(comment => (
+                  <div key={comment.id} className="rounded-xl border border-slate-200 bg-white px-3.5 py-3">
+                    <div className="flex items-baseline justify-between gap-3 mb-1.5">
+                      <div className="text-[12px] font-semibold text-slate-800">{comment.authorName}</div>
+                      <div className="text-[10px] font-mono text-slate-400 shrink-0">{new Date(comment.createdAt).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}</div>
+                    </div>
+                    <div className="text-[12px] text-slate-600 whitespace-pre-wrap leading-relaxed">{comment.body}</div>
+                    <div className="mt-2 text-[10px] font-mono text-slate-400">{comment.authorType}</div>
+                  </div>
+                ))}
+                {taskComments.length === 0 && <div className="rounded-xl border border-dashed border-slate-200 px-4 py-4 text-xs text-slate-400">Belum ada komentar. Tambahkan konteks pertama untuk assignment ini.</div>}
+              </div>
+              <form onSubmit={handleSendComment} className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3">
+                <label htmlFor="comment-author" className="block text-[11px] font-semibold text-slate-500 mb-1.5">Comment as</label>
+                <select id="comment-author" value={commentAuthorKey} onChange={e => setCommentAuthorKey(e.target.value)} className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-200">
+                  <option value="">Choose a name…</option>
+                  {authorOptions.map(person => <option key={`${person.type}:${person.id}`} value={`${person.type}:${person.id}`}>{person.name} · {person.type}</option>)}
+                </select>
+                <label htmlFor="task-comment" className="block text-[11px] font-semibold text-slate-500 mt-3 mb-1.5">Comment</label>
+                <textarea id="task-comment" rows={4} value={commentText} onChange={e => setCommentText(e.target.value)} placeholder="Tulis update, pertanyaan, atau revisi yang dibutuhkan…" className="w-full resize-y rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-700 leading-relaxed focus:outline-none focus:ring-2 focus:ring-violet-200" />
+                <div className="mt-2 flex justify-end">
+                  <button type="submit" disabled={sendingComment || !commentText.trim() || !commentAuthorKey} className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold text-white disabled:opacity-40" style={{ background: 'var(--accent)' }}>
+                    <IconSend size={13} stroke={2} /> {sendingComment ? 'Sending…' : 'Send comment'}
+                  </button>
+                </div>
+              </form>
+            </>
           )}
         </div>
 

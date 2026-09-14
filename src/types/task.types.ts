@@ -87,6 +87,25 @@ export interface TaskHistoryReadModel {
   changedAt: string
 }
 
+export type CommentAuthorType = 'Consultant' | 'Programmer'
+
+export interface TaskComment {
+  id: string
+  taskId: string
+  authorType: CommentAuthorType
+  authorId: string
+  authorName: string
+  body: string
+  createdAt: string
+}
+
+export interface CreateTaskCommentPayload {
+  taskId: string
+  authorType: CommentAuthorType
+  authorId: string
+  body: string
+}
+
 export interface Attachment {
   id: string
   taskId: string

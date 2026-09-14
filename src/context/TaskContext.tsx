@@ -10,14 +10,17 @@ import type {
   CreateTaskPayload,
   UploadAttachmentPayload,
   UploadAttachmentResult,
+  TaskComment,
+  CreateTaskCommentPayload,
 } from '../types/task.types'
-import { mockTasks, mockHistory, mockAttachments, mockConsultants, mockProgrammers, mockClients } from '../data/mockData'
+import { mockTasks, mockHistory, mockAttachments, mockComments, mockConsultants, mockProgrammers, mockClients } from '../data/mockData'
 import { taskService } from '../services/taskService'
 
 interface TaskContextType {
   tasks: Task[]
   history: TaskHistory[]
   attachments: Attachment[]
+  comments: TaskComment[]
   consultants: Consultant[]
   programmers: Programmer[]
   clients: Client[]
@@ -31,6 +34,8 @@ interface TaskContextType {
   archiveTask: (taskId: string) => Promise<void>
   fetchTaskHistory: (taskId: string) => Promise<TaskHistory[]>
   fetchTaskAttachments: (taskId: string) => Promise<Attachment[]>
+  fetchTaskComments: (taskId: string) => Promise<TaskComment[]>
+  createTaskComment: (payload: CreateTaskCommentPayload) => Promise<TaskComment>
   uploadAttachment: (payload: UploadAttachmentPayload) => Promise<UploadAttachmentResult>
   deleteAttachment: (attachmentId: string) => Promise<void>
   fetchRecentHistory: (limit?: number) => Promise<TaskHistory[]>
@@ -50,6 +55,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
   const [tasks, setTasks] = useState<Task[]>([])
   const [history, setHistory] = useState<TaskHistory[]>([])
   const [attachments, setAttachments] = useState<Attachment[]>([])
+  const [comments, setComments] = useState<TaskComment[]>([])
   
   // Master data lists loaded from API or mock
   const [consultants, setConsultants] = useState<Consultant[]>([])
@@ -112,6 +118,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
       setTasks(mockTasks)
       setHistory(mockHistory)
       setAttachments(mockAttachments)
+      setComments(mockComments)
       setConsultants(mockConsultants)
       setProgrammers(mockProgrammers)
       setClients(mockClients)
@@ -212,6 +219,43 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     } else {
       return attachments.filter(a => a.taskId === taskId)
     }
+  }
+
+  const resolveCommentAuthorName = useCallback((authorType: TaskComment['authorType'], authorId: string) => {
+    return authorType === 'Consultant'
+      ? consultants.find(person => person.id === authorId)?.name || authorId
+      : programmers.find(person => person.id === authorId)?.name || authorId
+  }, [consultants, programmers])
+
+  const fetchTaskComments = async (taskId: string): Promise<TaskComment[]> => {
+    if (isApi) {
+      try {
+        const list = await taskService.getTaskComments(taskId)
+        return list.map(comment => ({ ...comment, authorName: resolveCommentAuthorName(comment.authorType, comment.authorId) }))
+      } catch (err) {
+        console.error('Failed to load task comments:', err)
+        throw err
+      }
+    }
+    return comments
+      .filter(comment => comment.taskId === taskId)
+      .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+  }
+
+  const createTaskComment = async (payload: CreateTaskCommentPayload): Promise<TaskComment> => {
+    if (isApi) {
+      const comment = await taskService.createTaskComment(payload)
+      return { ...comment, authorName: resolveCommentAuthorName(comment.authorType, comment.authorId) }
+    }
+    const comment: TaskComment = {
+      id: `CMT-${Date.now()}`,
+      ...payload,
+      authorName: resolveCommentAuthorName(payload.authorType, payload.authorId),
+      body: payload.body.trim(),
+      createdAt: new Date().toISOString(),
+    }
+    setComments(previous => [...previous, comment])
+    return comment
   }
 
   // Recent activity across all tasks (dashboard)
@@ -476,6 +520,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
         tasks,
         history,
         attachments,
+        comments,
         consultants,
         programmers,
         clients,
@@ -487,6 +532,8 @@ export function TaskProvider({ children }: { children: ReactNode }) {
         archiveTask,
         fetchTaskHistory,
         fetchTaskAttachments,
+        fetchTaskComments,
+        createTaskComment,
         uploadAttachment,
         deleteAttachment,
         fetchRecentHistory,

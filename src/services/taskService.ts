@@ -9,6 +9,8 @@ import type {
   Programmer,
   TaskHistoryReadModel,
   Attachment,
+  TaskComment,
+  CreateTaskCommentPayload,
   UploadAttachmentPayload,
   UploadAttachmentResult,
 } from '../types/task.types'
@@ -418,6 +420,47 @@ export const taskService = {
       changedBy: h.changed_by || 'SYSTEM',
       changedAt: h.changed_at,
     }))
+  },
+
+  async getTaskComments(taskId: string): Promise<TaskComment[]> {
+    const { data, error } = await supabase
+      .from('task_comments')
+      .select('*')
+      .eq('task_id', taskId)
+      .order('created_at', { ascending: true })
+    if (error) throw error
+    return (data || []).map((comment: any) => ({
+      id: comment.comment_id,
+      taskId: comment.task_id,
+      authorType: comment.author_type,
+      authorId: comment.author_id,
+      authorName: '',
+      body: comment.comment_text || '',
+      createdAt: comment.created_at,
+    }))
+  },
+
+  async createTaskComment(payload: CreateTaskCommentPayload): Promise<TaskComment> {
+    const { data, error } = await supabase
+      .from('task_comments')
+      .insert({
+        task_id: payload.taskId,
+        author_type: payload.authorType,
+        author_id: payload.authorId,
+        comment_text: payload.body.trim(),
+      })
+      .select('*')
+      .single()
+    if (error) throw error
+    return {
+      id: data.comment_id,
+      taskId: data.task_id,
+      authorType: data.author_type,
+      authorId: data.author_id,
+      authorName: '',
+      body: data.comment_text,
+      createdAt: data.created_at,
+    }
   },
 
   async getTaskAttachments(taskId: string): Promise<Attachment[]> {
