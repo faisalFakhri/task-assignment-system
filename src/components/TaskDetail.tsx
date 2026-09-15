@@ -69,8 +69,8 @@ export default function TaskDetail({ taskId, onClose, onEdit }: TaskDetailProps)
   useEffect(() => { loadDetails() }, [loadDetails])
   useEffect(() => {
     if (!commentAuthorKey) {
-      const preferred = authorOptions.find(person => person.name === task?.programmer)
-        || authorOptions.find(person => person.name === task?.consultant)
+      const preferred = authorOptions.find(person => person.name === task?.consultant)
+        || authorOptions.find(person => person.name === task?.programmer)
       if (preferred) setCommentAuthorKey(`${preferred.type}:${preferred.id}`)
     }
   }, [authorOptions, commentAuthorKey, task?.consultant, task?.programmer])

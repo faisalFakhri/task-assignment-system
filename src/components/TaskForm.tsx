@@ -74,8 +74,8 @@ export default function TaskForm({ taskId, onClose, onSubmitSuccess }: TaskFormP
 
   useEffect(() => {
     if (!isEditMode || commentAuthorKey) return
-    const preferred = authorOptions.find(person => person.name === taskToEdit?.programmer)
-      || authorOptions.find(person => person.name === taskToEdit?.consultant)
+    const preferred = authorOptions.find(person => person.name === taskToEdit?.consultant)
+      || authorOptions.find(person => person.name === taskToEdit?.programmer)
     if (preferred) setCommentAuthorKey(`${preferred.type}:${preferred.id}`)
   }, [authorOptions, commentAuthorKey, isEditMode, taskToEdit?.consultant, taskToEdit?.programmer])
 
