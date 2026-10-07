@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="scheduled-maintenance" content="true" />
+    <meta name="theme-color" content="#101827" />
+    <title>Website sudah berpindah</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #101827;
+        color: #f4f6fa;
+        font-synthesis: none;
+        text-rendering: optimizeLegibility;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        min-width: 320px;
+        min-height: 100vh;
+        margin: 0;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background:
+          radial-gradient(ellipse at 50% 0%, rgba(52, 83, 126, 0.28), transparent 52%),
+          #101827;
+      }
+
+      main {
+        width: min(100%, 560px);
+        padding: clamp(28px, 7vw, 52px);
+        border: 1px solid #2b394d;
+        border-radius: 16px;
+        background: rgba(19, 29, 44, 0.92);
+      }
+
+      .eyebrow {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0 0 28px;
+        color: #aebbd0;
+        font-size: 12px;
+        font-weight: 650;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .mark {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: #efb95b;
+        box-shadow: 0 0 0 4px rgba(239, 185, 91, 0.12);
+      }
+
+      h1 {
+        max-width: 440px;
+        margin: 0;
+        font-size: clamp(30px, 7vw, 42px);
+        font-weight: 650;
+        letter-spacing: -0.04em;
+        line-height: 1.12;
+      }
+
+      .message {
+        margin: 20px 0 0;
+        color: #bdc8d8;
+        font-size: 16px;
+        line-height: 1.7;
+      }
+
+      .footer {
+        margin: 36px 0 0;
+        padding-top: 18px;
+        border-top: 1px solid #2b394d;
+        color: #8f9eb3;
+        font-size: 13px;
+        line-height: 1.6;
+      }
+
+      @media (max-width: 420px) {
+        body { padding: 16px; }
+        main { border-radius: 12px; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="eyebrow"><span class="mark" aria-hidden="true"></span>Task Assignment</p>
+      <h1>Website lama sudah dinonaktifkan.</h1>
+      <p class="message">
+        Untuk pengajuan atau perubahan tugas, silakan gunakan website baru yang sudah dibagikan oleh tim kantor.
+      </p>
+      <p class="footer">Halaman ini hanya sebagai pemberitahuan. Data tugas yang sudah tersimpan tetap aman.</p>
+    </main>
+  </body>
+</html>

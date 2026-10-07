@@ -1,0 +1,49 @@
+name: Activate scheduled maintenance page
+
+on:
+  schedule:
+    - cron: '0 0 8 10 *'
+      timezone: 'Asia/Jakarta'
+
+permissions:
+  contents: write
+
+jobs:
+  activate-maintenance:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the app and maintenance page
+        uses: actions/checkout@v4
+
+      - name: Check out the published GitHub Pages branch
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: published-site
+
+      - name: Publish the maintenance page
+        env:
+          CUTOVER_AT: '2026-10-07T17:00:00Z'
+        run: |
+          set -euo pipefail
+
+          now=$(date -u +%s)
+          cutover=$(date -u -d "$CUTOVER_AT" +%s)
+          if [ "$now" -lt "$cutover" ]; then
+            echo "Cutover time has not arrived; leaving the site unchanged."
+            exit 0
+          fi
+
+          if grep -q 'name="scheduled-maintenance"' published-site/index.html; then
+            echo "The maintenance page is already published."
+            exit 0
+          fi
+
+          cp public/maintenance.html published-site/index.html
+          cp public/maintenance.html published-site/404.html
+
+          git -C published-site config user.name "github-actions[bot]"
+          git -C published-site config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C published-site add index.html 404.html
+          git -C published-site commit -m "chore: activate maintenance page"
+          git -C published-site push origin HEAD:gh-pages
