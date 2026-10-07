@@ -4,13 +4,19 @@ on:
   schedule:
     - cron: '0 0 8 10 *'
       timezone: 'Asia/Jakarta'
+  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
   activate-maintenance:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Check out the app and maintenance page
         uses: actions/checkout@v4
@@ -21,11 +27,16 @@ jobs:
           ref: gh-pages
           path: published-site
 
-      - name: Publish the maintenance page
+      - name: Replace the published entry points at cutover
         env:
           CUTOVER_AT: '2026-10-07T17:00:00Z'
         run: |
           set -euo pipefail
+
+          if [ "$GITHUB_EVENT_NAME" != "schedule" ]; then
+            echo "Manual run: preserving the current published site."
+            exit 0
+          fi
 
           now=$(date -u +%s)
           cutover=$(date -u -d "$CUTOVER_AT" +%s)
@@ -42,8 +53,14 @@ jobs:
           cp public/maintenance.html published-site/index.html
           cp public/maintenance.html published-site/404.html
 
-          git -C published-site config user.name "github-actions[bot]"
-          git -C published-site config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git -C published-site add index.html 404.html
-          git -C published-site commit -m "chore: activate maintenance page"
-          git -C published-site push origin HEAD:gh-pages
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload current or maintenance site
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: published-site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
